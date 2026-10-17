@@ -54,12 +54,12 @@
 #   portfolio-front-tools-18: 129 files, 551587 bytes
 #   portfolio-front-tools-19: 127 files, 555218 bytes
 #   portfolio-front-tools-20: 124 files, 554125 bytes
-#   portfolio-front-tools-21: 126 files, 552764 bytes
+#   portfolio-front-tools-21: 127 files, 556749 bytes
 #   portfolio-front-tools-22: 127 files, 555824 bytes
 #   portfolio-front-tools-23: 119 files, 555609 bytes
 #   portfolio-front-tools-24: 118 files, 555081 bytes
-#   portfolio-front-tools-25: 131 files, 556158 bytes
-#   portfolio-front-tools-26: 124 files, 551883 bytes
+#   portfolio-front-tools-25: 131 files, 555416 bytes
+#   portfolio-front-tools-26: 125 files, 555631 bytes
 #   portfolio-front-tools-27: 133 files, 549785 bytes
 #   portfolio-front-tools-28: 142 files, 556901 bytes
 #   portfolio-front-tools-29: 118 files, 546164 bytes
@@ -3009,6 +3009,7 @@ configMapGenerator:
       - hidden-unicode-check__vs-mcp-scan.html.gz=hidden-unicode-check__vs-mcp-scan.html.gz
       - hidden-unicode-check__vs-reading-the-file-by-hand.html.gz=hidden-unicode-check__vs-reading-the-file-by-hand.html.gz
       - hoa-reserve-fund-calculator__calc.mjs.gz=hoa-reserve-fund-calculator__calc.mjs.gz
+      - hoa-reserve-fund-calculator__how-much-should-be-in-an-hoa-reserve-fund.html.gz=hoa-reserve-fund-calculator__how-much-should-be-in-an-hoa-reserve-fund.html.gz
       - hoa-reserve-fund-calculator__index.html.gz=hoa-reserve-fund-calculator__index.html.gz
       - hoa-reserve-fund-calculator__usage.mjs.gz=hoa-reserve-fund-calculator__usage.mjs.gz
       - hoa-reserve-fund-calculator__vs-spreadsheet.html.gz=hoa-reserve-fund-calculator__vs-spreadsheet.html.gz
@@ -3468,6 +3469,7 @@ configMapGenerator:
       - lead-response-time-analyzer__usage.mjs.gz=lead-response-time-analyzer__usage.mjs.gz
       - league-schedule-generator__calc.mjs.gz=league-schedule-generator__calc.mjs.gz
       - league-schedule-generator__how-to-make-a-round-robin-schedule.html.gz=league-schedule-generator__how-to-make-a-round-robin-schedule.html.gz
+      - league-schedule-generator__how-to-run-a-double-elimination-tournament.html.gz=league-schedule-generator__how-to-run-a-double-elimination-tournament.html.gz
       - league-schedule-generator__how-to-run-a-swiss-tournament.html.gz=league-schedule-generator__how-to-run-a-swiss-tournament.html.gz
       - league-schedule-generator__how-to-run-an-americano-tournament.html.gz=league-schedule-generator__how-to-run-an-americano-tournament.html.gz
       - league-schedule-generator__index.html.gz=league-schedule-generator__index.html.gz
@@ -3571,12 +3573,12 @@ configMapGenerator:
       - log-management-pricing-calculator__index.html.gz=log-management-pricing-calculator__index.html.gz
       - log-management-pricing-calculator__usage.mjs.gz=log-management-pricing-calculator__usage.mjs.gz
       - lot-split-calculator__cli.mjs.gz=lot-split-calculator__cli.mjs.gz
-      - lot-split-calculator__engine.mjs.gz=lot-split-calculator__engine.mjs.gz
   - name: portfolio-front-tools-26
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - lot-split-calculator__engine.mjs.gz=lot-split-calculator__engine.mjs.gz
       - lot-split-calculator__index.html.gz=lot-split-calculator__index.html.gz
       - lot-split-calculator__should-i-sell-a-bulk-lot-whole-or-split-it.html.gz=lot-split-calculator__should-i-sell-a-bulk-lot-whole-or-split-it.html.gz
       - lot-split-calculator__usage.mjs.gz=lot-split-calculator__usage.mjs.gz
