@@ -3574,6 +3574,8 @@ const CATEGORY_RULES = [
         'freelance-proposal-maker',
         // `freelance-lead-tracker` joined 2026-10-07: the prospects and follow-ups in front of the proposal.
         'freelance-lead-tracker',
+        // `sales-call-notes-desk` joined 2026-10-17 on its first commit: a seller or founder turning discovery-call notes into CRM fields, qualification gaps and the follow-up email, the step between the lead and the proposal.
+        'sales-call-notes-desk',
         // `rental-ledger` joined 2026-10-07: the records-and-Schedule-E home for the landlord calculators, which each answer one typed question and hold nothing.
         'rental-ledger',
         // `expense-tracker` joined 2026-10-07: the costs beside the hours and the invoice, grouped by Schedule C line.
