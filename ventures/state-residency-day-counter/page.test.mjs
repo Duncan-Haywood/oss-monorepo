@@ -18,7 +18,7 @@ test("index page carries the disclaimer, privacy line, and sponsor link", () => 
 });
 
 test("JSON-LD blocks parse and every FAQ question is on the page", () => {
-  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html"]) {
+  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html", "maryland-utah-182-day-limit.html"]) {
     const html = page(name);
     const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
     const faq = blocks.find((b) => b["@type"] === "FAQPage");
@@ -97,7 +97,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
 });
 
 test("related-tool links point at ventures that exist", () => {
-  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html"]) {
+  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html", "maryland-utah-182-day-limit.html"]) {
     for (const m of page(name).matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)) assert.ok(existsSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
   }
 });
@@ -165,4 +165,28 @@ test("the snowbird guide's figures match the counter", async () => {
   assert.match(guide, /No warranty/);
   assert.match(page("index.html"), /href="\.\/snowbird-days-in-new-york\.html"/);
   assert.match(page("sitemap.xml"), /snowbird-days-in-new-york\.html/);
+});
+
+test("the Maryland/Utah guide's figures match the counter", async () => {
+  const { analyze, parseStays, toDay, RULES } = await import("./calc.mjs");
+  const guide = page("maryland-utah-182-day-limit.html");
+  const md = (text, convention = "inclusive") => {
+    const stays = parseStays(text, 2025);
+    return analyze({ year: 2025, stays: stays.stays ?? stays, homeState: "FL", abode: { MD: true, FL: true }, asOf: toDay(2025, 12, 31), convention, wages: 0, overrides: {}, homeWorks: true }).states.find((x) => x.code === "MD");
+  };
+  assert.equal(RULES.MD.limit, 182);
+  assert.equal(RULES.UT.limit, 182);
+  const a = md("2025-05-01 to 2025-10-28 MD");
+  assert.ok(guide.includes(`<td class="n">${a.days}</td><td>${a.room} day of room</td>`));
+  const b = md("2025-05-01 to 2025-10-29 MD");
+  assert.equal(b.room, 0);
+  assert.ok(guide.includes(`<td class="n">${b.days}</td><td>No room left</td>`));
+  const c = md("2025-06-01 to 2025-11-30 MD");
+  assert.ok(guide.includes(`<td class="n">${c.days}</td><td>Over by ${-c.room}</td>`));
+  assert.equal(md("2025-06-01 to 2025-11-30 MD", "nights").days, 182);
+  assert.equal(md("2025-05-01 to 2025-10-31 MD").room, -2);
+  assert.match(guide, /<link rel="canonical" href="\.\/maryland-utah-182-day-limit\.html">/);
+  assert.match(guide, /No warranty/);
+  assert.match(page("index.html"), /href="\.\/maryland-utah-182-day-limit\.html"/);
+  assert.match(page("sitemap.xml"), /maryland-utah-182-day-limit\.html/);
 });

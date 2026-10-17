@@ -26,6 +26,9 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `snowbird-days-in-new-york.html` - guide for Florida snowbirds with a New
   York home: three invented summers (1 May to 31 October is 184 days), the
   room left in each, figures recomputed by the test suite.
+- `maryland-utah-182-day-limit.html` - guide for the two states whose test
+  reads "183 days or more", so the safe maximum is 182; figures recomputed by
+  the test suite.
 - `remote-work-convenience-of-the-employer-rule.html` - guide on the
   employer-state rule, its dollar figures recomputed by the test suite.
 
