@@ -35,6 +35,7 @@ import os from 'node:os';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import { checkPageIdentity, loadPages } from './page-identity.mjs';
 
 const execFileAsync = promisify(execFile);
 
@@ -1326,7 +1327,12 @@ if (invokedDirectly) {
 
   // Deliberately well below the ~38 products on `main`, so a venture landing
   // does not require touching this number, while a collapse still fails.
-  const problems = await checkSite(site, { minProducts: 20 });
+  // Real-site search hygiene (unique titles, one h1). Kept out of checkSite
+  // so the minimal fixtures in check.test.mjs need no <title>/<h1>.
+  const problems = [
+    ...(await checkSite(site, { minProducts: 20 })),
+    ...(await exists(site) ? checkPageIdentity(await loadPages(site)) : []),
+  ];
 
   if (problems.length > 0) {
     console.error(`${problems.length} problem(s) in ${site}:`);
