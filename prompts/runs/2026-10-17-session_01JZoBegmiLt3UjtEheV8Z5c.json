@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01JZoBegmiLt3UjtEheV8Z5c",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T14:09:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "publish-branch.sh force-push to gh-pages was blocked by the auto-mode classifier; not retried"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/ledger/session_gate.py",
+      "issue": "Gate says refreshing the Pages snapshot needs no credential beyond the push, but a cloud session's classifier blocks the gh-pages force-push."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/ledger/session_gate.py",
+      "why": "Skipped the stale-snapshot publish after it was blocked; shipped shift-roster-builder tough-shift spreading instead."
+    }
+  ],
+  "goal": null,
+  "notes": "Added opt-in toughBalance setting to shift-roster-builder (search spreads weekend/closing/opening shifts), with test and README.",
+  "corrections": [],
+  "redteam": null
+}
