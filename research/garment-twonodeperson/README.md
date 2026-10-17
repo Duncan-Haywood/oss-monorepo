@@ -2,6 +2,8 @@
 
 Follow-up to [`garment-twonodewide`](../garment-twonodewide) (track 6, `PROJECTS.md`), taking the item "held-out persons and clothing levels (rooms are now covered)" from its next steps. Everything is a model on a CPU; no person or fabric was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-twonodeperson/
+
 **Builds on.** `garment-twonodepen` (equal-units swing penalty, tuning, grids), through it `garment-twonodeprop`, `garment-twonodelag`, `garment-twonodeheld`, `garment-twonodemet` and `garment-twonodeoptics` (the two-node model, whose `run` already takes clothing insulation, mass and height). Zhang et al. (2019), cited in `garment-thermal`, motivates the gating idea; the actuators are toys, not models of that textile. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 **Citation check.** No new source; none re-read in this run.

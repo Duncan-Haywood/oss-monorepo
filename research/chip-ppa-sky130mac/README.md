@@ -2,6 +2,8 @@
 
 Follow-up to `chip-ppa-mac` (track 3, `PROJECTS.md`), taking its "liberty-based mapping on SKY130" next step. It is a fidelity question like the repository's twin projects: how well does a cheap score (generic-gate count times depth) predict a higher-fidelity one (SKY130 HD cell area times ABC's delay estimate)? Produced with AI assistance (Claude). Preliminary and small: one 4&times;4 design, one tool version, one corner, ABC's own delay estimate, no placement or routing.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-ppa-sky130mac/
+
 **Builds on.** `chip-ppa-mac`, `chip-ppa-script` and `chip-pnr` in this repository (same author, MIT): `designs/`, `proposals/` and `gens.py` are copied unchanged from `chip-ppa-mac`; the liberty-filtering function is adapted from `chip-pnr`; the ABC scripts follow `chip-ppa-mac` (the `resyn2`-style one is written from memory of the usual ABC alias, so it is one plausible script, not a verified copy). Tools: Yosys 0.33 and its integrated ABC (Brayton and Mishchenko, "ABC: An Academic Industrial-Strength Verification Tool", CAV 2010, LNCS 6174:24-40, <https://doi.org/10.1007/978-3-642-14295-6_5>, checked in `chip-abc-sweep`; the paper was not read here). The cell library is the SkyWater SKY130 HD `tt_025C_1v80` liberty file from OpenROAD-flow-scripts (Apache-2.0), fetched at a pinned commit and not vendored. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Question

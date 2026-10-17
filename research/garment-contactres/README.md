@@ -2,6 +2,8 @@
 
 Follow-up to the "contact resistance at crossings" next step of [`garment-optics`](../garment-optics). A two-layer resistor-network model of a woven conductive fabric: warp and weft yarns touch only through a contact resistor at each crossing, and yarn segments break at random. Everything is a model on a CPU; no fabric was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-contactres/
+
 **Builds on.** `research/garment-optics` in this repository (its one-layer grid, where every crossing was a single node, i.e. zero contact resistance, and its thin-sheet shielding formula, which cites Paul, *Introduction to Electromagnetic Compatibility*, 2nd ed., Wiley, 2006; that entry was not re-checked there or here). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. No new external source is used, so there are no new citations to check.
 
 ## Method (`src/garment_contactres/model.py`)

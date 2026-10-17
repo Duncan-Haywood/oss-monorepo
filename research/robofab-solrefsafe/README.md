@@ -2,6 +2,8 @@
 
 A follow-up to `research/robofab-solreftimestep` (track `robofab`; the first item of its "Next steps": test with `refsafe` disabled). That project read MuJoCo's documentation as saying the effective contact time constant is max(`solref`, 2 x timestep) and did not test it. Here the same jaw test (cover part, 400 and 800 m/s^2) is run over `solref` 0.5, 0.3, 0.2, 0.1 ms x timestep 0.4, 0.2, 0.1, 0.05 ms with the `refsafe` flag enabled and disabled (64 cells). I do not simulate an arm, only a prescribed constant upward acceleration of the jaws. All numbers are from `experiments/results.txt`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-solrefsafe/
+
 - **Switching `refsafe` off does not rescue the coarse-timestep cells; it changes which cells hold.** 11 of 32 cells hold with `refsafe` on and 10 of 32 with it off. The two settings disagree in 7 cells: 3 hold only with it off and 4 hold only with it on.
 - **Where it matters, the clamp helps more than it hurts.** With `refsafe` off, 10 bisection runs ended with MuJoCo's bad-acceleration warning (an unstable solver; counted as "not held"), in cells where `solref` is below twice the timestep (for example `solref` 0.2 ms with a 0.2 ms timestep, or 0.1 ms with 0.1 ms). In 4 of the cells with `solref` below twice the timestep (400 m/s^2: 0.2/0.2, 0.1/0.2, 0.1/0.1 ms; 800 m/s^2: 0.1/0.1 ms; `solref`/timestep) the `refsafe`-on run holds at 1.01 to 1.02 times the bound because the effective constant is raised to twice the timestep.
 - **The clamp does cost some cells.** At 800 m/s^2, `solref` 0.3 ms with a 0.2 ms timestep holds with `refsafe` off (1.03) and fails with it on, where the effective constant becomes 0.4 ms.

@@ -2,6 +2,8 @@
 
 Follow-up to `simdesign-dfm` in the simulation-first design track (`PROJECTS.md`, track 5), taking up that project's first next step. `simdesign-dfm` sized an L-bracket under the rules of four processes using a coarse mesh (h = 2.5 mm) and found that its designs exceed the stress limit by 17–26% on a fine mesh. Here the search is repeated with a coarse mesh plus a stress knock-down, and with a finer mesh, and every design is re-checked at h = 0.7 mm. Produced with AI assistance (Claude). Everything is a stylised model: rule values and materials are the assumed round numbers of `simdesign-dfm`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-meshmargin/
+
 **Builds on.** `research/simdesign-dfm` in this repository (model, rules and optimiser copied into `src/simdesign_meshmargin/` so the project stays self-contained), and through it `simdesign-bracket`; scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>); SciPy's `differential_evolution` (Storn and Price, 1997, *Journal of Global Optimization* 11:341–359). This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

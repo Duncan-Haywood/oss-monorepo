@@ -2,6 +2,8 @@
 
 Companion to the track-3 milestone `chip-rtl-loop` (`research/chip-rtl-loop`, landed by a parallel run with its own, different task suite and checker; this project was built independently and overlaps it in purpose). It builds the loop harness (a proposer writes Verilog; lint, random-vector simulation and a Yosys equivalence proof score it; the failure text goes back) and a 12-task suite of small modules. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-rtl-probe/
+
 **Builds on.** The task-and-testbench style of VerilogEval (Liu et al., ICCAD 2023, <https://doi.org/10.1109/ICCAD57390.2023.10323812>) and RTLLM (Lu et al., ASP-DAC 2024, <https://doi.org/10.1109/ASP-DAC58780.2024.10473904>), and the human-in-the-loop RTL conversations of Chip-Chat (Blocklove et al., MLCAD 2023). No task, testbench or number from those works is used or reproduced; all tasks, references and testbenches here are original and MIT-licensed. Tools: Yosys, Icarus Verilog, Verilator. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## What was and was not measured

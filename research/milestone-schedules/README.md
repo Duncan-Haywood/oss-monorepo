@@ -2,6 +2,8 @@
 
 Stdlib-only Python. How many milestones does a job need when neither side can be forced to pay or deliver? Exact stage game plus closed-form schedule. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/milestone-schedules/
+
 ```bash
 cd research/milestone-schedules
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests

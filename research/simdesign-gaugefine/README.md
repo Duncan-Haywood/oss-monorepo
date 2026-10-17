@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the first next step of `simdesign-gaugepatch`. That project showed that a 3 mm patch-averaged stress converges with the mesh for 39 designs picked on a coarse mesh; it ran no search with the patch rule. This one asks the design question: with the patch rule in force, is the *least-mass feasible design* the same on a coarse (h = 2.5 mm) and a fine (h = 1.0 mm) mesh, and what does it cost under the element-centroid peak rule? Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed rule values, materials and load. Preliminary, simulated only.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-gaugefine/
+
 **Builds on.** `research/simdesign-gaugepatch` (model, rules, patch measure; copied into `src/simdesign_gaugefine/` so the project is self-contained), and through it `simdesign-gaugemesh`, `simdesign-gaugescatter`, `simdesign-patchsearch`, `simdesign-dfm` and `simdesign-bracket`. scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

@@ -2,6 +2,8 @@
 
 Second milestone of the self-replicating manufacturing track (`PROJECTS.md`, track 1). Given the RepRap Prusa Mendel part model of [`selfrep-closure`](../selfrep-closure), it chooses which machines (CNC router, laser cutter, casting setup) to add to a printer-only shop under a budget, and checks a greedy rule against exhaustive search. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-nextmachine/
+
 **Builds on.** `research/selfrep-closure` (imported, not copied) and, through it, the RepRap Prusa Mendel bill of materials (Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>; wiki page cited there). The framing is von Neumann (1966) and Freitas and Merkle (2004), as in `PROJECTS.md`. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

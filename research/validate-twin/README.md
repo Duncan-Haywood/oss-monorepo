@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A twin states a per-trial failure probability `q` (collision, dropped grasp, missed obstacle); the real system fails with `p = c·q`. The validator runs `n` real trials and counts failures. Everything is exact binomial enumeration (matched to simulation: pass probability 0.816 vs 0.815, 0.445 vs 0.446, 0.866 vs 0.865). A **difference test** (exact two-sided test of `p = q`, twin "passes" if not rejected) validates a twin that is wrong by 3× with probability 0.81 at 500 trials and by 5× with probability 0.54 (q = 10⁻³); 80% power to reject needs `n·q ≈ 10.7 / 3.5 / 26 / 38` real failures for `c = 2 / 3 / ½ / 1.5`, independent of `q` (Poisson regime; normal approximation 9.9 / 2.9 / 26.1 / 35.8). Passing is weak evidence: with a prior sd of `ln c` of 0.7, `P(off by ≥2× | passed)` is 0.31 at 0.3 expected failures, 0.14 at 10, 0.013 at 30. An **equivalence test** (exact TOST for `p ∈ [q/D, qD]`, false validation ≤ 5% by construction) validates a perfect twin with 80% power only with `n·q ≈ 10.5 / 20 / 58 / 178` real failures for `D = 3 / 2 / 1.5 / 1.25` (`≈ ((z₀.₀₅+z₀.₂)/ln D)²` in the large-count limit), so a rare-failure twin needs `≈ 20/q` real trials to be certified within a factor 2 (20 000 at `q = 10⁻³`). See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/validate-twin/
+
 ```bash
 cd research/validate-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, <1 s

@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A pick skill is retried until it succeeds. The twin draws every attempt independently with success `p=0.6`; in the "real" system each object has a latent success probability `P~Beta(a,b)` with the same mean, so the single-attempt success rate (what a twin is calibrated on) matches exactly while attempts on one object are positively correlated (`ρ=1/(a+b+1)`). Real failure after `k` attempts is exactly `B(a,b+k)/B(a,b)=∏(b+j)/(a+b+j)`, a power law `~k^{-a}` against the twin's geometric `(1−p)^k` (matched to a 200,000-object simulation). At the twin's budget for `δ=0.01` (6 attempts, claimed 0.0041) real failure is 0.010 / 0.042 / 0.151 for `ρ`=0.05 / 0.2 / 0.5 (2× / 10× / 37× the claim); the budget the real system needs is 7 / 13 / 571 (for `ρ=0.5`, `a=0.6<1`, so the expected number of attempts without a cap diverges). The payoff cost of the wrong budget is mostly small (0–6%, but 23% at `ρ=0.5` with cheap payoff) and the optimal give-up rule is a closed form `w·a/(a+b+k) ≥ c`; the certificate is what is badly wrong. One attempt per object cannot identify `ρ`; two forced attempts per object can (method of moments), but a budget aimed at `δ` is only met in 50–79% of repeats even at 6,400 objects. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/retry-twin/
+
 ```bash
 cd research/retry-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, ~1 s

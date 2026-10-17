@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking up a next step of `simdesign-patchstress`: apply the patch-averaged stress measure to `simdesign-holes`. A strip in tension with a central circular hole is solved by finite elements on a mesh sequence, and the pointwise peak of sigma_xx is compared with its average over a small disc, for hole sizes d/W = 0.05 to 0.4. The patch values are also compared with Kirsch's analytic field. Produced with AI assistance (Claude). Stylised and linear elastic; nothing was built or tested.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-holepatch/
+
 **Builds on.** `research/simdesign-holes` (mesh and loading, imported by relative path, not copied) and `research/simdesign-patchstress` (the patch measure). scikit-fem (Gustafsson and McBain, *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>). The reference is Kirsch's solution for a circular hole in an infinite plate (Kirsch, 1898, *Zeitschrift des Vereines deutscher Ingenieure* 42:797–807; citation from memory, not re-verified; I coded the polar-stress formulas from memory and checked them only through the tests below). This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

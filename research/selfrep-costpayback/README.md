@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-recyclers` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking the first item of that project's next steps (weight payback by cost). Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-costpayback/
+
 **Builds on.** `research/selfrep-recyclers` (machine part lists, per-copy savings; imported by relative path), `research/selfrep-materials` and `research/selfrep-closure` (RepRap Prusa Mendel part list; Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>). The question follows von Neumann (1966) and Freitas and Merkle (2004). This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the "replace the arbitrary slenderness limit with a buckling check" next step of `simdesign-widerweb`. Produced with AI assistance (Claude). A stylised closed-form check with assumed loads and material; preliminary, and not validated against a shell or 3D finite-element model.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-webbuckle/
+
 **Builds on.** `simdesign-widerweb` and, through it, `simdesign-meshconverge` and `simdesign-dfm` (same bracket: L-shape, arms of length 80 mm, width w, sheet thickness b, 100 N tip load, steel with E = 200 GPa and ν = 0.30). Buckling formulas for a slender elastic cantilever bar are classical: S. P. Timoshenko and J. M. Gere, *Theory of Elastic Stability*, 2nd ed., McGraw-Hill, 1961 (lateral buckling of beams; the torsion constant of a thin rectangle is in Timoshenko and Goodier, *Theory of Elasticity*, 3rd ed., McGraw-Hill, 1970). I wrote these formulas from memory of those texts and did not have the books to hand, so the page-level references are unchecked; the two coefficients are instead checked numerically in the tests (below). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

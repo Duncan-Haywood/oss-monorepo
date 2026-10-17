@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Companion to track 9's milestone 2 (body-and-controller co-design; another run's `osrobot-morph` took that slug at the same time, so this project is named for what it searches: joint count, link lengths and mount). Track 9, open-source purpose-built robots. It is a small, stylised version of the body-and-policy co-design idea of Ha (2019) and RoboGrammar (Zhao et al. 2020): search link lengths, joint count and mount position of a planar vertical-plane arm, with its inverse-kinematics controller tuned in the same loop, against a fixed three-link body at the same cost budget. It does **not** use MuJoCo (the controller is a kinematic damped-least-squares solver with a static torque check, not a simulated dynamics rollout) and it does not reproduce either paper. **Every cost, mass, torque and limit is an assumption written into `model.py`; none is a quoted value of a real product.**
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-bodysearch/
+
 ## Results (all from `experiments/results.txt`, seeds fixed)
 
 Cost budget 192 (assumed: 40 per joint + 120 per metre of link; the fixed body is three 0.2 m links). Each search gets 300 evaluations on 16 training targets, and is scored on 60 held-out targets. 10 seeds.

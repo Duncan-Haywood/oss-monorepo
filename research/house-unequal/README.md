@@ -2,6 +2,8 @@
 
 Follow-up to [`house-continuous`](../house-continuous) in track 12, open-source residential construction (`PROJECTS.md`; the "unequal spans" next step of `house-continuous`). A floor or ceiling joist lapped over a central beam or bearing wall is a two-span member, and a real house rarely has the beam exactly in the middle. The tool answers how much total width is lost when the beam moves off-centre, and how far off-centre it may sit for a given house width, with bending, shear, bearing and deflection all checked under pattern loading. Headline result: **a bending-governed floor joist loses little at first (0.4% of total width at a short/long span ratio of 0.9, 4.3% at 0.7, 13.3% at 0.5, 2x10 at 16 in), because the shorter span relieves the longer one; a deflection-governed ceiling joist loses about 5% for every 0.1 of ratio, because its long span stays at its deflection limit whatever the short span does.** Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-unequal/
+
 **Builds on.** `house-continuous`' finite-element `Beam` and `house-spans`' NDS allowable-stress base values, both imported. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 **Not a design.** Structure is life safety. This is research code, not reviewed by a licensed engineer, not checked against published span tables, and it shows nothing complies with a building code. A real member needs a licensed engineer's or architect's review, or the local code's prescriptive path, and a permit.

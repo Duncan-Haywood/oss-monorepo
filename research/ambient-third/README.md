@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-dshard` (its second "Next step": a third auditor). Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose, the classifier and auditors are made-up uniform-error confusion matrices, and nothing is a claim about a real user, device or product.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-third/
+
 ## Motivation
 
 `ambient-dshard` found that with two auditors who share errors on hard messages, a hardness-aware EM recovers the classifier but cannot identify the hard share (a one-parameter family fits the same joint). Does a third auditor change that, and does it help or hurt plain Dawid-Skene (DS)?

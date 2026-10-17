@@ -2,6 +2,8 @@
 
 Why it seemed worth doing: `PROJECTS.md` track 7 asks for a surrogate trained on the evaluation log that screens proposals, with held-out error, evaluations saved, and what happens when the design family changes. The earlier track-7 logs hold one family (a MAC engine, 40 designs), which cannot answer the last question, so this project builds four small generator families of its own and tests across them. Produced with AI assistance (Claude). **Stylised and preliminary:** 133 small designs, a synthesis-only target, and no place and route.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-surrogate/
+
 **Builds on.** The question and the track come from `research/eda-harness`, `research/eda-proposers` and `research/eda-fidelity` (same Yosys 0.33 flow idea; this project does not reuse their logs or code). Tools: Yosys (Wolf, Glaser and Kepler, 2013, "Yosys - A Free Verilog Synthesis Suite", Austrochip) with ABC (Brayton and Mishchenko, 2010, "ABC: An Academic Industrial-Strength Verification Tool", CAV). Models: non-negative least squares (Lawson and Hanson, 1974, *Solving Least Squares Problems*), ridge regression, and gradient boosting (Friedman, 2001, "Greedy function approximation: a gradient boosting machine", *Annals of Statistics* 29(5):1189-1232), all through scikit-learn (Pedregosa et al., 2011, *JMLR* 12:2825-2830). Context on learning for EDA: Huang et al. (2021), a survey of machine learning for EDA, *ACM TODAES*. No CU Boulder lab's work is built on and no affiliation is implied.
 
 ## Method

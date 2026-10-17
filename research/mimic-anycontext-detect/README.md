@@ -2,6 +2,8 @@
 
 Track 11, adversarial human imitation. This is the part of milestone 4 (`mimic-anycontext`) that can run without a language model: the cloud container could reach neither Hugging Face (HTTP 403) nor a GPU, so the prompt-optimising loop and its imitator side are **not** run here. **Stylised and preliminary: one detector family (TF-IDF n-grams with logistic regression), eight families from RAID's plain-prompt generations, three generators. It says nothing about prompt-only detectors or about adaptive imitators.** Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-anycontext-detect/
+
 The question is the detector half of "any context". If you fit a detector on some contexts, how much do you lose on a context it never saw, compared with fitting inside that context, and how many labelled examples from the new context close the gap?
 
 ## Results (what the code produced; `results.txt`, `results.json`, `experiments/figure.svg`)

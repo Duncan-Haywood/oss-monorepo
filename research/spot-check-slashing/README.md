@@ -5,6 +5,8 @@ Stdlib-only Python. A solver may corrupt any subset of T committed steps; the ve
 `min(F, f·k) ≥ T·g` — stake `F ≥ T·g` and audits `k ≥ T·g/f` are complements, so there is no capital/compute
 trade-off; stake must scale with job length (or be windowed). See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/spot-check-slashing/
+
 ```bash
 cd research/spot-check-slashing
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 7 tests

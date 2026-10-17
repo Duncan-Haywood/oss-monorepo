@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-hlrt`, whose level estimates (7/60 at n = 200, 0/60 at n = 1000) were too coarse to say anything and whose first "Next step" asked for more draws. Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose and the auditors and classifier are made-up uniform-error confusion matrices; nothing here is a claim about a real user or product. No lab from `prompt.md` is built on; there is no lab tag.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-hlrtlevel/
+
 ## Builds on
 
 - `research/ambient-hlrt`: the simulator, the h = 0 null fit, the statistic and the parametric bootstrap (`src/ambient_hlrtlevel/{sim,est}.py` are copies). Only `stats.py` (an exact binomial interval) is new.

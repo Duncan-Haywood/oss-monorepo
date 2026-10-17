@@ -7,6 +7,8 @@ at CU Boulder) to a concrete verification problem from Gensyn's Verde line of
 work: setting a *tolerance threshold* for benign floating-point discrepancy
 between replicas recomputing a training step.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/property-elicitation-verification/
+
 ## What is here
 
 - `scores.py` -- pinball loss (elicits the tau-quantile), asymmetric squared

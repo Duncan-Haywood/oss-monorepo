@@ -2,6 +2,8 @@
 
 Fifth project of track 12, open-source residential construction (`PROJECTS.md`, milestone 4 follow-up). [`house-cost`](../house-cost) ranks the levers that move a new home's price (size, storeys, finish, lot, foundation, shape, fees, framing, build time) using NAHB's 2024 cost shares plus **my assumed splits** of each construction stage over geometric drivers (floor area, footprint, wall area, fixed). Its own next step was "put ranges on the driver splits and report how the lever ranking changes". This does that: a Monte Carlo that redraws every split and recomputes the ranking. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-costsens/
+
 **Headline.** Floor area stays the biggest lever in 96% to 100% of draws, however loosely the splits are held (Dirichlet concentration k = 5, 20, 80), and every lever's median rank equals its baseline rank. The one that moves is **storeys**: its 5 to 95% swing for one versus three storeys at the same area is 9.0 to 19.9 index points at k = 20 (baseline 14.0), and 5.1 to 24.1 at k = 5, so how much a taller house saves is the least certain claim in `house-cost`. The framing-lumber result (a 14% cut is worth 0.85% of the price, 2.37% with 20% less framing labour) does not move at all.
 
 **Builds on.** [`house-cost`](../house-cost) (the model, imported unchanged; its lever ranges are loaded from its `experiments/run.py`) and, through it, NAHB, "Cost of Constructing a Home in 2024" (Eye on Housing, 23 Jan 2025, <https://eyeonhousing.org/2025/01/cost-of-constructing-a-home-in-2024/>). It builds on none of the CU Boulder groups in `prompt.md`.

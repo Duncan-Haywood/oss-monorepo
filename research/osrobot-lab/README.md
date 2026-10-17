@@ -2,6 +2,8 @@
 
 Third milestone (`osrobot-lab`) of track 9, open-source purpose-built robots, in the direction of the HIRO Group's robots in chemistry labs. Produced with AI assistance (Claude). Pure Python standard library. **Every deck dimension, labware height, speed, timing and pipetting-error value is an assumption in `model.py` (marked ASSUMED), not a measurement of any product, and nothing here uses or reimplements the Opentrons Python API or claims any hardware is open.** All numbers below are from `experiments/results.txt`. Simulation only; **a small, preliminary result, and the fault-injection part is a test of the checker against faults it was written for, not evidence about real protocol failures.**
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-lab/
+
 ![Last-well CV against transfer volume](experiments/dilution_cv.svg)
 
 - **The state model catches what a syntax check cannot.** On 522 mutants of three reference protocols (11 fault kinds, every eligible site mutated once), the structural baseline (labware and wells exist, volumes positive) flags 100, all of them the two fault kinds it can see (typos, off-plate wells). The twin flags 366, and 355 with the code the fault was written to trigger. The three clean protocols raise no finding from either.

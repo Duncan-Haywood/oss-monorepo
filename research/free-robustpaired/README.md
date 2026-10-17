@@ -2,6 +2,8 @@
 
 A free-choice run, picked because `research/free-c2stpower` reported that a paired error test "stalls at 0.09 to 0.20 power" for a 10% Coulomb-friction error under Student-t sensor noise, while a classifier test reaches 1.00, and named a robust paired statistic as untried. If the stall is only the mean squared residual, the usual advice (use a C2ST when errors are subtle) is partly an artefact. **Stylised and simulated only; no real data, no LLM.**
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-robustpaired/
+
 Every number below is copied from `experiments/results.txt`.
 
 ![Power against sample size](experiments/power_vs_n.svg)

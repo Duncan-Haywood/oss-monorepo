@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Real system: a straight route of Euclidean length `L` in free space; twin: the shortest path on a 4-, 8- or 16-connected lattice (an occupancy-grid twin of an environment). Results (all from `experiments/results.txt`): (1) the grid/Euclid length ratio depends only on heading `φ` and connectivity, not on cell size: for 8-connectivity it is `cos φ + (√2−1) sin φ` on `[0, 45°]`, mean over heading exactly `8(√2−1)/π = 1.0548` (4-connected `4/π = 1.2732`, 16-connected 1.0144 numerically), worst case 1.0824 at 22.5° (4-conn 1.4142 at 45°, 16-conn 1.0275 at 13.3°); Dijkstra on the lattice matches the closed forms to 3 decimals; (2) refining the cell from 8 m to 0.1 m leaves the ratio of a 100 m route at 22.5° at 1.0824 throughout (the error is a property of the move set, not of resolution); (3) calibrating by the mean factor leaves −5.2% to +2.6% (8-conn; −21.5% to +11.1% for 4-conn); (4) for two routes of Euclid lengths 1 and 1.03 at independent uniform headings the 8-connected twin ranks the longer one shorter with probability 0.194 (quadrature, matched by 2·10⁵-sample Monte Carlo); the probability is 0.50 at equal lengths, 0.086 at 1.05 and exactly 0 at `ρ ≥ 1.0824`; (5) for the same pair of routes at 22.5° apart and ρ = 1.03, rotating the map flips the ranking for 31% of map orientations. Free space only: obstacles are not modelled. Stylised; see `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/grid-twin/
+
 ```bash
 cd research/grid-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests, about 2 s

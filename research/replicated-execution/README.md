@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Random `k`-fold replication of a decentralised job with a slashing dispute, against a colluding fraction `β` of workers. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/replicated-execution/
+
 ```bash
 cd research/replicated-execution
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests

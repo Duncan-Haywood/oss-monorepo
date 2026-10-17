@@ -2,6 +2,8 @@
 
 Why it seemed worth doing: flow tuners in the FlowTune and DRiLLS tradition search synthesis recipes per design. If a recipe found on one design also works on the next, tuning could be done once; if not, every design needs its own budget. This measures that on eight small SKY130-mapped designs by evaluating the whole recipe space exhaustively, so every statement is checked against ground truth. Produced with AI assistance (Claude). **Stylised and preliminary:** eight toy combinational designs, one cell library, ABC's static delay with no wires, no place and route. Nothing here is a claim about real chips or about tuners on large designs. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-flowtune/
+
 **Builds on.** `research/chip-scriptsearch` (the space of ABC pass sequences and the random-search and hill-climbing baselines, re-implemented in `src/eda_flowtune/analysis.py` for a single design) and `research/chip-ppa-sky130mac` (the Yosys + ABC + SKY130 liberty flow, imported by relative path, and `mac4`). The SKY130 HD liberty file comes from OpenROAD-flow-scripts (Apache-2.0), fetched at a pinned commit by `fetch_pdk.sh`, not vendored. Motivation from the literature, listed in the track brief and not reproduced here: Brayton and Mishchenko (2010), "ABC: An Academic Industrial-Strength Verification Tool", CAV (the tool); Yu, Xiao and De Micheli (2018), synthesis flows developed without human knowledge, DAC; Hosny et al. (2020), DRiLLS, ASP-DAC; Neto et al. (2023), FlowTune, *IEEE TCAD*. No number from those papers is compared with anything here.
 
 ## Question

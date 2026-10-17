@@ -2,6 +2,8 @@
 
 A small follow-up to `research/robofab-selfparts` (track `robofab`; its "grasp-stability check" next step). That project showed by geometry alone that a parallel-jaw arm with a 30 mm opening can place every part of a seven-part toy gripper. Here I ask the force question for the six free parts (not the fixtured base): what is the smallest force each jaw must apply so that friction holds the part against gravity, for every grasp axis that fits the jaw? I compare the textbook bound `N >= m g / (2 mu)` (two contacts, each carrying `mu N`) with a MuJoCo simulation. All numbers below are from `experiments/results.txt`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-grasp/
+
 - **Analytic bound and simulation agree.** Over 33 cases (6 parts, the grasp axes that fit, mu = 0.3, 0.5, 0.8) the simulated minimum holding force is 1.00 to 1.05 times the bound (median 1.00). The 1.05 cases are the lightest part (the 0.36 g link) at mu = 0.8, where the force is about 2 mN and the simulation's settling tolerance matters. This mainly confirms that the MuJoCo set-up reproduces the bound; it is not a new result.
 - **The force is tiny.** The bound runs from 0.002 N (link, mu = 0.8) to 0.097 N (cover, mu = 0.3). Part masses are 0.36 to 5.95 g (PLA-like density assumed). Any real servo gripper's force is orders of magnitude higher, so in this model friction is never the binding constraint; the jaw opening is (the 30 mm cover fits only along y, with no slack).
 - **Two grasp axes fit for the rails, fingers and link, one for the cover.** Rails are 4 mm in x and 30 mm in y, so both fit a 30 mm opening.

@@ -2,6 +2,8 @@
 
 Follow-up to `garment-nesting` and `garment-teardown` (track 6, `PROJECTS.md`): the "feed the measured efficiency back into `garment-teardown`" step. I draw a stylised lined coat as polygons (10 shell pieces, 5 lining pieces), grow each piece by a 1.5 cm seam allowance, nest them with the `garment-nesting` raster annealer at three cloth widths, and put the measured marker efficiencies into `garment-teardown`'s cost chain. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-nestcost/
+
 **Builds on.** `garment-nesting` (raster polygon nesting, annealing over order and 180-degree turns; its references: Bennell and Oliveira 2008, Baker, Coffman and Rivest 1980, Kirkpatrick, Gelatt and Vecchi 1983) and `garment-teardown` (the cost chain). `garment-markercost` already measured the effect of seam allowance and size mixing on a shirt and a skirt; this project differs in using a coat-like piece set and in reading off cost per width. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

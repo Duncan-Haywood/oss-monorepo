@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking a next step of `simdesign-lbuckle`: that project found the 1.5 mm, w = 18.4 mm bracket clears the floor of 3 under the design load (4.01) but not reversed (2.25) and did not redesign it. Here the web width is increased until the reversed-load factor reaches 3, and the mass cost is reported. Produced with AI assistance (Claude). Stylised and preliminary: ideal elastic sheet, sharp inner corner, nothing made or tested. It builds on none of the CU Boulder groups in `prompt.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-revwidth/
+
 **Builds on.** `simdesign-lbuckle` (the whole-L 3D hexahedral eigenbuckling model, imported unchanged from its `src/`; geometry, load, clamp, material and the floor of 3 are all its assumptions).
 
 ## Method

@@ -2,6 +2,8 @@
 
 Follow-up to `garment-stackopt` (track 6, `PROJECTS.md`; its "mass in the objective, giving a Pareto front of shift against mass and chroma" next step). `garment-stackopt` minimised angle shift with a chroma floor of C* 40 and no mass limit, and found the optimum used 1.8 to 2.5 times the quarter-wave oxide mass. Here the chroma floor and a mass cap are swept as constraints, and the best angle shift found in each cell is tabulated. Everything is a model on a CPU; no coating was made or measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-stackpareto/
+
 **Builds on.** `research/garment-stackopt` and `research/garment-thincolor` (imported, not copied), which implement the standard characteristic-matrix method of thin films (Macleod, *Thin-Film Optical Filters*; Born and Wolf, *Principles of Optics*) and the Wyman, Sloan and Shirley (2013) colour-matching fit. The optimiser is SciPy Nelder-Mead with random restarts. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. No LLM is used. **Citation check.** No new references; those inherited carry the caveats stated in `garment-thincolor` (books cited from memory, editions unverified).
 
 ## Method (`src/garment_stackpareto/front.py`)

@@ -2,6 +2,8 @@
 
 Stdlib-only Python. An LMSR market prices "is this training result valid?"; an uninformed manipulator pushes the price to get a bad result accepted, and costly informed traders decide whether to enter. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/market-manipulation/
+
 ```bash
 cd research/market-manipulation
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests

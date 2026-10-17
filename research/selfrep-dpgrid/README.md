@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-terminalmarket` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking the "refine the DP grid and check that the table and policy values converge" next step that project lists. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-dpgrid/
+
 **Builds on.** `research/selfrep-terminalmarket` (its `Params`, `value`, `best_switch`, `dp_policy`, imported by relative path; its `dp_solve` is re-implemented here with a second interpolation option), `research/selfrep-satmarket` (the fluid model) and `research/selfrep-growth` (`W` = 50.0 h per copy, from `research/selfrep-closure`, RepRap Prusa Mendel; Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>). Backward dynamic programming is the method of Bellman (1957), *Dynamic Programming*, Princeton University Press. The question follows von Neumann (1966) and Freitas and Merkle (2004), as in `PROJECTS.md`. No paper's result is reproduced. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

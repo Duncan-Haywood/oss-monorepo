@@ -2,6 +2,8 @@
 
 Follow-up to `chip-systolic-batch` in the LLM chip-design-loop track (`PROJECTS.md`, track 3). That project found the array's cells x cycles disadvantage widening as the batch R grew (1.6x at R = 4 to 2.9x at R = 16), and listed "a fixed-size array reused across batches" as a next step. This project runs the other end of the curve: arrays with R = 1, 2, 4 rows, each reused for a stream of 32 vectors (32/R successive batches on one instance). Produced with AI assistance (Claude). Preliminary and small: one toy 8-8-4 network, one tool version, one generic-gate synthesis script, no LLM in the loop.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-systolic-small/
+
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed. The dataflow is the textbook systolic idea of H. T. Kung, "Why systolic architectures?", *IEEE Computer* 15(1):37-46, 1982, <https://doi.org/10.1109/MC.1982.1653825> (bibliographic details as cited in `chip-systolic-batch`; the paper was not read in full here). The generator, model and flow code are copied (MIT, same author) from `research/chip-systolic-batch`, which copies from `chip-systolic` and `chip-accel`. Only `experiments/run.py`, the tests and this README are new.
 
 ## Method

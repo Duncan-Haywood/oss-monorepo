@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-crossfit`, whose first next step was "choose the cap by validation on logged data". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Mixed / preliminary result**: validation-chosen caps match or slightly beat the best fixed cap with an informed prior, and do not rescue the uninformed prior.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-capcv/
+
 ## Motivation
 
 `ambient-drclip` and `ambient-crossfit` showed that capping the inverse-propensity correction in doubly robust (DR) pseudo-labels removes the collapse at small exploration rates, but the best cap differs by cell and a real assistant cannot see held-out utility. Can the cap be chosen from the log alone?

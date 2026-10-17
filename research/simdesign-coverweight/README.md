@@ -2,6 +2,8 @@
 
 Seventh project of the simulation-first design track (`PROJECTS.md`, track 5), taking the first "next step" of [`simdesign-processcover`](../simdesign-processcover): a cheap plastic part should not count as much as a heavy one. Produced with AI assistance (Claude). Everything here is stylised: the DFM rules, material properties and machine prices are the **assumed** round numbers of `simdesign-processcover`, `simdesign-dfm` and `selfrep-nextmachine`, the part family is a random sample, and the mass weight is a crude proxy. Simulated result only; no part was made.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-coverweight/
+
 **Builds on.** `research/simdesign-processcover` (rules, part sampler and `feasible`, imported unchanged) and `research/selfrep-nextmachine` (`exhaustive` and `greedy`, imported unchanged). Both build on `simdesign-dfm` and `simdesign-bracket`. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

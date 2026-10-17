@@ -2,6 +2,8 @@
 
 A follow-up in the engineered-clothing track (`PROJECTS.md`, track 6), taking the first items on `garment-comfortcost`'s list of next steps: weight its three scenarios by wearing time, and add a gated-fabric lever. `garment-comfortcost` scored each lever in one scenario at a time, so infrared-transparent cloth looked good in the warm room (+2.37 C) and was only footnoted as bad in the cool room (-7.31 C). A coat is bought once and worn in all of them. Here a garment is scored by its wearing-time-weighted expected benefit, and the best garment is found for every wearing mix. Everything is a model on a CPU; no textile was measured, no price is quoted and no climate data is used. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-wearmix/
+
 **Builds on.** `garment-comfortcost` (levers, assumed premiums, cost chain), `garment-thermal` and `garment-teardown`, whose caveats apply in full. The gated lever is the idea of Zhang et al. (2019), used only as an idea; no number comes from it. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

@@ -2,6 +2,8 @@
 
 Follow-up to `osrobot-uavwind` (track 9, open-source purpose-built robots), taking its "wind uncertainty" next step, in the direction of the RECUV and Autonomous Systems IRT interest in UAV simulation and targeted observation. Worth doing because `osrobot-uavwind` sized every airframe for one known wind, while a real mission meets a forecast with an error. Produced with AI assistance (Claude). Pure Python standard library; it imports the sizing models of `osrobot-uav` and `osrobot-uavwind`. **Every technology constant is an assumed round number from those projects, and the wind distributions are scenario inputs, not measurements of any site; no UAV was designed for flight or flown.** All numbers below are from `experiments/results.txt`. Simulation only; a stylised, preliminary study.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-uavgust/
+
 ![Mass premium against design-wind quantile](experiments/premium_vs_quantile.svg)
 
 - **Designing to the 95th-percentile wind costs the fixed wing 1 to 4% in mass and the multirotor 3 to 12%.** Mission 3 km out, 20 min on station, 0.5 kg payload, wind magnitude per mission drawn from Normal(mu, sigma). For mu = 8, sigma = 3 m/s the 95% design wind is 12.9 m/s: fixed wing 1.333 kg against 1.286 kg for the mean-wind design (+3.7%), multirotor 2.518 against 2.254 kg (+11.7%). At the 99th percentile the premium is 7.6% and 25.5%.

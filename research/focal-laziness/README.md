@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Multi-task agreement pay (Dasgupta–Ghosh style) equals `2G·Cov` of two reports. When lazy verifiers share a per-task default (same public model), pay is `2G[a_i a_j pq + (1−a_i)(1−a_j) d(1−d)]`: effort is a coordination game with threshold `a* = (k/2G + s)/(pq + s)`, the all-lazy equilibrium always exists and pays `2G·d(1−d)` (as much as honesty when `d=p`), and only a gold-check payment mass `(2Gs+k)/(1−acc_D)` makes effort dominant. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/focal-laziness/
+
 ```bash
 cd research/focal-laziness
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, <1 s

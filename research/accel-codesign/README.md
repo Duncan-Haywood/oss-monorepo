@@ -2,6 +2,8 @@
 
 Second milestone of track 8 (task-specific AI accelerators) in `PROJECTS.md`, **only partly done**: it compares a model-first design flow with a joint one, but it does not train new models and it does not run NSGA-II or Bayesian optimisation (reasons below). The question: under a latency deadline, how much engine area does picking the most accurate model first cost, compared with choosing model and lane count together? Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-codesign/
+
 **Builds on.** `research/accel-kws` in this repository: its 40 trained, RTL-checked keyword-spotting MLPs (Speech Commands v0.02, Warden 2018, arXiv:1804.03209) supply every accuracy, energy and P=1 area number here. Hardware-software co-design as a search problem is the framing of Lin, Yang and Han (2021), "NAAS: Neural Accelerator Architecture Search", DAC; nothing is reproduced from that paper and no number is comparable with it. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

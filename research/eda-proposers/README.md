@@ -2,6 +2,8 @@
 
 Why it seemed worth doing: `eda-harness` can score any candidate design, but the track's question is which *proposer* finds good designs with the fewest expensive evaluations. This compares random search, a grid, simulated annealing, a genetic algorithm, NSGA-II and a TPE-style Bayesian method at equal evaluation budgets, by Pareto hypervolume over 100 seeds. Produced with AI assistance (Claude). **Stylised and preliminary:** one 80-design space from one toy accelerator, generic-gate counts, no place and route. Nothing here is a claim about real chips or about these methods on large spaces.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-proposers/
+
 **Builds on.** `research/eda-harness` (its committed evaluation log supplies 40 of the 80 designs) and `research/chip-accel` (generator and Yosys flow). Methods: simulated annealing (Kirkpatrick, Gelatt and Vecchi, 1983, *Science* 220:671), NSGA-II (Deb, Pratap, Agarwal and Meyarivan, 2002, *IEEE Trans. Evolutionary Computation* 6(2):182), TPE (Bergstra, Bardenet, Bengio and Kégl, 2011, *NeurIPS*, "Algorithms for Hyper-Parameter Optimization"), random-weight Chebyshev scalarisation as in ParEGO (Knowles, 2006, *IEEE Trans. Evolutionary Computation* 10(1):50), hypervolume as a quality indicator (Zitzler and Thiele, 1999, *IEEE Trans. Evolutionary Computation* 3(4):257). Equal-budget reporting follows the caution in Cheng, Kahng, Kundu, Wang and Wang (2023), ISPD, <https://doi.org/10.1145/3569052.3578926>. The six implementations are small and written here from the textbook descriptions, not the reference libraries (Optuna, pymoo), so results speak for these implementations only. No lab's work is built on and no affiliation is implied.
 
 ## Method

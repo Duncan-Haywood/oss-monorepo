@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-repairlabour` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking the first of that project's listed next steps: pay spares at service start and see whether an unbounded queue is still worse than never repairing. Why it seemed worth doing: that project's headline ("a long queue is dead stock") depended on a modelling choice, buying spares the moment a machine breaks, that a real shop need not make. A discrete-event simulation (standard library). Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-repairpay/
+
 **Builds on.** `research/selfrep-repairlabour` (this model is a copy of its simulator with one added parameter `pay_at`), and through `research/selfrep-growth` and `research/selfrep-closure` (imported by relative path), W = 50.0 h and V = 170.3 per copy (assumed units). Behind them: Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>; von Neumann (1966); Freitas and Merkle (2004). This project builds on none of the CU Boulder groups in `prompt.md`.
 
 ## Method

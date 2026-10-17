@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-interject`. A simulated assistant decides, window by window, whether to speak. It learns only from what the user does when it *does* speak (accept or dismiss); silence gives no label. I compare greedy, epsilon-greedy and Thompson-sampling versions of an online logistic policy with an offline oracle. Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. Most of the headline results here are negative or conditional (see below).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-bandit/
+
 ## Motivation
 
 `ambient-interject` tuned interruption policies on labelled hours. A deployed assistant has no labels: it sees only the user's reaction to its own interruptions. A policy that stops speaking stops learning, so there is an exploration problem, and every exploratory interruption that is dismissed costs annoyance.

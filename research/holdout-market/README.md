@@ -2,6 +2,8 @@
 
 Stdlib-only Python. A market that pays contributors the decrease in hidden-holdout log loss. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/holdout-market/
+
 ```bash
 cd research/holdout-market
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 4 tests

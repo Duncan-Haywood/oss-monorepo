@@ -2,6 +2,8 @@
 
 Follow-up to `chip-systolic-hidewide` in the LLM chip-design-loop track (`PROJECTS.md`, track 3). That project swept only P = 4, 8, 16, took the MAC engine's cycles from a formula rather than simulating them at F = 16 and 32, and said the F = 32 optimum "may lie further out". This project closes those gaps. Produced with AI assistance (Claude). Preliminary and small: one toy network family, one seed, one tool version, one generic-gate synthesis script, no LLM in the loop.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-mac-lanes/
+
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed. The engine is `chip-accel`'s P-lane MAC design, copied (MIT, same author) via `research/chip-systolic-hidewide`; `model.py` and `baseline_gen.py` are copied unchanged apart from a docstring line, and `flow.py` is a trimmed copy of that project's. Tools: Yosys and Icarus Verilog.
 
 ## Method

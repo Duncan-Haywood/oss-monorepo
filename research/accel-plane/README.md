@@ -2,6 +2,8 @@
 
 Fourth step of track 8 (task-specific AI accelerators) in `PROJECTS.md`, closing the first item in `accel-dataflow`'s "Next steps": it checked its schedule model against RTL only at P = 1. Here are two real P-lane engines, written in Verilog, simulated in Icarus Verilog and synthesised with Yosys. The question: for the two layer shapes of the `accel-kws` keyword-spotting MLP, do the RTL cycle counts equal the schedule model's at P = 1 to 32, including the ragged last tile; and what do the output-stationary and reduction-tree engines cost in generic gates?
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-plane/
+
 **Builds on.** `research/accel-dataflow` (its `closed_form` cycles are the thing being checked), `research/accel-kws` (layer shapes 64x70 and 11x64, 4-bit weights, 8-bit inputs, 24-bit accumulators, and the Yosys recipe). Dataflow vocabulary after Chen, Emer and Sze (2016), Eyeriss, ISCA. No lab in `prompt.md` works on this directly, so no lab tag is claimed beyond the repository's digital-twin theme (a cheap model checked against a more faithful one).
 
 ## Method

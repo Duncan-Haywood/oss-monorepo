@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the "replace the `MAX_SLENDER` guard with a lower bound on the governing factor and rerun the optimiser" next step of `simdesign-webbuckle`. Produced with AI assistance (Claude). Stylised; the buckling factor is a closed form that has not been validated against a shell model; preliminary.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-bucklebound/
+
 **Builds on.** `simdesign-widerweb` (the bracket model, rule sets and optimiser, copied here so the project is self-contained) and `simdesign-webbuckle` (the lateral-torsional buckling closed forms in `src/simdesign_bucklebound/ltb.py`, copied unchanged; for their sources and caveats see that README). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

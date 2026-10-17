@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5). `simdesign-patchstress` found that a 3 mm patch average of the von Mises field moves 1–6% under mesh refinement where the peak element stress moves 18–41%, and suggested re-running the `simdesign-meshmargin` search with it. This project does that: the minimum-mass L-bracket search under four manufacturing rule sets, once with the peak stress and twice with the patch stress. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed rule values and materials.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-patchsearch/
+
 **Builds on.** `research/simdesign-meshmargin`, `research/simdesign-patchstress`, and through them `simdesign-dfm` and `simdesign-bracket` in this repository (their model, rules, optimiser and patch measure are copied into `src/simdesign_patchsearch/` so the project stays self-contained; the change is an option choosing the stress measure); scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>); SciPy's `differential_evolution` (Storn and Price, 1997, *Journal of Global Optimization* 11:341–359). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

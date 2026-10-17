@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-confest` (its "Next steps": a noisy-audit variant). Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose, both the label and the auditor are made-up uniform-error confusion matrices, and nothing is a claim about a real user, device or product.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-noisyaudit/
+
 ## Motivation
 
 `ambient-confest` estimated the urgency label's class mix and confusion matrix from an audit set whose labels were assumed to be the truth. A person labelling audit messages disagrees with themselves and others. If the assistant takes those labels at face value, its estimate of the classifier is biased (the auditor's mistakes look like the classifier's). How much utility does that cost, and does correcting for a known auditor accuracy recover it?

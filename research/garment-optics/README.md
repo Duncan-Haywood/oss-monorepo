@@ -2,6 +2,8 @@
 
 Eighth milestone of the engineered-clothing track (`PROJECTS.md`, track 6), **RF-shielding part only**. The milestone also lists structural colour, infrared signature and adversarial patterns against person detectors; those are not done here (see Next steps). A stylised plane-wave model of a square weave of conductive yarn: sheet resistance, shielding effectiveness (SE), a high-frequency aperture bound, areal metal mass, and a Monte Carlo of random yarn breakage. Everything is a model on a CPU; no fabric was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-optics/
+
 **Builds on.** The standard thin-sheet reflection-loss and slot-aperture shielding formulas of EMC engineering (e.g. Paul, *Introduction to Electromagnetic Compatibility*, 2nd ed., Wiley, 2006) and the idea of metallised textile shielding. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. **Citation check.** The Paul book entry is from memory and was not re-checked in this run (no network lookup of bibliographic records). I use only the two textbook formulas below, recalled and not verified against a measurement.
 
 ## Method (`src/garment_optics/model.py`)

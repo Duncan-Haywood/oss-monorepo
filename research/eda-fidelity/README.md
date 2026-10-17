@@ -2,6 +2,8 @@
 
 Why it seemed worth doing: `PROJECTS.md` track 7 treats the simulators as a fidelity ladder, the chip-design form of the repository's digital-twin theme: a cheap model stands in for an expensive one only if it ranks designs the same way. This measures that for the `eda-harness` MAC-engine space and runs a successive-halving search that climbs the ladder. Produced with AI assistance (Claude). **Stylised and preliminary:** 40 designs of one toy accelerator, a ladder with three rungs instead of four (no place and route), and the search is a replay over the committed log, not a new tool run.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-fidelity/
+
 **Builds on.** `research/eda-harness` (its committed `eval_log.jsonl`, copied here to `experiments/eval_log.jsonl`, supplies cells, cycles and per-stage seconds; Yosys 0.33, Icarus Verilog 12.0) and `research/chip-accel` (the generator behind it). Methods: successive halving (Jamieson and Talwalkar, 2016, "Non-stochastic best arm identification and hyperparameter optimization", AISTATS), the idea behind Hyperband (Li, Jamieson, DeSalvo, Rostamizadeh and Talwalkar, 2018, *JMLR* 18(185):1-52); multifidelity framing from Peherstorfer, Willcox and Gunzburger (2018), "Survey of multifidelity methods in uncertainty propagation, inference, and optimization", *SIAM Review* 60(3):550-591. No CU Boulder lab's work is built on and no affiliation is implied.
 
 ## Method

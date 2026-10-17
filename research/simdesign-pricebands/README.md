@@ -2,6 +2,8 @@
 
 Ninth project of the simulation-first design track (`PROJECTS.md`, track 5), taking the "vary the prices by ±20%" next step of [`simdesign-flipseeds`](../simdesign-flipseeds): its flips sat exactly on the budget thresholds created by the assumed prices (a laser at 600, a CNC router at 800), so the flip may be an artefact of those round numbers. Produced with AI assistance (Claude). Everything here is stylised: DFM rules, material properties and machine prices are the **assumed** round numbers of the earlier projects, the part family is a random sample and the mass weight is a crude same-material volume proxy. Simulated result only; no part was made.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-pricebands/
+
 **Builds on.** `research/simdesign-flipseeds` (`MACHINES`), `research/simdesign-coverweight` (`sample_parts`, `weights`, `wshop_value`), `research/selfrep-nextmachine` and `research/simdesign-processcover`, imported unchanged. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

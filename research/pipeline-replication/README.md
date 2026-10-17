@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Pipeline-parallel training on unreliable workers: stage replication `r` versus a SkipPipe-style skip budget `s`, with correlated failure domains. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/pipeline-replication/
+
 ```bash
 cd research/pipeline-replication
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests, <1 s

@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-dsaudit` (its first "Next step": correlated auditor errors). Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose, the classifier and auditors are made-up uniform-error confusion matrices, and nothing is a claim about a real user, device or product.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-dscorr/
+
 ## Motivation
 
 `ambient-dsaudit` showed that Dawid-Skene (DS) learns an urgency classifier's reliability from two auditors with no accuracy supplied, but only when the auditors err independently. Real auditors tend to get the same hard messages wrong. This project asks how much that breaks DS, and whether DS then does worse than just trusting one auditor.

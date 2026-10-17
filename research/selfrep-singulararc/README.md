@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-satmarket` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking its listed next step: derive the singular-arc condition and compare it with the DP ramp. Produced with AI assistance (Claude). Stylised; every input is assumed.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-singulararc/
+
 **Builds on.** `research/selfrep-satmarket` (model, DP policy and Euler runner, imported not copied) and `research/selfrep-growth` (per-copy work `W` = 50.0 h, imported), which come from `research/selfrep-closure` (RepRap; Jones et al., *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>). The method is Pontryagin's maximum principle (Pontryagin et al., 1962; Bryson and Ho, 1975). No paper's result is reproduced, and this project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

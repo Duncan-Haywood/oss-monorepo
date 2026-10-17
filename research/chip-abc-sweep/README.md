@@ -2,6 +2,8 @@
 
 Follow-up to `chip-ppa-loop` (track 3, `PROJECTS.md`), taking its "sweep over the ABC script itself" next step. Five ABC scripts are applied to five written adder structures and eight multiplier structures, each proved equivalent to its reference. Produced with AI assistance (Claude). Preliminary and small: two designs, one tool version, a generic-gate library.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-abc-sweep/
+
 **Builds on.** `chip-ppa-loop` and `chip-toolchain` in this repository (same author, MIT; the generators in `src/chip_abc_sweep/gens.py` are copied unchanged from `chip-ppa-loop`). Tools: Yosys and its integrated ABC (Brayton and Mishchenko, "ABC: An Academic Industrial-Strength Verification Tool", CAV 2010, LNCS 6174:24-40, <https://doi.org/10.1007/978-3-642-14295-6_5>; authors, title, venue, year and pages checked against Crossref on 2026-10-13; the paper itself was not read). The script names (`dc2`, `dch`, `resyn2`) are ABC commands; the `resyn2` sequence is written out in `src/chip_abc_sweep/flow.py` from memory of the usual ABC alias, so treat it as one plausible resyn2-style script, not a verified copy. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Question

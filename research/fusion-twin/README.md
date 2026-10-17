@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. `n` redundant sensors (radar returns, lidar ranges, wheel odometers) measure one quantity, each with error variance `σ²`. The twin draws their errors independently; the "real" errors share a common component, so every pair has correlation `ρ`. The equal-weight fused estimate (optimal for equicorrelated errors, so reweighting cannot repair it) has exact variance `σ²(1+(n−1)ρ)/n`: the twin understates the fused std by `√(1+(n−1)ρ)`, `n` sensors are worth only `n_eff = n/(1+(n−1)ρ) < 1/ρ` independent ones, and no fleet goes below the floor `σ√ρ`. For a target std of `0.25σ` the twin says 16 sensors; the real fleet needs 19/30/77/376 at `ρ`=0.01/0.03/0.05/0.06 and none at `ρ ≥ 0.0625` (all matched to Monte Carlo). A 3-σ gate sized from the twin's std at `n=16` false-alarms at 0.0051/0.0233/0.0578/0.2008 for `ρ`=0.01/0.05/0.1/0.3, i.e. 1.9×/8.6×/21×/74× the nominal 0.0027; the honest gate is `3√k` twin stds. Repair from calibration logs (8 sensors, truth known, `ρ=0.03`): the pooled `ρ̂` is essentially unbiased (mean 0.0295 at T=400), yet a plug-in fleet size misses the target in 105/200 (T=25), 102/200 (T=100) and 103/200 (T=400) repeats, because the required `n` is convex and steeply rising in `ρ`. A 90% bootstrap upper bound cuts misses to 17/200 at T=400, at a median 55 sensors instead of 30 and with 19/200 repeats declaring the target infeasible. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/fusion-twin/
+
 ```bash
 cd research/fusion-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, ~2 s

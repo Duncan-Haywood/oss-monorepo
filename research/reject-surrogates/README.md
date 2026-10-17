@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Reject-option case of the polyhedral-embedding view of surrogate losses (Frongillo–Waggoner), applied to a verifier that may escalate to refereed re-execution. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/reject-surrogates/
+
 ```bash
 cd research/reject-surrogates
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 6 tests

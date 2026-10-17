@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Paying verifiers against a judge whose label flips with rates `e0, e1` distorts honest reports to `e0+γp` (`γ=1−e0−e1`), shrinks the Brier incentive by `γ²`, and can reverse rankings (η*=0.25 in our example). The unbiased surrogate score restores exact properness at a `1/γ` payment spread and (balanced case) `1/γ²` sample cost; misestimated rates give a closed-form affine bias. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/noisy-referee/
+
 ```bash
 cd research/noisy-referee
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 12 tests, <1 s

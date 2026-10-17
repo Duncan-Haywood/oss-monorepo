@@ -2,6 +2,8 @@
 
 Fifth milestone of the LLM chip-design-loop track (`PROJECTS.md`, track 3), and a fidelity question in the spirit of the twin projects: a cheap model (synthesis estimate) versus a more detailed one (placement, clock tree, global routing, timing repair). No LLM is used. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-pnr/
+
 **Builds on.** Open tools: Yosys and ABC (<https://yosyshq.net/yosys/>), OpenROAD (<https://theopenroadproject.org/>; cited by project page only, no paper is cited) and its OpenROAD-flow-scripts SKY130 HD platform files (liberty, LEF, RC settings, fetched at a pinned commit, not vendored, Apache-2.0 per that repository). The designs and the generic-gate flow are from this repository's [`chip-toolchain`](../chip-toolchain). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. The debate over learned placement (Mirhoseini et al., *Nature* 2021; Cheng et al., ISPD 2023) is context only; nothing from it is reproduced.
 
 ## Method

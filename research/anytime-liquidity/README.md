@@ -2,6 +2,8 @@
 
 Stdlib-only Python. LMSR with time-varying liquidity `b_t` is Hedge with rate `1/b_t`; this asks what not knowing the horizon costs. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/anytime-liquidity/
+
 ```bash
 cd research/anytime-liquidity
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, <1 s

@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Escalating-bond disputes with a fallible final oracle, solved exactly: how small can the opening bond be, what does the defender's capital have to be, and what does latency buy? See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/escalation-bonds/
+
 ```bash
 cd research/escalation-bonds
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests

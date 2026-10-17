@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-closure` (track 1, `PROJECTS.md`): instead of adding machines to the shop, change the machine. It searches over a small set of assumed substitutions (printed bushings, printed nuts, wooden rods and so on) that turn vitamin lines of the Prusa Mendel into makeable ones, under an assumed performance-penalty budget. Produced with AI assistance (Claude). Simulated/computed only; no real part was tested.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-redesign/
+
 **Builds on.** `selfrep-closure` in this repository (bill of materials from the RepRap wiki, "Prusa Mendel (iteration 2)", via that project; RepRap: Jones et al., *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>). It builds on none of the labs in `prompt.md`.
 
 ## Method

@@ -2,6 +2,8 @@
 
 A follow-up to `research/robofab-slipcrit` (track `robofab`; its "sweep the task time and tip bound" next step). That project found a rate criterion (far-end motion and drop under 2 mm over a 3 s hold) as settings-dependent as a strict rotation tolerance. Here I sweep both of its free parameters, 4 task times by 4 tip bounds, over the same 4 bars and 8 solver settings. All numbers are from `experiments/results.txt` (MuJoCo 3.16.0).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-slipthresh/
+
 - **The sweep reproduces `robofab-slipcrit`'s 3 s / 2 mm row exactly** (spreads 32.9, 400, 242.7, 89.4 for 20, 30, 40, 60 mm bars), so the two projects agree.
 - **Settings dependence falls monotonically with the allowed tip speed, tip bound / task time.** Worst-case spread (max/min of the minimum holding force over the 8 settings, worst of the 4 bar lengths) is 242.7 to 400 for every threshold at 2 mm/s or less, 89.4 at 3.3 to 5 mm/s, 20.0 at 10 mm/s, and **1.6 only at 20 mm/s (0.5 s, 10 mm)**: the one threshold where every bar gives a spread under 2.
 - **That robust threshold is loose.** 20 mm/s over 0.5 s lets the far end move 10 mm. It puts 24 of 32 minimum forces within a factor 2 of `robofab-liftload`'s torque bracket (the other 15 thresholds put 8 to 23 there), but a 10 mm tip error is far above what an assembly task tolerates, and a longer hold (10 s) fails at every bound tried (10 to 22 of 32 cells fail even at 20 N).

@@ -2,6 +2,8 @@
 
 Follow-up to `chip-ppa-loop` and `chip-abc-sweep` (track 3, `PROJECTS.md`), taking the first next step of `chip-abc-sweep`: the `chip-ppa-loop` proposer files and parameter sweep are re-scored under all five ABC scripts, and every mapped netlist is now proved equivalent to the reference. Produced with AI assistance (Claude). Preliminary and small: two designs, one tool version, a generic-gate library.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-ppa-script/
+
 **Builds on.** `chip-ppa-loop` and `chip-abc-sweep` in this repository (same author, MIT). The designs, the proposer files (`proposals/`, written by the session that wrote `chip-ppa-loop`) and the generators in `src/chip_ppa_script/gens.py` are copied from `chip-ppa-loop`; `flow.py` extends the one in `chip-abc-sweep`. Tools: Yosys and its integrated ABC (Brayton and Mishchenko, "ABC: An Academic Industrial-Strength Verification Tool", CAV 2010, LNCS 6174:24-40, <https://doi.org/10.1007/978-3-642-14295-6_5>; checked against Crossref on 2026-10-13 for `chip-abc-sweep`; the paper itself was not read). The `resyn2`-style script is written from memory of the usual ABC alias, so it is one plausible script, not a verified copy. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Question

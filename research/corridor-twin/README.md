@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Real system (simulated): a 2D lidar (360 rays, range noise 2 cm) localised by point-to-line scan matching (damped Gauss-Newton, pose = x, y, θ) in a 2 m wide corridor whose only along-track structure is 0.3 m door-frame stubs. The twin is a well-featured room, whose scan information is isotropic. Results (all from `experiments/results.txt`): (1) in the room the exact linearised covariance gives an along-track sd of 1.35 mm (MC 1.29 mm); in a bare corridor the information matrix is exactly singular and the matcher returns its initial guess (MC sd 0, mean error equal to the 0.05 m start error); with stubs every 20/10/5/2 m the exact along-track sd is 8.1/6.3/3.9/2.2 mm (MC 7.3/6.2/4.3/2.4), i.e. 6.0/4.7/2.9/1.6× the room's, while lateral and heading accuracy are unaffected (sd_y 0.8–1.0 mm); (2) the stub-corridor result holds only inside a basin: from a start 0.2 m off the error is 2 mm, from 0.3 m 43% of runs end >5 cm off, from 0.5 m and 1 m every run stays at its start error; (3) a 1-D Kalman filter fed with scan-matched x in a 60 m corridor with a 20 m span out of range of any stub: with the room twin's 1.9 mm measurement sd, it claims 1.9 mm in the blind span, where its NEES is 432 (odometry noise 1 cm/step) and 1535 (2 cm/step) against 0.75 for a filter that uses the exact covariance and skips the unobservable scans; but both are overconfident after leaving the span (NEES 78 and 2.2 at 1 cm/step; 388 and 8.3 at 2 cm/step), because the accumulated drift (6–12 cm) is at the edge of the matcher's basin.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/corridor-twin/
+
 ```bash
 cd research/corridor-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, about 10 s

@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-alurod` and `selfrep-rodmodes` (track 1, `PROJECTS.md`), taking the "add the frequency target of `selfrep-rodmodes` to the diameter choice" next step from `selfrep-alurod`. Produced with AI assistance (Claude). Computed only; no rod was built or tested.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-alufreq/
+
 **Builds on.** `selfrep-rodmodes` (single-mode Rayleigh frequency, carriage mass), `selfrep-alurod` (aluminium rod line in the redesign closure), and through them `selfrep-rodbeam`, `selfrep-redesign` and `selfrep-closure`. RepRap: Jones et al., *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>. It builds on none of the labs in `prompt.md`.
 
 ## Method

@@ -2,6 +2,8 @@
 
 Follow-up to [`garment-twonodesteady`](../garment-twonodesteady) (track 6, `PROJECTS.md`), taking its next step: "test the infrared-gating textile bounds of `garment-thermal` section E under both choice sets and at steady state." Question: does the effect of switching a gated textile from closed (infrared transmittance 0.15) to open (0.8), found in the first two-node model after 3 h, survive the other design choices of `pythermalcomfort` 4.6.1 and a run to steady state? Everything is a model on a CPU; no person or fabric was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-twonodegate/
+
 **Builds on.** `garment-thermal` (section E: the two fixed states and their numbers), `garment-twonodeoptics` (the switchable model; every design choice is the repository's "ours" or that of `pythermalcomfort` 4.6.1, "ref"), `garment-twonodesteady` (steady-state method). The gating idea is motivated by Zhang et al. (2019), cited in `garment-thermal`. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 **Citation check.** No new source. I did not re-read Zhang et al. (2019) or Gagge et al. here; the bounds are the toy two-state ones of `garment-thermal`, with no switching dynamics.

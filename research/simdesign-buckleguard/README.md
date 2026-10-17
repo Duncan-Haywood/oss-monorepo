@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the "replace the `MAX_SLENDER` guard in the bracket chain with a lower bound on the governing factor and rerun the optimiser" next step of `simdesign-webbuckle`, `simdesign-webshell` and `simdesign-shellorder`. Produced with AI assistance (Claude). A stylised 2D plane-stress model with a closed-form buckling check and assumed rule values, material and load; preliminary, nothing was made or tested.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-buckleguard/
+
 **Builds on.** `simdesign-dfm` (the process rules and the differential-evolution optimiser), `simdesign-widerweb` (the same code and bracket: L-shape, arms of 80 mm, tip load 100 N, steel sheet E = 200 GPa, ν = 0.30, working stress 100 MPa, tip limit 4 mm) and `simdesign-webbuckle` (the lateral-torsional buckling closed forms of Timoshenko and Gere, *Theory of Elastic Stability*, 2nd ed., McGraw-Hill, 1961; the page-level references are unchecked there too, only the two coefficients are verified numerically). `simdesign-shellorder` found a 3D finite-element critical load about 14% above the closed form for a short bar (l/w = 3), so the closed form was not unsafe in the one case checked. It builds on none of the CU Boulder groups in `prompt.md`.
 
 ## Method

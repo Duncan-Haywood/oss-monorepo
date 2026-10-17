@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-dr`, whose first next step was "clipped DR pseudo-labels; test the 1/&epsilon; explanation by capping the correction". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Mixed result**: positive with an informed prior, negative with an uninformed one.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-drclip/
+
 ## Motivation
 
 `ambient-dr` found that doubly robust (DR) pseudo-labels were worse than the biased fit and suggested, without testing it, that the correction term (S/&pi;)(y &minus; m) puts residuals up to 1/&epsilon; = 500 on a few explored windows. This project tests that by capping the inverse propensity in the correction.

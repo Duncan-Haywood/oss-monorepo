@@ -2,6 +2,8 @@
 
 **Why this was worth doing.** `accel-lut` found the weight-sharing product-table engine did not beat an int8 MAC engine, but only under an *assumed* table-read cost, and it ignored the registers a table engine needs. Its next steps asked for an RTL engine through Yosys. This project writes both engines in Verilog, checks them bit for bit against an integer NumPy reference, and counts what Yosys makes of them. **Result: negative.** The table engine's datapath is 2.4x (N=8) to 11.6x (N=128) the area of the MAC engine, because it must keep one accumulator per output, and it takes 1.1x to 3.0x the cycles. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-lutrtl/
+
 **Builds on.** `research/accel-lut` (the idea and the cost model it questions) and `research/accel-sparse` (the digits MLP, not retrained here). Weight sharing with a codebook is the idea of Han, Mao and Dally (2016), "Deep Compression", ICLR (written from memory, **not re-verified in this run**). No CU Boulder group's work is built on or implied.
 
 ## Method

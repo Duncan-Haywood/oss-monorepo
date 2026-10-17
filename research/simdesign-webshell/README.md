@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the "check the closed forms against a 3D or shell eigenbuckling model in scikit-fem" next step of `simdesign-webbuckle`. Produced with AI assistance (Claude). A stylised, preliminary comparison of two idealised models; nothing was made or tested, and the mesh is not fully converged.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-webshell/
+
 **Builds on.** `simdesign-webbuckle` (the closed forms; same L-bracket: arms of length 80 mm, width w, sheet thickness b = 2 mm, steel E = 200 GPa, ν = 0.30, 100 N tip load). The closed forms are the classical cantilever lateral-torsional results of S. P. Timoshenko and J. M. Gere, *Theory of Elastic Stability*, 2nd ed., McGraw-Hill, 1961 (see `simdesign-webbuckle` for how they were checked). The finite-element method is standard linear (eigenvalue) buckling: a static solve gives the pre-stress, a geometric stiffness matrix is built from it, and a generalised eigenproblem gives the critical load factor (see e.g. K.-J. Bathe, *Finite Element Procedures*, Prentice Hall, 1996, on linearised buckling; I did not have it to hand, so the page-level reference is unchecked). Implemented with scikit-fem: T. Gustafsson and G. D. McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52), 2369, 2020. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

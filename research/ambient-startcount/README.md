@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-multistart` (its second "Next step": compare 2, 4, 8 and 16 starts, and random starts, at equal compute). Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose, the classifier and auditors are made-up uniform-error confusion matrices, and nothing is a claim about a real user, device or product. It seemed worth doing because `ambient-multistart` fixed 8 grid starts once and never asked whether that is too many or too few.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-startcount/
+
 ## Builds on (and does not claim affiliation with)
 
 - `research/ambient-multistart` (and through it `ambient-third`): the utility model, simulator and hardness-aware three-auditor Dawid-Skene EM (dsH3). `src/ambient_startcount/{sim,est}.py` are copies; the nested grids, random starts and `best_of_first` are added at the end of `est.py`.

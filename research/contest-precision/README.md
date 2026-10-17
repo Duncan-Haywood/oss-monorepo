@@ -2,6 +2,8 @@
 
 Stdlib-only Python. `n` contestants choose effort, are ranked on a noisy holdout (`σ = s/√m`), winner takes `V`. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/contest-precision/
+
 ```bash
 cd research/contest-precision
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests, ~20 s

@@ -2,6 +2,8 @@
 
 Second milestone of the simulation-first design track (`PROJECTS.md`, track 5). It reimplements the SIMP compliance-minimisation method of Sigmund's 99-line code on a Q4 grid, checks it against analytic and finite-difference tests, runs the cantilever and half-MBB problems, ablates the filter and the penalty, and converts the resulting density field into a connected, mirrored, extruded STL. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-topopt/
+
 **Builds on.** Sigmund (2001), "A 99 line topology optimization code written in Matlab", *Structural and Multidisciplinary Optimization* 21(2):120–127, <https://doi.org/10.1007/s001580050176>: the method, the filter and the OC update. Bendsøe (1989), "Optimal shape design as a material distribution problem", *Structural Optimization* 1:193–202 (SIMP). Andreassen, Clausen, Schevenels, Lazarov and Sigmund (2011), "Efficient topology optimization in MATLAB using 88 lines of code", *Structural and Multidisciplinary Optimization* 43:1–16 (vectorised assembly, which this code follows in spirit). Sigmund and Petersson (1998), "Numerical instabilities in topology optimization: a survey on procedures dealing with checkerboards, mesh-dependencies and local minima", *Structural Optimization* 16:68–75. This is an independent re-implementation: no code was copied, and the published codes were not run, so nothing here is checked against their printed numbers. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. It follows `simdesign-bracket`.
 
 ## Method

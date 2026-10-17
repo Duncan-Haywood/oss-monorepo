@@ -2,6 +2,8 @@
 
 A follow-up to `research/robofab-slipthresh` (track `robofab`; the first half of its "second friction coefficient and a lift acceleration" next step). That project found one threshold, far-end motion under 10 mm in 0.5 s (20 mm/s), where the minimum holding force of a bar varies by under 2x across eight MuJoCo contact settings, at one friction coefficient (mu 0.5) and gravity only. Here the same 16-threshold sweep is repeated at mu 0.3, 0.5 and 0.8, each with and without a 5 m/s^2 upward lift acceleration, six conditions in all. All numbers are from `experiments/results.txt` (MuJoCo 3.16.0).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-slipmu/
+
 - **The mu 0.5, no-lift condition reproduces `robofab-slipthresh` exactly** (3 s / 2 mm spreads 32.9, 400, 242.7, 89.4 for 20, 30, 40, 60 mm bars), so the two projects agree.
 - **20 mm/s is the only threshold under 5x in every condition.** Its worst-case spread (max/min of the minimum holding force over the 8 settings, worst of 4 bars) is 1.6 in four conditions (mu 0.3, 0.5 and 0.8 without lift; mu 0.8 with lift), 2.7 at mu 0.5 with lift and **4.5 at mu 0.3 with lift**, so "under 2" does not survive a low-friction, accelerating grasp. No condition fails at 20 N at this threshold.
 - **Every other threshold is at least 20x in every condition.** The next-best is 10 mm/s at 20.0 (mu 0.3 and 0.5, no lift) to 54.3 (mu 0.8, with lift); at 5 mm/s and below the worst spread is 54.3 to 400.

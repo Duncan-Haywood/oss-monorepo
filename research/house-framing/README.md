@@ -2,6 +2,8 @@
 
 First project of track 12, open-source residential construction (`PROJECTS.md`, milestone 1). Framing is 16.6% of the construction cost of an average new US single-family home (NAHB, *Cost of Constructing a Home*, 2024). Optimum value engineering (OVE), or "advanced framing", is a set of measures the NAHB Research Foundation developed for HUD in the 1970s to frame with less wood. Some of its measures are now in the model codes, but builders still use few of them (Home Innovation Research Labs). This project is an open, testable takeoff of a stylised house's exterior walls under conventional and advanced framing. It counts every stud, plate, header, cripple and block, then computes the whole-wall R-value and the NDS structural checks that decide whether the lighter frame is enough. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-framing/
+
 **Builds on.** The OVE measures as HUD's guideline describes them, NDS allowable-stress design for the stud and header checks, and the parallel-path method for the whole-wall R-value. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method (`src/house_framing/model.py`)

@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Third, partial step of milestone 1 (`swe-ledger`) of track 10, the software-engineering loop. `swe-ledger` showed the run log holds no outcome data and `swe-backfill` read git history; this project adds the pull-request half: for every closed PR in this repository (#1 to #526, 2026-09-28 to 2026-10-15) it records when it was opened and when, if ever, it merged. **It has no CI results, review comments, authorship, or reasons for closing, and it does not compute the track metric.** Those fields were not returned by the GitHub list endpoint used (the commit count, line counts and comment count came back empty). All numbers below come from `experiments/results.txt`, computed from the committed `experiments/prs.txt`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-prflow/
+
 - **87.5% of closed PRs merged** (460 of 526, Wilson 95% interval 84.3% to 90.0%); 66 were closed unmerged. All were closed by 2026-10-15 07:16 UTC, since no PR was open at the snapshot.
 - **The merge rate fell in the tracked era.** PRs opened 09-28 to 10-01 merged 93.8% of the time (244/260); those opened from 10-05 on, 81.2% (216/266, intervals 90.2 to 96.2 and 76.1 to 85.4). The dip is concentrated on 10-14 (69 of 105, 66%). Why is not in this data. Closures could be duplicates, superseded work or mirror experiments.
 - **Merges are fast.** Median creation-to-merge time is 0.6 minutes (p90 12.5), 0.3 minutes in the bulk era and 1.6 in the tracked era. Eighteen merged PRs waited more than 3 hours (maximum 36 hours).

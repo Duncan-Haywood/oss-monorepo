@@ -2,6 +2,8 @@
 
 A side project of track 11 (adversarial human imitation), milestone 8's idea that a detector's score is a fidelity score for any simulator, applied to a physical twin. It was chosen because the track's main milestone (`mimic-loop`) needs local LLM weights, and Hugging Face was unreachable (HTTP 403) from this run's container. **No LLM is used and no text is generated.** Stylised and simulated only.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-twinc2st/
+
 Numbers come from `experiments/results.txt`.
 
 - **Setup.** The "real" system is a pendulum (RK4, dt 0.02 s, 100 steps, start angle uniform on [-2, 2] rad, released at rest) with viscous friction 0.1, Coulomb friction 0.3 and Student-t (3 d.o.f.) sensor noise, sd 0.02 rad. A twin is the same simulator with one thing changed. The C2ST trains a classifier to separate 800 real from 800 twin trajectories (independent start angles) and reports 5-fold cross-validated AUROC, mean and sd over 3 seeds. The conventional score is paired RMSE: the twin's noise-free trajectory against the real noise-free one from the same start angle.

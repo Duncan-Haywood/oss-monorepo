@@ -2,6 +2,8 @@
 
 Milestone 3 (`mimic-crossplay`) of track 11, adversarial human imitation. **Stylised toy study: one seed of the loop, one 0.5B model on both sides, a detector that is worse than chance to begin with, 48 titles per cell. Read the numbers as a first measurement of how `mimic-loop`'s prompts relate to each other, not as a result about LLM detection.** Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-crossplay/
+
 `mimic-loop` printed, for each of its eight runs, only the *latest* imitator against the *latest* detector. This project scores every imitator prompt any run produced against every detector prompt any run produced (same frozen Qwen2.5-0.5B-Instruct, Apache-2.0, same paired A/B detector protocol), per family. That gives a full payoff matrix per family. It is a zero-sum game: the detector's payoff is its paired accuracy, so the imitator wants low numbers and 0.50 is chance. Then it asks three things: is there progress that cycles, does a prompt that wins against its latest opponent only fit that opponent, and what is the game's value?
 
 Numbers are in `results.txt` (every matrix, mixture and per-run submatrix) and `results.json`; raw per-title margins and all generated texts (labelled generated, never posted anywhere) are in `results/*_matrix.json`; the heat maps are `results/figure.svg`.

@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-capcv`, whose first next step was "lower-variance validation scores (DR rather than IPS estimates, more folds, repeated splits)". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Mostly negative / preliminary**: swapping in a DR score changes almost nothing; only 8 random folds with the DR score helps clearly (at one rate), and the uninformed-prior case stays far below the label-matched control.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-drvalid/
+
 ## Motivation
 
 `ambient-capcv` chose the cap on the inverse-propensity correction by an inverse-propensity-scoring (IPS) estimate of held-out utility, and found the estimate too noisy for the uninformed prior. A doubly robust (DR) estimate of the same quantity (Dud&iacute;k, Langford and Li, 2011, "Doubly robust policy evaluation and learning", ICML) adds a model-based baseline, which can reduce variance. Does it help here?

@@ -5,6 +5,8 @@ measured on hardware.** The battery-life numbers come from a small model whose i
 vendor figures plus assumptions of mine, all listed below. No lab from `prompt.md` is built on;
 there is no lab tag.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-wearable/
+
 ## Motivation
 
 `PROJECTS.md` asks for a wearable design the owner could build: a microcontroller, a MEMS

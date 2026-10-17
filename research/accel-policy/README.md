@@ -2,6 +2,8 @@
 
 Fourth milestone of track 8 (task-specific AI accelerators) in `PROJECTS.md`: an accelerator for a small control network inside an arm loop, where the constraint is a deadline at the control rate, compared with a microcontroller whose cycles are estimated. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-policy/
+
 **Why it seemed worth asking.** The earlier `accel-*` projects measured energy and cycles but never tied them to a closed-loop requirement. A control network has a hard deadline (inference must finish within the control period), and a late result is a delayed torque. I wanted to know at which control rates the hardware choice starts to matter, and whether it matters before the network itself fails.
 
 **Builds on.** `research/accel-dataflow` (the P-lane output-stationary cycle formula at batch 1, `ceil(O/P)*I` per layer plus 3 overhead cycles), `research/accel-kws` (MLP quantisation approach) and `research/robofab-armaccel` (the two-link vertical-plane arm with its assumed masses and 5 N m torque limit, re-implemented here in NumPy). Policy learning follows behaviour cloning with DAgger (Ross, Gordon and Bagnell, 2011, "A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning", AISTATS); the teacher is textbook computed-torque control. Not re-verified in this run: the DAgger citation details were written from memory. No paper's numbers are reproduced and no CU Boulder group's work is built on or implied.

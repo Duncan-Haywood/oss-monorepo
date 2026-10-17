@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the "sweep load and arm lengths to see when the guard starts to bind" next step of `simdesign-buckleguard`. Produced with AI assistance (Claude). A stylised 2D plane-stress model with a closed-form buckling check and assumed rule values, material and load; preliminary, nothing was made or tested. It builds on none of the CU Boulder groups in `prompt.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-loadbind/
+
 **Builds on.** `simdesign-buckleguard` (the code, the bracket, the guard "governing lateral-torsional factor ≥ K" with K = 3 assumed, and the closed forms of Timoshenko and Gere, *Theory of Elastic Stability*, 2nd ed., 1961, whose page-level references are unchecked there too), `simdesign-dfm` and `simdesign-widerweb`. The only code change is that tip load F and both arm lengths are module settings (`dfm.LOAD_N`, `dfm.ARM_MM`) passed to the finite-element model and the buckling formulas; defaults reproduce `simdesign-buckleguard`.
 
 ## Method

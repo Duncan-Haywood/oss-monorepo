@@ -2,6 +2,8 @@
 
 A free-choice run, picked because `research/free-robustpaired` showed robust residual statistics rescuing the paired twin test under Student-t(3) noise and listed heavier tails, outlier runs and an estimated Huber scale as untried. The short answer: no single robust statistic wins both failure modes, and the Huber loss with its scale estimated from the data (the only version a practitioner can run) beats the known-scale version under heavy tails. **Stylised and simulated only; no real data, no LLM.**
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-robusttails/
+
 Every number below is copied from `experiments/results.txt`.
 
 ![Power against sample size under Student-t(2) cells and bad runs](experiments/power_vs_n.svg)
