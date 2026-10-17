@@ -1,0 +1,23 @@
+Real system: {'visc': 0.1, 'coul': 0.3, 'sd': 0.02, 'kind': 'student3', 'glo': 9.81}. PD gain grid of 48 pairs, tuned on 200 twin start angles, scored on 2000 held-out real start angles.
+Regret = real cost of the twin-tuned gains minus the best gain in the grid on the real system (cost units: rad^2 plus 0.002 u^2, time-averaged).
+Mean and sd over 12 tuning seeds. AUROC: boosted trees on raw + second differences, 800 vs 800, mean over seeds (0, 1, 2).
+
+twin                        AUROC  pairedRMSE    regret       sd   median  regret-null
+exact twin (null)           0.513     0.00000   0.00000  0.00000  0.00000      0.00000
+coul -10%                   0.581     0.00553   0.00000  0.00000  0.00000      0.00000
+coul -20%                   0.823     0.01110   0.00000  0.00000  0.00000      0.00000
+coul -33%                   0.960     0.01858   0.00022  0.00048  0.00000      0.00022
+coul -67%                   0.997     0.03759   0.00091  0.00066  0.00130      0.00091
+coul = 0                    0.999     0.05708   0.00137  0.00012  0.00135      0.00137
+visc x2                     0.959     0.04447   0.00000  0.00000  0.00000      0.00000
+visc x0.5                   0.911     0.02525   0.00042  0.00060  0.00000      0.00042
+g/L +20%                    0.998     0.22741   0.00137  0.00012  0.00135      0.00137
+g/L -20%                    0.999     0.25114   0.00000  0.00000  0.00000      0.00000
+gauss noise, same sd        0.922     0.00000   0.00158  0.00224  0.00000      0.00158
+noise sd x0.5               0.992     0.00000   0.00000  0.00000  0.00000      0.00000
+noise sd x0.75              0.861     0.00000   0.00000  0.00000  0.00000      0.00000
+noise sd x1.5               0.941     0.00000   0.00207  0.00226  0.00066      0.00207
+noise sd x2                 0.993     0.00000   0.00400  0.00160  0.00466      0.00400
+noise sd x0 (no noise)      1.000     0.00000   0.00987  0.00017  0.00993      0.00987
+Spearman(auroc, regret) over 15 wrong twins: rho=0.46, p=0.082
+Spearman(rmse, regret) over 15 wrong twins: rho=-0.28, p=0.308
