@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01Czhpf1srGzwBtBiJXRPtaC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T06:20:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Refresh stale gh-pages snapshot; README live-link SEO fix for ai-engineering-academy",
+  "projects": [
+    "ai-engineering-academy"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/publish-branch.sh",
+      "issue": "Build plus push exceeds a 10-minute tool timeout in a shallow cloud session; the script was killed after writing the local gh-pages ref, and a manual force-push was needed."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Brief pushes toward deep new ventures, but candidate venture surfaces (marketplace-fee-compare, shopify-fee-calculator) are already very deep; little guidance on picking a small high-value gap in a short run."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Published gh-pages at 9236054e (site was behind main). Only small repo change shipped: README live link. Did not build a new venture; the run was short on scope. runcost not attached.",
+  "corrections": [],
+  "redteam": null
+}
