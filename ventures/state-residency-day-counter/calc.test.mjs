@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, EMPLOYER_RULES, fmtNum, fmtMoney } from "./calc.mjs";
+import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, timelineToStays, EMPLOYER_RULES, fmtNum, fmtMoney } from "./calc.mjs";
 
 const Y = 2025;
 const spec = (lines, extra = {}) => ({ year: Y, stays: parseStays(lines.join("\n"), Y).stays, abode: {}, overrides: {}, ...extra });
@@ -245,4 +245,23 @@ test("fmtNum rounds to whole numbers by default and fmtMoney leaves cents off", 
   assert.equal(fmtNum(2.25, 1), "2.3");
   assert.equal(fmtMoney(140000.4), "$140,000");
   assert.equal(fmtMoney(null), "");
+});
+
+test("timelineToStays: Takeout placeVisits resolve addresses, skip travel and no-address visits, merge neighbours", () => {
+  const visit = (address, start, end, name) => ({ placeVisit: { location: { address, name }, duration: { startTimestamp: start, endTimestamp: end } } });
+  const doc = { timelineObjects: [
+    visit("10 Main St, Albany, NY 12207, USA", "2025-03-01T09:00:00Z", "2025-03-01T17:00:00Z"),
+    visit("22 Elm St, Albany, NY 12207, USA", "2025-03-02T08:00:00Z", "2025-03-04T10:00:00Z"),
+    visit("1 Beach Rd, Miami, FL 33101, USA", "2025-05-10T10:00:00Z", "2025-05-10T20:00:00Z"),
+    { activitySegment: { activityType: "IN_VEHICLE" } },
+    visit(undefined, "2025-06-01T10:00:00Z", "2025-06-01T11:00:00Z"),
+    visit("1 Old St, Austin, TX 78701, USA", "2024-12-31T10:00:00Z", "2024-12-31T11:00:00Z"),
+  ] };
+  const r = timelineToStays(JSON.stringify(doc), 2025);
+  assert.deepEqual(r.lines, ["2025-03-01 to 2025-03-04 NY", "2025-05-10 FL"]);
+  assert.equal(r.imported, 3);
+  assert.equal(r.skipped, 3);
+  assert.equal(parseStays(r.lines.join("\n"), 2025).errors.length, 0);
+  assert.equal(timelineToStays("not json", 2025).error, "Not a JSON file.");
+  assert.equal(timelineToStays(JSON.stringify([doc, doc]), 2025).lines.length, 2);
 });
