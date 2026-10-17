@@ -183,7 +183,7 @@
   </footer>
 
   <script type="module">
-    import { carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -200,7 +200,11 @@
         ? `<div class="scroll"><table><thead><tr><th>Could take it</th><th class="n">Payroll change</th><th class="n">Their hours then</th></tr></thead><tbody>${c.fits.map((f) => `<tr><td>${esc(f.name)}${f.overtimeAfter > 0.01 ? ' <span class="pill medium">overtime</span>' : ""}</td><td class="n">${f.extraCost >= 0 ? "+" : ""}${money2(f.extraCost)}</td><td class="n">${num(f.hoursAfter)}</td></tr>`).join("")}</tbody></table></div>`
         : '<div class="warn">Nobody can take this shift without changing someone else\'s week.</div>';
       const blk = c.blocked.length ? `<p class="note">Free then but blocked: ${c.blocked.map((b) => esc(b.name) + " (" + esc(b.reason) + ")").join("; ")}.</p>` : "";
-      $("#cover-out").innerHTML = fit + blk;
+      const sw = swapOptions(lastIn.staff, lastIn.slots, last, Number($("#cover-shift").value));
+      const swap = !sw.error && sw.trades.length
+        ? `<p class="note"><strong>Or trade shifts</strong> (both weeks stay within every rule):</p><div class="scroll"><table><thead><tr><th>${esc(sw.from)} swaps with</th><th>Takes back</th><th class="n">Payroll change</th></tr></thead><tbody>${sw.trades.slice(0, 8).map((t) => `<tr><td>${esc(t.with)}${t.direct ? "" : ' <span class="pill medium">needs a trade</span>'}</td><td>${DAYS[t.gives.day]} ${fmtClock(t.gives.startMin)}–${fmtClock(t.gives.endMin)}${t.gives.label ? " " + esc(t.gives.label) : ""}</td><td class="n">${t.extraCost >= 0 ? "+" : ""}${money2(t.extraCost)}</td></tr>`).join("")}</tbody></table></div>`
+        : "";
+      $("#cover-out").innerHTML = fit + blk + swap;
     }
     $("#cover-shift").addEventListener("change", showCover);
 

@@ -734,6 +734,37 @@ export function coverOptions(staff, slots, roster, slotIndex, options = {}) {
   return { slot, current: current >= 0 ? staff[current].name : null, fits, blocked };
 }
 
+// "Can I swap Saturday for Sunday?": for the shift at `slotIndex` (owned by someone), list one-for-one trades where
+// another person takes it and hands back one of their own shifts that the first person is free for, with both weeks
+// still passing every hard rule. Each trade carries the payroll change of the pair (overtime included), cheapest first.
+// `direct` marks people who could simply take the shift with nothing back (see coverOptions); a swap matters when they cannot.
+export function swapOptions(staff, slots, roster, slotIndex, options = {}) {
+  if (!roster || !roster.owner || !slots[slotIndex]) return { error: "Build a roster first." };
+  const ctx = buildContext(staff, slots, { ...(roster.options || {}), ...options });
+  const owner = roster.owner;
+  const a = owner[slotIndex];
+  if (a < 0) return { error: "That shift is open; use the sick-call finder to see who can take it." };
+  const listOf = (p) => owner.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0).sort((x, y) => slots[x].start - slots[y].start || x - y);
+  const dollars = (p, list) => payroll(ctx, p, list);
+  const aBase = listOf(a);
+  const trades = [];
+  for (let b = 0; b < ctx.P; b++) {
+    if (b === a || !ctx.elig[b][slotIndex]) continue;
+    const bBase = listOf(b);
+    const direct = validList(ctx, b, insertSorted(ctx, bBase, slotIndex));
+    for (const t of bBase) {
+      if (!ctx.elig[a][t]) continue;
+      const bNew = insertSorted(ctx, bBase.filter((k) => k !== t), slotIndex);
+      const aNew = insertSorted(ctx, aBase.filter((k) => k !== slotIndex), t);
+      if (!validList(ctx, b, bNew) || !validList(ctx, a, aNew)) continue;
+      const delta = dollars(a, aNew) - dollars(a, aBase) + dollars(b, bNew) - dollars(b, bBase);
+      trades.push({ with: staff[b].name, takes: slots[slotIndex], gives: slots[t], giveIndex: t, extraCost: delta, direct });
+    }
+  }
+  trades.sort((x, y) => x.extraCost - y.extraCost || x.with.localeCompare(y.with) || x.giveIndex - y.giveIndex);
+  return { slot: slots[slotIndex], from: staff[a].name, trades };
+}
+
 export function rosterCsv(r) {
   const q = (s) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
   const rows = ["day,start,end,hours,label,assigned_to,role"];
