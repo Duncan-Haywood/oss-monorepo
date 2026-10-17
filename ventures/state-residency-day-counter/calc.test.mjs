@@ -357,3 +357,15 @@ test("an employer state that is not a two-letter code is ignored, even if it nam
     assert.equal(r.employer ?? null, null, bad);
   }
 });
+
+test("saved setup round-trips the form fields and rejects other files", async () => {
+  const { setupToJson, setupFromJson, SETUP_FIELDS } = await import("./calc.mjs");
+  const values = { year: "2025", asof: "2025-09-30", home: "FL", employer: "", wages: "120000", conv: "nights", stays: "2025-01-01 to 2025-03-31 FL\n6/2 - 6/9 New York", abode: "NY, FL", limits: "OH 90", extra: "ignored" };
+  const back = setupFromJson(setupToJson(values));
+  assert.equal(back.error, undefined);
+  for (const k of SETUP_FIELDS) assert.equal(back.fields[k], values[k], k);
+  assert.ok(!("extra" in back.fields));
+  assert.match(setupFromJson("not json").error, /not JSON/);
+  assert.match(setupFromJson('{"kind":"other","fields":{}}').error, /not a setup/);
+  assert.match(setupFromJson("null").error, /not a setup/);
+});

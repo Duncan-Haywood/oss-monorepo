@@ -574,3 +574,25 @@ ${notices}
 <p class="small">Prepared with the State Residency Day Counter from dates the user typed or imported. An organising aid, not tax or legal advice; it does not decide residency (domicile, ties, abode, part-year rules and reciprocity are not modelled) and the state tests are summaries that may be out of date. Check the state's own guidance.</p>
 </body></html>`;
 }
+
+// Saved setup: the form's text fields, so a person who tracks days all year can
+// come back to them. Pure functions; the page decides where the text lives
+// (opt-in local storage, or a file the person saves and loads themselves).
+export const SETUP_FIELDS = ["year", "asof", "home", "employer", "wages", "conv", "stays", "abode", "limits"];
+
+export function setupToJson(values) {
+  const fields = {};
+  for (const k of SETUP_FIELDS) if (typeof values[k] === "string" || typeof values[k] === "number") fields[k] = String(values[k]);
+  return JSON.stringify({ kind: "state-residency-day-counter-setup", version: 1, fields }, null, 2);
+}
+
+export function setupFromJson(text) {
+  let doc;
+  try { doc = JSON.parse(text); } catch { return { error: "That file is not JSON. Choose a setup file saved from this page." }; }
+  if (!doc || doc.kind !== "state-residency-day-counter-setup" || typeof doc.fields !== "object" || doc.fields === null) {
+    return { error: "That file is not a setup saved from this page." };
+  }
+  const fields = {};
+  for (const k of SETUP_FIELDS) if (typeof doc.fields[k] === "string") fields[k] = doc.fields[k].slice(0, 100000);
+  return { fields };
+}
