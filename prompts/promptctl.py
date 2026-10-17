@@ -413,7 +413,7 @@ def validate_backlog_item(root: Path, path: Path, item: Any) -> list[str]:
     if not (isinstance(item["opened"], str) and DATE_RE.match(item["opened"])):
         errors.append(f"{where}: opened must be YYYY-MM-DD")
     if item["status"] == "done" and not item.get("pr"):
-        errors.append(f"{where}: a done item names the pull request that did it ('pr')")
+        errors.append(f"{where}: a done item names the pull request that did it ('pr', or \"this\" while its PR is unopened)")
     if item["status"] == "dropped" and not item.get("result"):
         errors.append(f"{where}: a dropped item says why in 'result'")
     return errors
