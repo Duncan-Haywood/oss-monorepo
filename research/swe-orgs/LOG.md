@@ -2,6 +2,13 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-17 · Batch 11: Flickr's ten deploys a day and Segment's return to one codebase
+
+- Added 2 sources and 2 practices (42 practices, 41 sources), both from growth-stage companies: Allspaw and Hammond's Velocity 2009 talk on 10+ deploys a day at Flickr (P41) and Segment's 2018 post on going back from microservices to one codebase (P42).
+- **Both are already how this loop works.** P41 (ship small changes to trunk) is `adopted`: branch from `main`, one project per pull request, merge when CI is green; the difference is that unfinished work stays off `main` instead of behind flags. P42 is `adopted` (`partial` transfer): the portfolio is one repository, and research was merged in on 2026-10-16. The costs Segment describes fall on people running many services, which agents do not.
+- **Still no proposal.** The ledger now has 751 rows (it had 559; the batch 10 numbers are not comparable in size). The highest unadopted `yes` row is P23 at 2.5%, below the 5% bar. Every failure class fell again (tooling 2.5%, duplicate work 2.3%, coordination 1.6%), so more runs report no error of these kinds.
+- Verification was by web search only; WebFetch could not resolve hosts from the container. The Flickr talk is by Flickr (Yahoo) staff, not Etsy, as a search result first suggested; the slides were not read. The Segment post was not found, so its author is unconfirmed, no figure from it is used, and the url is the Changelog episode page.
+
 ## 2026-10-16 · Batch 10: Conway's law, Microsoft's organisation-and-quality study and Team Topologies
 
 - Added 3 sources and 3 practices (40 practices, 39 sources), all on how team structure shapes the system: Conway's *How Do Committees Invent?* (1968; P38), Nagappan, Murphy and Basili's study of organisational structure and failures in Windows Vista (ICSE 2008; P39) and Skelton and Pais's *Team Topologies* (2019; P40). P39 is the catalogue's third `measured` row.
