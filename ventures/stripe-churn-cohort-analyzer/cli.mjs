@@ -3,6 +3,7 @@
 //
 //   node cli.mjs subscriptions.csv                 # summary, findings, last 6 months
 //   node cli.mjs --cohorts subscriptions.csv       # add the cohort retention table
+//   node cli.mjs --what-if 1 subscriptions.csv     # what cutting churn by 1 point is worth over 12 months
 //   node cli.mjs --json subscriptions.csv          # machine-readable
 //   node cli.mjs --max-churn 5 subscriptions.csv   # exit 1 if monthly logo churn > 5%
 //   cat subscriptions.csv | node cli.mjs -         # read stdin
@@ -15,7 +16,7 @@
 
 import { readFile } from "node:fs/promises";
 import process from "node:process";
-import { parseCsv, normalizeRows, analyze, sampleCsv, money, pct } from "./calc.mjs";
+import { parseCsv, normalizeRows, analyze, sampleCsv, simulateChurnReduction, money, pct } from "./calc.mjs";
 
 const USAGE = `Churn, MRR and cohort retention from a Stripe subscriptions CSV export.
 
@@ -25,6 +26,7 @@ Usage:
 Options:
   --months <n>        monthly rows to print (default 6)
   --cohorts           also print the cohort retention table
+  --what-if <pts>     also project 12 months with monthly logo churn lowered by <pts> points
   --json              print the full analysis as JSON
   --max-churn <pct>   exit 1 if recent monthly logo churn exceeds this percent
   --example           use the built-in synthetic data instead of a file
@@ -36,17 +38,18 @@ a subscription export and are not modelled. Estimates, not financial advice.
 `;
 
 export function parseArgs(argv) {
-  const opts = { file: null, months: 6, cohorts: false, json: false, maxChurn: null, example: false, help: false };
+  const opts = { file: null, months: 6, cohorts: false, json: false, maxChurn: null, whatIf: null, example: false, help: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "-h" || arg === "--help") opts.help = true;
     else if (arg === "--cohorts") opts.cohorts = true;
     else if (arg === "--json") opts.json = true;
     else if (arg === "--example") opts.example = true;
-    else if (arg === "--months" || arg === "--max-churn") {
+    else if (arg === "--months" || arg === "--max-churn" || arg === "--what-if") {
       const v = Number(argv[++i]);
       if (!Number.isFinite(v) || v < 0) throw new Error(`${arg} needs a non-negative number`);
       if (arg === "--months") opts.months = Math.max(1, Math.floor(v));
+      else if (arg === "--what-if") opts.whatIf = v;
       else opts.maxChurn = v;
     } else if (arg.startsWith("-") && arg !== "-") throw new Error(`unknown option: ${arg}`);
     else opts.file = arg;
@@ -60,7 +63,7 @@ export function run(text, opts = {}) {
   const result = analyze(subs);
   if (result.invalid) return { error: result.invalid, skipped };
   const over = opts.maxChurn != null && result.summary.logoChurn * 100 > opts.maxChurn;
-  return { result, skipped, over };
+  return { result, skipped, over, subs };
 }
 
 export function render(result, skipped, opts = {}) {
@@ -86,6 +89,16 @@ export function render(result, skipped, opts = {}) {
     out.push("", `Skipped ${skipped.length} unreadable row(s)`, "-".repeat(60));
     for (const k of skipped.slice(0, 10)) out.push(`  line ${k.line}: ${k.reason}`);
   }
+  if (opts.whatIf != null) {
+    const w = simulateChurnReduction(opts.subs ?? [], { reductionPts: opts.whatIf });
+    out.push("", `What if monthly churn fell ${opts.whatIf} point(s)?`, "-".repeat(60));
+    if (w.invalid) out.push(`  ${w.invalid}`);
+    else {
+      out.push(`  Churn ${pct(w.baselineChurn)} -> ${pct(w.reducedChurn)} a month; new MRR held at ${money(w.newMrrPerMonth)} a month.`);
+      out.push(`  MRR in ${w.months} months: ${money(w.reducedMrr)} against ${money(w.baselineMrr)} (${money(w.mrrGain)} more, ${money(w.arrGain)} a year).`);
+      out.push(`  Revenue kept over the ${w.months} months: ${money(w.cumulativeGain)}. Arithmetic on these assumptions, not a forecast.`);
+    }
+  }
   out.push("", "Estimates from the dates and amounts in your file; not financial advice.");
   return out.join("\n");
 }
@@ -103,9 +116,10 @@ export async function main(argv) {
   let text;
   try { text = opts.example ? sampleCsv() : opts.file === "-" ? await readStdin() : await readFile(opts.file, "utf8"); }
   catch (e) { console.error(`cannot read ${opts.file}: ${e.message}`); return 2; }
-  const { result, skipped, error, over } = run(text, opts);
+  const { result, skipped, error, over, subs } = run(text, opts);
+  opts.subs = subs;
   if (error) { console.error(error); return 2; }
-  console.log(opts.json ? JSON.stringify({ summary: result.summary, findings: result.findings, months: result.months, cohorts: result.cohorts, skipped }, null, 2) : render(result, skipped, opts));
+  console.log(opts.json ? JSON.stringify({ summary: result.summary, findings: result.findings, whatIf: opts.whatIf != null ? simulateChurnReduction(subs, { reductionPts: opts.whatIf }) : undefined, months: result.months, cohorts: result.cohorts, skipped }, null, 2) : render(result, skipped, opts));
   if (over) { console.error(`monthly logo churn ${pct(result.summary.logoChurn)} exceeds --max-churn ${opts.maxChurn}%`); return 1; }
   return 0;
 }
