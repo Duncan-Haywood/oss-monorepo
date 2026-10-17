@@ -2,6 +2,8 @@
 
 Milestone 2 (`swe-audit`) of track 10, the software-engineering loop, **first pass**. Track 10's metric is valuable, correct projects per unit of compute, and correctness needs an estimate of how often a merged project's numbers are wrong. This project measures the cheapest slice of that: does re-running a project's experiment give its committed output? It does **not** check citations, claims or code quality. Produced with AI assistance (Claude). No language model is used in the measurement.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-audit/
+
 ## Result
 
 A seeded random sample of 40 of the 386 projects that ship both `experiments/run.py` and `experiments/results.txt` (seed 20261015) was re-run, one clean copy each, with a 300 s limit and four jobs in parallel. Full table: `experiments/results.txt`.

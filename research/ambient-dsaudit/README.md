@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-noisyaudit` (its first "Next step": Dawid-Skene with two auditors, and wrong assumed accuracies). Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose, the classifier and both auditors are made-up uniform-error confusion matrices, and nothing is a claim about a real user, device or product.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-dsaudit/
+
 ## Motivation
 
 `ambient-noisyaudit` fixed the bias from a noisy auditor by giving the estimator the auditor's exact accuracy. That is not available in practice. This project asks two things: (A) how much does it cost to assume the wrong accuracy, and (B) if every audited message gets a second, independent auditor, can the estimator learn all three confusion matrices itself (Dawid-Skene), and how close does it get to the version that was told the answer?

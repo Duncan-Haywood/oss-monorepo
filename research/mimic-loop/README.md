@@ -2,6 +2,8 @@
 
 Milestone 2 (`mimic-loop`) of track 11, adversarial human imitation. **Stylised toy run, one seed, 24 test pairs per point, and a weak detector: read the numbers as a working harness and a first look, not as a result about LLM detection.** Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-loop/
+
 Two copies of one frozen model, Qwen2.5-0.5B-Instruct (Apache-2.0), play. The *imitator* writes a text for a context (a title in a family); the *detector* sees a human text and an imitator text for the same title, in both orders, and says which one a person wrote. Only each side's prompt changes. Rounds alternate: first the detector's prompt is optimised against the imitator's current texts, then the imitator's prompt against the new detector. Four proposers get the same budget (4 candidate evaluations per side per round, 3 rounds), on two families from `mimic-contexts`' suite (reddit posts, film reviews).
 
 Numbers are in `results.txt` (all rounds, prompts and samples) and `results/*.json`; the figure is `results/figure.svg`.

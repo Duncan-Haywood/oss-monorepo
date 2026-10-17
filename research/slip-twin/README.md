@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Real system: linear single-track car with tyre slip; twin: kinematic bicycle `ψ' = vδ/L`; calibrated twin adds the understeer gradient `K`. Results (all from `experiments/results.txt`): (1) steering the real car with the twin's angle gives radius `R(1 + Kv²/L)`, matched by simulation (understeer car, R = 100 m: 104.6, 118.5, 174.0, 266.4 m at 5, 10, 20, 30 m/s, twin 4–63% too small, exactly half at the characteristic speed 23.26 m/s; oversteer car: twin radius too large by up to 136% at 20 m/s); (2) calibrating `K` removes the radius error exactly; (3) the kinematic and calibrated twins both certify `δ = −k_p y − k_d ψ` as stable at every speed and gain, but 11 of a 30-point gain grid lose stability on the real car below 60 m/s (e.g. kp 0.4, kd 0.5: 14.0 m/s; kp 0.1, kd 0.5: 36.3 m/s), confirmed in the time domain (offset 1.1·10⁻⁹ m at 8 m/s, 4.6·10⁷ m at 20 m/s); (4) an oversteer car with feedback loses stability at 23.7 m/s, below its open-loop critical speed 26.33 m/s. The closed-loop limit is not derived in closed form. Stylised: linear tyres, constant speed, no actuator lag or delay; see `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/slip-twin/
+
 ```bash
 cd research/slip-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, about 1 s

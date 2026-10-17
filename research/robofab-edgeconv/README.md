@@ -2,6 +2,8 @@
 
 A follow-up to `research/robofab-scurvefine` (track `robofab`), taking its first "Next steps" item: re-solve the time-optimal profile at higher node counts for all rows. Same toy arm, parts, limits, ramp grid and ramp-resolved sampling as `robofab-scurvefine`, `robofab-scurve`, `robofab-trapezoid`, `robofab-jointspeed` and `robofab-jawcap`. All numbers below are from `experiments/results.txt` (and `results.json`).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-edgeconv/
+
 - **Raising the solver from 400 to 6400 nodes moves the six-part time-optimal total down by 0.01 to 0.46%** across the 12 rows (3 arm sizes x jaw cap 5x hold force or none x speed limit 2 or 1 rad/s). Most of the change is already there at 1600 nodes: the 1600 to 6400 step is 0.000 to 0.009 s, against 0.000 to 0.038 s for 400 to 1600.
 - **With n = 6400 the time-optimal edge over the ramp-resolved trapezoid is positive in all 12 rows: +0.11% to +0.88%.** At n = 400 it was negative in 7 of the 12 rows (down to -0.30%), five of them at 1 rad/s. So the negatives reported in `robofab-scurvefine` were the solver's discretisation, as that project suspected from one row.
 - **A one-step Richardson estimate (assuming error proportional to 1/n) changes the edge by at most 0.03 percentage points** from the n = 6400 value (+0.12% to +0.88%). The ratio of the 400-to-1600 change to the 1600-to-6400 change ranges from 4 to 85 across rows (4 would be exactly first order), so the extrapolation is only indicative; the n = 6400 figures are the ones to quote.

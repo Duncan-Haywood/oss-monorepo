@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Workers report labels, are scored only against each other, and privately choose how much effort to spend. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/peer-prediction-effort/
+
 ```bash
 cd research/peer-prediction-effort
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests

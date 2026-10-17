@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A receding-horizon controller solves the twin's `H`-step LQ problem (terminal cost 0) with the twin's plant pole `a_t = m·a` and applies the first gain `K_H`. On a scalar plant this is a fixed gain, so its real cost is exact: `J = (q+rK²)W/(1−(a−bK)²)` when `|a−bK|<1`, else infinite; matched to a 400,000-step simulation within 0.3%. Results, all from `experiments/results.txt` (`a`=0.9, `b`=1, `q`=1): (1) `K_H` rises with `H`, so when the twin **overstates** the pole the real cost is *not* monotone in `H`: at `m`=2, `r`=1 the cost is 1.810 at `H`=2 and 3.966 at `H`=60 (optimum 1.484), a 54% saving from looking *less* far ahead; when the twin understates it, longer is better and the effect is absent. (2) The twin cannot see this: its own claim falls monotonically with `H` (9.53 at `H`=2 to 3.52), so it ranks the horizons in the wrong order. (3) The saving grows with control cost (at `m`=2: 12% for `r`=0.1, 54% for `r`=1, 79% for `r`=5, 91% for `r`=20), and for large `m` the long horizon is unstable while `H`=2 stays stable up to `m` = `(1+a)(r+b²q)/(abq)` (exact; 4.22 at `r`=1 against 2.51 for `H`=60). (4) A terminal cost equal to the twin's own Riccati solution makes `K_H` independent of `H` and removes the effect. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/horizon-twin/
+
 ```bash
 cd research/horizon-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, <1 s

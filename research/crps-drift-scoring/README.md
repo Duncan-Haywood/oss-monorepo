@@ -2,6 +2,8 @@
 
 Stdlib-only Python. A verifier reports a Gaussian `N(m,s²)` for a continuous quantity (e.g. benign float drift); we compare the continuous ranked probability score (CRPS) with the log score. Exact closed forms for expected score and excess, the CRPS as an integral of threshold Brier scores, a bounded overconfidence penalty, 1-Lipschitz sensitivity to outcome noise, a plug-in law `5σ/(8√π n)`, and finite-variance thresholds (ν>2 vs ν>4). See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/crps-drift-scoring/
+
 ```bash
 cd research/crps-drift-scoring
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, <1 s

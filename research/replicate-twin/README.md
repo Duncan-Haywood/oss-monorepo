@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A fixed budget of `N` twin draws is split into `r` independent replications, each started at offset `δ` from steady state with its first `d` draws deleted. For an AR(1) the MSE of the grand mean and the coverage of the Student-t interval built from the replication means are exact (a noncentral-t integral, matched to simulation: 0.9212 vs 0.9207 at `r`=50, N=2000, φ=0.9). A single run minimises MSE; replicating costs at most 1.07× at φ=0.9 (`r`=50, N=20 000) but 2.2× at φ=0.99. At the MSE-optimal `d` the nominal-95% interval covers 0.921 at `r`=50, N=2000 and 0.918 at N=20 000, φ=0.99, and for `n`=40 draws per replication no `d` reaches 94%. Single-run 30-batch means were *not* worse here (coverage 0.925–0.945, narrower than the `r`=10 interval: 0.185 vs 0.22). For an M/M/1 instrument started empty (ρ=0.9, 6000 jobs, preliminary, 500 runs) 30 replications have bias −3.1 and cover 5.8%; none of the settings tried reach 95%. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/replicate-twin/
+
 ```bash
 cd research/replicate-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, ~10 s

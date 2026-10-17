@@ -2,6 +2,8 @@
 
 First milestone of the engineered-clothing track (`PROJECTS.md`, track 6). A bottom-up cost model for a lined woven coat (fabric from pattern area and marker efficiency, lining, trims, sewing minutes times wage, overhead, then brand and retail multipliers), applied to two designer coats with reported retail prices, plus a replica built from cheap cloth and a simpler construction. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-teardown/
+
 **Builds on.** Standard garment-costing practice: labour cost = standard allowed minutes x wage per minute / line efficiency (as described in industry teaching material such as <https://onlineclothingstudy.com/?p=10723>, which I have not verified as an authority). A factory case study reports a blazer standard minute value near 76 minutes (<https://doi.org/10.2478/aut-2019-0045>; I saw only a search-result summary, not the paper, so I use it only as a plausibility check on my assumed 85 to 110 minutes). The Clean Clothes Campaign's living-wage material (<https://cleanclothes.org/faq/pay-living-wages>) is the track's pointer for where a garment's price goes; **this project does not use its figures**. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

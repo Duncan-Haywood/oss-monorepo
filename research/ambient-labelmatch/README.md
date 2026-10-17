@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-fullinfo`, whose first two "next steps" were a label-matched control and clipped or self-normalised weights. Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-labelmatch/
+
 ## Motivation
 
 `ambient-fullinfo` found that a model fitted on every window's label reaches the oracle, while the model fitted only on windows where the assistant spoke does not. But the full-information fit had about 360 labels per hour against a few per hour, so that gap mixes selection bias with data volume. It also suspected, without testing, that the raw 1/&epsilon; weights were what made IPS unstable. Here I test both.

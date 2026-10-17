@@ -2,6 +2,8 @@
 
 (Question as first asked: how much do early ordering, prefabricated panels and fewer handoffs shorten a house build?)
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-schedule-check/
+
 Cross-check for [`house-schedule`](../house-schedule) (track 12, milestone 8), which landed while this was being built, so this is a deliberately separate model (13 tasks, different baseline for ordering, list scheduling) rather than a duplicate. Produced with AI assistance (Claude). Built for the owner's question: how much do sequencing, prefabrication and fewer handoffs cut the build time and the interest paid while it runs?
 
 **Headline (stylised, every input assumed).** In a Monte Carlo schedule of 13 trades and inspections, **ordering the long-lead items (trusses, windows) on day 0 instead of when their predecessor starts cuts the mean build from 205 to 181 calendar days (-11%)**. Prefabricated wall and roof panels alone cut 1.5%, and merging roofing and siding into the framing crew changed nothing (+0.3%, within noise). All three together: 171 days (-17%), and construction-loan interest falls from 1.89% to 1.72% of construction cost. **The size of the handoff gap matters more than any lever tested**: moving it from 0.5 to 5 working days moves the baseline from 184 to 248 days. These are findings about this model and its assumed inputs, not about real builds.

@@ -2,6 +2,8 @@
 
 > Update: `accel-gatedmux` found that this engine's accumulator read inflated every WS area here by 17 to 28 %; the cycle, fetch and clock-energy results stand, the WS-over-OS area ratios (for example 5.3x at B = 16) are overstated.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-gatedrtl/
+
 Ninth step of track 8 (task-specific AI accelerators) in `PROJECTS.md`. `accel-gatedprice` priced clock-gated register-file weight-stationary (WS) scheduling from liberty files alone and ended on "write the gated WS engine in RTL and synthesise it to count the extra cells". This does that. It seemed worth doing because that verdict rested on two assumptions never checked in a design: that gated accumulators are written exactly as often as the output-stationary (OS) ones, and that the gates and enable logic add little. The question: in a built engine, what do the gates cost in cells and area, and how close does the accumulator clock energy get to OS?
 
 **Builds on.** `research/accel-planebatch` (the engine's datapath, schedule, ports and testbench style are the same; `gated_engine.v` is a new file, not a copy of its flop code), `research/accel-gatedprice` (flop and gate clock-pin energies, read again here with its `lib.py`), `research/accel-kws` (layer shapes 64x70 and 11x64, int4 weights, int8 inputs, 24-bit accumulators). No lab in `prompt.md` works on this; no lab tag is claimed.

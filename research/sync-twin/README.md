@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Two sensors observe the same smooth latent signal `x(t)` (Gaussian process, squared-exponential kernel, variance `σ²`, length scale `ℓ`). Sensor A is on the reference clock (noise variance `a`), sensor B (noise variance `b`) reads `x(t−u)` with clock error `u = δ + J`, constant offset `δ` plus per-sample jitter `J ~ N(0, s²)`. A twin simulates both sensors on one clock, so it weights A by `b/(a+b)` and claims MSE `ab/(a+b)`. The clock error adds an exact variance `g = 2σ²[1 − (1+s²/ℓ²)^{−½} e^{−δ²/(2(ℓ²+s²))}] ≈ σ²(δ²+s²)/ℓ²` (offset and jitter add in quadrature; matched to 200 000-draw simulation to within 0.5%), so the twin-designed fusion has real MSE `ab/(a+b) + a²g/(a+b)²`, i.e. `1 + ag/(b(a+b))` times the claim. With `a = 0.01`, `b = 0.04`: a 0.1ℓ offset costs 5%, 0.3ℓ costs 44%, 0.5ℓ costs 118%; the fusion is worse than sensor A alone as soon as `g > a+b`, a pure offset of 0.225ℓ (68 ms if `ℓ = 0.3 s`); the *better* the delayed sensor, the more it hurts (at `g = 0.02` the excess is 3.7× for `b = a/2`, 1.007× for `b = 16a`); a 10% budget on the twin's claim needs RMS timing error ≤ `ℓ√(εb(a+b)/(aσ²))` ≈ 0.14ℓ. Randomising the twin's clock with the right timing variance recovers the optimal weight `(b+g)/(a+b+g)`; a randomisation range 4× too wide in variance costs 1–4% over the optimum, one that is too narrow (none at all) costs 0.2% / 2.7% / 29% at `g` = 0.005 / 0.02 / 0.1. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sync-twin/
+
 ```bash
 cd research/sync-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, ~4 s

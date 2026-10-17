@@ -2,6 +2,8 @@
 
 Fourth milestone of the self-replicating manufacturing track (`PROJECTS.md`, track 1). A fleet of printers splits its machine time between building copies of itself and making goods; a control policy decides the split over time. Bang-bang (copy flat out, then switch to goods), constant and smooth policies are compared on the total value of goods made. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-reinvest/
+
 **Builds on.** `research/selfrep-growth` (imported, not copied): its per-copy work `W` = 50.0 h and vitamin cost `V` = 170.3 units, which come in turn from `research/selfrep-closure` (RepRap Prusa Mendel part model; Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>). The question follows von Neumann (1966) and Freitas and Merkle (2004), as in `PROJECTS.md`. No paper's result is reproduced or compared here. The only theory is the elementary calculation below. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

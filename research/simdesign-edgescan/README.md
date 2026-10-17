@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the "rerun the scan with a 0.1 mm step near the feasible edge" next step of `simdesign-widerweb`. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed rule values, materials and load; a small, preliminary experiment.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-edgescan/
+
 **Builds on.** `research/simdesign-widerweb` (model, rules and optimiser copied into `src/simdesign_edgescan/` so the project stays self-contained; only the experiment script and tests differ), and through it `simdesign-meshconverge`, `simdesign-pocketmesh`, `simdesign-gaugemesh` and `simdesign-dfm`. scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

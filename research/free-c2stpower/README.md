@@ -2,6 +2,8 @@
 
 A free-choice run (not one of the priority tracks), chosen because the sibling project `research/mimic-twinc2st` showed that a classifier two-sample test (C2ST) can see twin errors that a paired trajectory error cannot, but only at one sample size (800 per class) and with no significance rule. The question a practitioner asks next is "how much real data do I need?", and whether the paired test is the cheaper choice when it applies. **Stylised and simulated only; no real data, no LLM.**
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-c2stpower/
+
 Every number below is copied from `experiments/results.txt`.
 
 ![Power against sample size](experiments/power_vs_n.svg)

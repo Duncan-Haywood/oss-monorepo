@@ -2,6 +2,8 @@
 
 Follow-up to [`house-spans`](../house-spans) in track 12, open-source residential construction (`PROJECTS.md`; the "continuous spans" next step of `house-spans`). A floor or ceiling joist lapped over a beam or bearing wall in the middle is a two-span continuous member. The tool answers how much longer each span can be than a simple-span joist's, once you check every load pattern (live load on one span or both) against bending, shear, bearing and deflection. Headline result: **under full uniform load a two-span joist's peak moment equals a simple span's (wL&sup2;/8, at the middle support), so a bending-governed joist gains nothing from continuity; only deflection-governed members gain, mostly ceiling joists, by up to 18.5% in this sweep.** Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-continuous/
+
 **Builds on.** The NDS allowable-stress checks and base values of `house-spans`, which this project imports, and classical continuous-beam theory (three-moment equation). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 **Not a design.** Structure is life safety. This is research code, not reviewed by a licensed engineer, not checked against published span tables, and it shows nothing complies with a building code. A real member needs a licensed engineer's or architect's review, or the local code's prescriptive path, and a permit.

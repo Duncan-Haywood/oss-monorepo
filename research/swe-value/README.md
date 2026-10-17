@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Milestone 3 (`swe-value`) of track 10, the software-engineering loop, in `PROJECTS.md`. The track's metric needs a *value* term, and nothing here scored one. I wrote a three-level rubric, scored all 408 projects under `research/` with two automated passes that look at different evidence, scored a seeded 30-project sample by hand, and measured agreement with Cohen's kappa. Produced with AI assistance (Claude). **Preliminary: stylised proxies, no human rater, and the rubric author also made the hand scores.**
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-value/
+
 ## Results (all from `experiments/results.txt`)
 
 - **The two automated passes barely agree.** Pass A (names and order only: a milestone `PROJECTS.md` lists, first of a name family, or later family member) and pass B (README text only: similarity to the nearest earlier README in the same track) give linear-weighted kappa 0.07 (95% bootstrap 0.01 to 0.13) over 408 projects; unweighted 0.03 (&minus;0.03 to 0.09). That is chance-level agreement. Pass B's thresholds hardly matter (kappa 0.02 to 0.07 over four settings).

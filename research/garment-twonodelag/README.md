@@ -2,6 +2,8 @@
 
 Follow-up to [`garment-twonodeheld`](../garment-twonodeheld) (track 6, `PROJECTS.md`), taking the first item of its next steps: "retune with an actuation lag of 5 to 10 min and a penalty per switch". Everything is a model on a CPU; no person or fabric was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-twonodelag/
+
 **Builds on.** `garment-twonodeheld` (train and held-out rooms, the 54-band grid, the tuning routine; reused unchanged), `garment-twonodemet` (metabolic-step scenarios, skin-temperature proxy), `garment-twonodeswitch` (hysteresis gate with a first-order actuation lag; closed 0.15 and open 0.8 infrared transmittance, both assumptions) and `garment-twonodeoptics` (switchable two-node model; "ours" is this repository's choices, "ref" those of `pythermalcomfort` 4.6.1). The gating idea is motivated by Zhang et al. (2019), cited in `garment-thermal`; the actuator here is a toy, not a model of that textile. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 **Citation check.** No new source; Zhang et al. (2019) was not re-read in this run.

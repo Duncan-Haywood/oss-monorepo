@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Milestone 6 (`swe-prompt`) of track 10, the software-engineering loop, in `PROJECTS.md`. **Partial: this builds and calibrates the stopping rule `prompt.md`'s experiment process needs. No candidate brief has been run, so no brief's effect is measured.** All numbers below come from `experiments/results.txt`. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-prompt/
+
 ## Question
 
 `prompt.md` compares a candidate brief with the champion run by run. If someone checks the running tally after every run and stops when it looks significant, how often does a brief that changed nothing get declared a winner? And is there a rule that is safe to peek at, and how many runs does it need at the effect sizes and outcome rates this ledger has?

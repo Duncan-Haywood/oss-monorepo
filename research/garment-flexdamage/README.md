@@ -2,6 +2,8 @@
 
 Follow-up to the "correlated damage" and "more draws with confidence intervals" next steps of [`garment-contactres`](../garment-contactres), which itself follows [`garment-optics`](../garment-optics). A two-layer resistor-network model of a conductive woven fabric (warp and weft touch only through a contact resistor at each crossing) with two kinds of non-independent damage: contacts that wear where yarns break, and breaks that cluster in a fold band. Everything is a model on a CPU; no fabric was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-flexdamage/
+
 **Builds on.** `research/garment-contactres` and `research/garment-optics` in this repository (network, units and the thin-sheet shielding framing; their READMEs list their own sources). The network code is copied, not imported, so this project stays self-contained. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. No new external source is used, so there are no new citations.
 
 ## Method (`src/garment_flexdamage/model.py`)

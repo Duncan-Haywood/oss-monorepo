@@ -2,6 +2,8 @@
 
 Fourth milestone (`osrobot-uav`) of track 9, open-source purpose-built robots, in the direction of the RECUV and Autonomous Systems IRT interest in UAV simulation and targeted observation. Produced with AI assistance (Claude). Pure Python standard library. **Every technology constant (pack energy density, efficiencies, drag, structural mass fractions) is an assumed round number in `model.py` (marked ASSUMED), not a measurement of any product, and no UAV was designed for flight or flown.** All numbers below are from `experiments/results.txt`. Simulation only; **a stylised, preliminary sizing study. The PX4 or ArduPilot software-in-the-loop flight that the milestone mentions was not attempted in this run.**
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-uav/
+
 ![All-up mass against loiter time and distance](experiments/mass_sweeps.svg)
 
 - **Reference mission** (3 km out, 20 min on station, 0.5 kg and 5 W payload, 20% energy reserve): the lightest closed design is a plain fixed wing at 1.27 kg (wing 0.14 m², 19 Wh pack), against 2.14 kg for a quadrotor (33 cm rotors, 95 Wh) and 2.08 kg for a fixed wing with a vertical-lift system (VTOL, 41 Wh).

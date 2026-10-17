@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-wearout` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking the last item of that project's next steps: test its extinction explanation with a birth-death model whose extinction probability and time can be computed exactly. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-extinction-kits/
+
 **Companion to `research/selfrep-extinction`**, written in parallel by another run: that project solves a chain on fleet size alone (births min(n/W, B/V)) and compares mean extinction times with the `selfrep-wearout` simulator. This one tracks the kit stock and idle/building machines, so it can also give the probability of early extinction and the first-generation bound; the two use different chains and I did not reconcile their numbers.
 
 **Builds on.** `research/selfrep-wearout` (the observation: a lone seed printer often dies out although the fluid model predicts a stable fleet) and, through `research/selfrep-growth` and `research/selfrep-closure`, the work per copy W = 50.0 h and vitamins per copy V = 170.3 (assumed currency units; imported by relative path). Behind them: the RepRap project (Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>) and the question of von Neumann (1966) and Freitas and Merkle (2004), as in `PROJECTS.md`. Absorption probabilities and expected absorption times of a continuous-time Markov chain are textbook material (any text on Markov chains); no paper's result is reproduced and I cite none for the method. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.

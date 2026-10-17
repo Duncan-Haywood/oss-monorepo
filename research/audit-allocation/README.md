@@ -2,6 +2,8 @@
 
 Stdlib-only Python. A limited expected-audit budget `B` against a best-responding cheater on jobs with different gains `g_j` and harms `h_j`. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/audit-allocation/
+
 ```bash
 cd research/audit-allocation
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests

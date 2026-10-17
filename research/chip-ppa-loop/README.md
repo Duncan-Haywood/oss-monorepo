@@ -2,6 +2,8 @@
 
 Third milestone of the LLM chip-design-loop track (`PROJECTS.md`, track 3). A proposer rewrites a working adder and multiplier; each rewrite must be *proved* equivalent to the reference with Yosys before its area and depth count; a parameter sweep with no model gets the same evaluation budget. Produced with AI assistance (Claude). Preliminary and small: two designs, one tool version, one synthesis script.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-ppa-loop/
+
 **Builds on.** The generate-check-score loop idea of VerilogEval (Liu et al., ICCAD 2023, <https://doi.org/10.1109/ICCAD57390.2023.10323812>), RTLLM (Lu et al., ASP-DAC 2024, <https://doi.org/10.1109/ASP-DAC58780.2024.10473904>) and Chip-Chat (Blocklove et al., MLCAD 2023). **Not a reproduction of any of them**; no published benchmark data is used. The adder topologies are textbook: carry-select (Bedrij, "Carry-select adder", IRE Trans. Electronic Computers EC-11(3):340-346, 1962), Kogge-Stone (Kogge and Stone, "A parallel algorithm for the efficient solution of a general class of recurrence equations", IEEE Trans. Computers C-22(8), 1973; sources disagree on the end page, so none is given) and the divide-and-conquer prefix adder called "Sklansky" in the literature, after Sklansky ("Conditional-sum addition logic", IRE Trans. Electronic Computers EC-9(2):226-231, 1960); that paper describes conditional-sum addition and the prefix-tree name is a later convention, so the label here is loose. Titles, venues and years were checked against web search results on 2026-10-13; the papers themselves were not read. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

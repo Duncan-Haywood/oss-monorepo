@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Truth: a UAV flies out and back a distance `D = 1` at constant airspeed `v` (units of `V0`, the zero-wind minimum-energy-per-distance speed) with power `P(v) = (v³ + 1/v)/2`, against a steady along-track wind `w` (headwind out, tailwind back); the round-trip energy is `(v⁴+1)/(v²−w²)`, checked against a time-stepped simulation. Twin: no wind, `2P(v)/v`. Results (all from `experiments/results.txt`): (1) wind does not cancel over a round trip: real/twin energy is exactly `1/(1−(w/v)²)`, symmetric in the sign of `w`, +4.2%, +9.9%, +33%, +96%, +426% for `w/v` = 0.2, 0.3, 0.5, 0.7, 0.9, and the vehicle never returns at `|w| ≥ v`; a battery margin of `(w/v)²/(1−(w/v)²)` is what the twin's plan is missing; (2) the twin-optimal airspeed is `v = 1` for every wind, the real optimum solves `v² = w² + √(w⁴+1)` (1.08, 1.19, 1.35 at `w` = 0.4, 0.6, 0.8), and flying the twin's optimum costs 1.5%, 9.8%, 52% extra energy at `w` = 0.4, 0.6, 0.8 (and cannot return at `w ≥ 1`); (3) a twin calibrated on a single leg and assumed to see the same wind on the way back is off by exactly `+w/v` if that leg was a headwind and `−w/v` if it was a tailwind (±33.3% at `w` = 0.5, `v` = 1.5, ±67% at `w` = 1.0), a first-order error with a sign set by which leg was flown, whereas the zero-wind twin is wrong at second order but always optimistic. Stylised: steady uniform along-track wind, constant airspeed, two-term power law, no gusts, no battery nonlinearity; see `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/roundtrip-twin/
+
 ```bash
 cd research/roundtrip-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, under 1 s

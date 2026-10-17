@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the first next step of `simdesign-buckle15`: model the whole L-shaped bracket as one 3D body instead of two clamped arms. Produced with AI assistance (Claude). Stylised and preliminary: ideal elastic perfect sheet, sharp inner corner, nothing made or tested. It builds on none of the CU Boulder groups in `prompt.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-lbuckle/
+
 **Builds on.** `simdesign-bucklebound` (geometry, the 1.5 mm design w = 18.4 mm, load F = 100 N downward on the horizontal arm's end, vertical arm clamped at its top, closed-form factor 3.47) and `simdesign-buckle15` / `simdesign-webshell` (the scikit-fem hexahedral eigenbuckling procedure, re-implemented here for a non-prismatic body; it was validated against an Euler column and the cantilever formulas in those projects, and its pieces are reused unchanged).
 
 ## Method

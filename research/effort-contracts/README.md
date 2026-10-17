@@ -2,6 +2,8 @@
 
 Stdlib-only Python. A worker privately chooses effort that sharpens her signal, reports a probability, and is paid a scaled proper score relative to the prior report. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/effort-contracts/
+
 ```bash
 cd research/effort-contracts
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 6 tests

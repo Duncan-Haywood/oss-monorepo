@@ -2,6 +2,8 @@
 
 Python with MuJoCo. Every one of the 2^11 = 2,048 partial assemblies of the twelve-part printed gearbox from [`robofab-sequence`](../robofab-sequence) is dropped into MuJoCo in its final pose, with the base fixtured and the other parts free bodies, and left to settle for 1 s. A state "holds" if no part moves 3 mm or tilts 3 degrees. That is compared with that project's L1 quasi-static support rule. All numbers are from `experiments/results.txt`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-settle/
+
 - **The L1 rule agrees with MuJoCo on 1,957 of 2,048 states (95.6%)**: 244 hold in both, 1,713 fail in both. The 91 disagreements are of two kinds.
 - **81 states the rule accepts but MuJoCo topples** (7.7 mm, 8.8 degrees in the example `wall_back + shaft1 + collar_f1`). Cause found by inspecting the rule: a part can count as resting on a part that rests on it. The front collar sits on the shaft, yet the collar's lowest box lies within the 1 mm settle gap below the shaft and is counted as a support patch for it. The bounding rectangle of that patch and the back-wall patch then covers the shaft's centre of mass. An acyclic variant (`grounded_stable`: a part is supported only by already-grounded parts) removes all 81.
 - **10 states the rule rejects but MuJoCo holds** (0.9 mm, 0.8 degrees in `gear1 + shaft1 + collar_f1`). The shaft's centre of mass lies outside its only support patch, but the 8 mm gear bore, with 0.5 mm clearance per side, keeps it from tipping. The rectangle rule has no notion of such capture. These stay with the acyclic variant, which agrees on 99.5% (2,038 of 2,048).

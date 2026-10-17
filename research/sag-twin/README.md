@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Real: a cell with open-circuit voltage `e(s) = 1 − d(1−s)`, series resistance `R(s) = R0(1 + ρ(1−s))` and a voltage cutoff feeds a constant-power load; with `u0 = 4R0P/E0²` the current solves `r i² − e i + u0/4 = 0`. Twin: same open-circuit curve, `R = 0`. Results (all from `experiments/results.txt`; closed forms checked against quadrature, an independent Euler simulation and bisection): (1) for a flat EMF the real endurance is exactly `η(u) = (1+√(1−u))/2` of the twin's, 0.987 to 0.500 for `u0` = 0.05 to 1, and past `u0 = 1` the cell cannot deliver the power while the twin quotes 3.81; (2) with droop and cutoff the real/twin endurance is 0.98, 0.86, 0.57, 0.30, 0.05 at `u0` = 0.05, 0.2, 0.4, 0.6, 0.8, stranding 0, 9, 37, 66, 94% of the charge; (3) the largest deliverable power falls linearly with charge (0.84 full, 0.28 at 20%), so a burst of 0.5 fails below 51% charge where the twin's floor is 0, and a flat 20% reserve covers bursts of only 0.28 (a third of the full limit); keeping a 0.6 burst deliverable leaves 35% of the twin's cruise time; (4) a constant derate fitted at `u0 = 0.1` errs +12% at 0.2 and +473% at 0.7 and predicts endurance where the cell cannot start, but `R0` itself is identified to 1.9%, 0.9%, 0.5% from 10, 40, 160 voltage–current samples; (5) if resistance grows as the cell empties (`ρ` = 1, 2) a constant-`R0` full-charge fit over-predicts endurance 42%, 85% at `u0 = 0.3` and puts the burst-0.5 floor at 51% against 72%, 80%.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sag-twin/
+
 ```bash
 cd research/sag-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, under 1 s

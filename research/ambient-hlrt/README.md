@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-startcount` (its second "Next step": a likelihood-ratio test of h = 0 against h > 0). Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose, and the classifier and auditors are made-up uniform-error confusion matrices; nothing is a claim about a real user, device or product. It seemed worth doing because the hardness-aware estimator reports a fitted P(hard) even when there are no hard messages, and nobody here had checked how to decide whether that number means anything.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-hlrt/
+
 ## Builds on (and does not claim affiliation with)
 
 - `research/ambient-startcount` (and through it `ambient-multistart`, `ambient-third`): simulator and the hardness-aware three-auditor Dawid-Skene EM. `src/ambient_hlrt/{sim,est}.py` are copies; the null fit, the statistic and the parametric bootstrap are added at the end of `est.py`.

@@ -2,6 +2,8 @@
 
 Sixth project of the simulation-first design track (`PROJECTS.md`, track 5), following the last "next step" of [`simdesign-dfm`](../simdesign-dfm): score which parts each added process can make, and feed that into [`selfrep-nextmachine`](../selfrep-nextmachine)'s machine choice. Produced with AI assistance (Claude). Everything here is stylised: the rule values and material properties are the **assumed** round numbers of `simdesign-dfm`, the part family is a random sample, and machine prices are the **assumed placeholders** of `selfrep-nextmachine`. Simulated result only; no part was made.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-processcover/
+
 **Builds on.** `research/simdesign-dfm` (geometric rules for FDM, CNC routing, laser cutting and sand casting, re-implemented here in vectorised NumPy, not imported, so the project stays self-contained; values copied from its `dfm.py`), `research/selfrep-nextmachine` (its `exhaustive` and `greedy` functions are imported unchanged), and the cantilever model of `simdesign-bracket` (80 mm arm, 4 mm tip limit). The cantilever-beam formulas are textbook Euler–Bernoulli beam theory. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

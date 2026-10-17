@@ -2,6 +2,8 @@
 
 Follow-up to `chip-systolic-fanin` in the LLM chip-design-loop track (`PROJECTS.md`, track 3). That project reported that at F = 16 and 32 its best MAC engine (P = 8) and its best array (C = 8 at F = 32) sat at the edge of the sweep, and listed "extend P and C beyond 8" as a next step. This project does that. Produced with AI assistance (Claude). Preliminary and small: one toy network family, one seed, one tool version, one generic-gate synthesis script, no LLM in the loop.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-systolic-edge/
+
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed. The dataflow is the textbook systolic idea of H. T. Kung, "Why systolic architectures?", *IEEE Computer* 15(1):37-46, 1982, <https://doi.org/10.1109/MC.1982.1653825> (as cited in `chip-systolic-batch`; the paper was not read in full here). The generators, model and flow are copied unchanged (MIT, same author) from `research/chip-systolic-fanin`; only the package name, the sweep grid in `experiments/run.py` and this README are new.
 
 ## Method

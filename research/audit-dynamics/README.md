@@ -4,6 +4,8 @@ Stdlib-only Python. The equilibrium audit rate `y* = s/(s+S)` and cheat rate `x*
 [`verification-game`](../verification-game) are only meaningful if participants *find* them. Here solvers and
 verifiers run Hedge / optimistic Hedge. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/audit-dynamics/
+
 ```bash
 cd research/audit-dynamics
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests

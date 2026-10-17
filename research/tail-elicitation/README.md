@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Verifiers forecast the upper tail of benign floating-point drift (a tolerance threshold and the mean drift beyond it); this project gives an exactly-checkable proper score for the pair (VaR, ES), and shows why pinball loss alone and ES alone both fail. Follows up the "CVaR via (quantile, expectile-like) pair" item left open in `research/property-elicitation-verification`. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/tail-elicitation/
+
 ```bash
 cd research/tail-elicitation
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests

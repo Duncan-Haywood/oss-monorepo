@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-terminal` and `selfrep-satmarket` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking the "combine the terminal value with the saturating market (DP with a terminal reward)" next step that `selfrep-terminal` lists. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-terminalmarket/
+
 **Builds on.** `research/selfrep-satmarket` (its fluid model `Params`, `run`, `revenue`, `bang_bang` and `dp_policy`, imported by relative path), `research/selfrep-terminal` (the terminal-value objective and its closed form for a linear market) and `research/selfrep-growth` (`W` = 50.0 h per copy, from `research/selfrep-closure`, RepRap Prusa Mendel; Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>). The question follows von Neumann (1966) and Freitas and Merkle (2004), as in `PROJECTS.md`. No paper's result is reproduced. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

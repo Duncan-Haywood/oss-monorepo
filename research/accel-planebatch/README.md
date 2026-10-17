@@ -2,6 +2,8 @@
 
 Fifth step of track 8 (task-specific AI accelerators) in `PROJECTS.md`. `accel-plane` checked the schedule model against RTL only at batch 1; `accel-dataflow` ranked weight-stationary (WS) worst at batch 4 because it spills partial sums to SRAM. Here one parameterised Verilog engine implements both batched schedules, output-stationary (OS, loop order tile, batch, input) and WS (tile, input, batch), and the testbench counts operand fetches at the ports. The question: do the RTL cycle, weight-fetch and activation-fetch counts equal the model's at B = 1 to 16, and what does WS's saving in weight fetches cost in gates when its partial sums stay in registers?
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-planebatch/
+
 **Builds on.** `research/accel-dataflow` (`flows.simulate` is the thing being checked), `research/accel-plane` (testbench style, masked tail lanes, Yosys recipe), `research/accel-kws` (layer shapes 64x70 and 11x64, int4 weights, int8 inputs, 24-bit accumulators). No lab in `prompt.md` works on this directly, so no lab tag is claimed beyond the repository's digital-twin theme (a cheap model checked against a more faithful one).
 
 ## Method

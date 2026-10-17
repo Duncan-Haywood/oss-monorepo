@@ -2,6 +2,8 @@
 
 Why it seemed worth doing: an unattended design loop (`eda-harness`) trusts its checks. This project asks what those checks actually catch, by injecting bugs (mutations) into a known-good generated design and scoring three automated checkers on how many they kill and at what CPU cost. Produced with AI assistance (Claude). Stylised and preliminary: one design (the `chip-accel` MAC engine at p = 8, 4-bit), 91 compilable mutants, one bound for the formal check.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-verify/
+
 **Builds on.** `research/chip-accel` (generator, integer reference) and `research/eda-harness` (problem definition). The idea of measuring verification by mutation follows the standard mutation-testing literature; coverage-directed test generation follows Fine and Ziv, "Coverage Directed Test Generation for Functional Verification using Bayesian Networks", DAC 2003 (the idea only; no Bayesian network is used here, and that paper was not reproduced). No CU Boulder lab's work is built on and no affiliation is implied.
 
 ## Method

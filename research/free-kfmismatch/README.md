@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.03). Why it seemed worth doing: a Kalman filter is the simplest estimator inside a digital twin, and its process-noise setting `Q` is the knob practitioners tune by hand because they do not know the twin's true error. Folklore says "err high, not low". I wanted the exact size of that asymmetry rather than a rule of thumb. Produced with AI assistance (Claude). **Stylised: a scalar random-walk state with Gaussian noise; nothing here says anything about a real sensor or vehicle. This is a textbook-level calculation, not a new result.**
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-kfmismatch/
+
 ## Question
 
 Truth is `x_t = x_{t-1} + w_t`, `y_t = x_t + v_t`, with `w ~ N(0, q)`, `v ~ N(0, r)`. The filter runs at its steady-state gain computed from an *assumed* `qa = λ·q` (and the correct `r`). What is its true mean-squared error relative to the optimal filter, and what error variance does it *claim*?

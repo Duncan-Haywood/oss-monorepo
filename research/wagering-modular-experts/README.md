@@ -7,6 +7,8 @@ work from Frongillo/Waggoner and coauthors
 to Gensyn's setting of modular models contributed by many untrusted parties
 on heterogeneous hardware.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/wagering-modular-experts/
+
 ## Idea
 
 If a network is a pool of independently trained *modules* (experts), who gets

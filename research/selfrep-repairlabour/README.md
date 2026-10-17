@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-repair` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking that project's listed next step "add repair labour as a constraint on machine-limited growth". Why it seemed worth doing: `selfrep-repair` found that repair downtime hardly matters because the shop is import-limited. This asks what happens when repair capacity, not vitamins, is scarce. A discrete-event simulation (standard library). Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-repairlabour/
+
 **Builds on.** `research/selfrep-repair` (same build, breakdown and spares rules; the model is a modified copy of its simulator) and, through `research/selfrep-growth` and `research/selfrep-closure` (imported by relative path), W = 50.0 h and V = 170.3 per copy (assumed units). Behind them: Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>; von Neumann (1966); Freitas and Merkle (2004). This project builds on none of the CU Boulder groups in `prompt.md`.
 
 ## Method

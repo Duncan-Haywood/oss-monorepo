@@ -2,6 +2,8 @@
 
 Sixth milestone of track 8 (task-specific AI accelerators) in `PROJECTS.md`. It takes the serial-MAC engine `accel-kws` built and checked bit for bit (`../accel-kws/rtl/kws_engine.v`), wraps it with on-chip weight ROMs, and runs it through the open iCE40 flow (Yosys `synth_ice40`, then nextpnr-ice40 place and route) for 15 geometries on two devices, UP5K and HX8K. It reports logic cells, block RAMs and maximum clock. Produced with AI assistance (Claude). Nothing was run on a board.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-fpga/
+
 **Why it seemed worth doing.** `accel-kws` counted Yosys generic gates, which say little about a real FPGA. The track asks what the design costs in LUTs and clock, and whether always-on keyword spotting fits a cheap part.
 
 **Builds on.** `accel-kws` (this repository): the engine RTL, the integer reference, the trained-model accuracies and cycle counts that this project quotes from its `results.json`. Tools: Yosys (<https://yosyshq.net/yosys/>), nextpnr (<https://github.com/YosysHQ/nextpnr>; Shah et al., "Yosys+nextpnr: an open source framework from Verilog to bitstream for commercial FPGAs", FCCM 2019 — venue and year from memory, not checked here), Project IceStorm for the iCE40 database (<https://github.com/YosysHQ/icestorm>), and the YoWASP builds of the tools (<https://github.com/YoWASP>). It builds on none of the CU Boulder groups listed in `prompt.md` and claims no connection to them.

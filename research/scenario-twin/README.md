@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A digital twin is often used to estimate how rarely a robot fails, by sampling scenarios (friction, wind, sensor noise) from a generator and counting failures. Take a real scenario latent `x ~ N(0,1)` with failure iff `x > a` (real failure probability `P = Q(a)`), and a twin whose generator has width `s`, `x ~ N(0,s²)`. Reported raw, the twin claims `Q(a/s)`; reweighting each twin failure by `p/q` is unbiased for `P`, with exact per-sample second moment `E_q[w²1{x>a}] = s·τ·Q(a/τ)`, `τ² = s²/(2s²−1)`, **finite iff `s² > 1/2`**. In a braking scenario (15 m/s, obstacle at 35 m, friction `0.7·exp(−0.25x)`, so `a` = 3.04, `P` = 1.20e-3): a generator 0.6× too narrow claims 2.1e-7 (`P`/claim = 5,700) and its reweighted estimate has infinite variance, so in 4,000 runs of 2,000 scenarios it reported zero failures every time (coverage 0.000); at `s`=0.8 the variance is finite but 18,800/sample (1.9M runs for 10% error, 86.5% of runs report zero). A too-*wide* generator over-claims (`s`=2: 54×) but reweighting repairs it and helps: the optimal width is `s*` ≈ 1.05·`a` (3.25 here), needing 2,179 runs for 10% standard error versus 83,459 for plain Monte Carlo (38×; 44× at `P`=1e-3, 879× at 3e-5). A defensive mixture with the real prior makes the narrow twin's variance finite (`≤ 1/(λP)`, weights `≤ 1/λ`) but it is no better than plain Monte Carlo (2–20× worse at s=0.6): the only real repair is widening. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/scenario-twin/
+
 ```bash
 cd research/scenario-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, <1 s

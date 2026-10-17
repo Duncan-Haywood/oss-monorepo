@@ -2,6 +2,8 @@
 
 Seventh milestone of the engineered-clothing track (`PROJECTS.md`, track 6). A generator of synthetic sensing-garment signals (three 3-axis accelerometers at chest, thigh and wrist; two strain channels at knee and elbow), window features, and a small softmax classifier for six activities. The output is a context label that track 2's ambient assistant could consume. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-smart/
+
 **Not a result about real garments.** No public sensor dataset was used (none was available in this container) and no garment was measured. Every signal is a sum of sinusoids with assumed amplitudes and frequencies that I chose, so the near-perfect accuracies below say the synthetic classes are easy to separate, not that real activity recognition is easy. Treat the *relative* comparisons as the content, and even those as properties of my generator.
 
 **Builds on.** The textile-sensing idea of Project Jacquard (Poupyrev et al., 2016); I read nothing beyond its title and venue for this run and take no number from it. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. The consumer, the ambient assistant, is the repository's `ambient-*` projects. **Citation check.** The entry was copied from the reference list in `PROJECTS.md` (checked 2026-10-12); this run could not re-check it (no access to doi.org).

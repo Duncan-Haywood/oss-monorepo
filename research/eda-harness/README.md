@@ -2,6 +2,8 @@
 
 Why it seemed worth doing: track 7 of `PROJECTS.md` asks for a chip-design loop that needs no LLM, so every later proposer comparison (`eda-proposers`, `eda-flowtune`, `eda-fidelity`) needs one shared harness that checks, scores, caches and logs candidates the same way. This is that harness, demonstrated on `chip-accel`'s MAC engine. Produced with AI assistance (Claude). Stylised and preliminary: one design family, generic-gate synthesis, no place and route.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-harness/
+
 **Builds on.** `research/chip-accel` (generator, Icarus testbench, Yosys score script, imported rather than copied) and `research/chip-toolchain`. Tools: Yosys 0.33 and Icarus Verilog 12.0 (apt). No CU Boulder lab's work is built on and no affiliation is implied. The loop idea follows the open-flow aims in Ajayi et al., "Toward an Open-Source Digital Flow", DAC 2019, and the flow-tuning line of FlowTune/DRiLLS; none of those papers was read for this project and none is reproduced.
 
 ## Method

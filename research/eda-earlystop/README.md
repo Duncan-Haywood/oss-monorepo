@@ -2,6 +2,8 @@
 
 Why it seemed worth doing: `eda-checkorder` found that after random and directed simulation, the remaining ~7,400 CPU-s is formal working on mutants that no simulation kills, and listed "let the cascade stop formal early" as its next step. The `eda-verify` log has the formal seconds and outcome for every mutant, so a time cap on the formal stage can be costed exactly, without re-running any tool. Produced with AI assistance (Claude). Stylised and preliminary: a re-analysis of one design (the `chip-accel` MAC engine, p = 8, 4-bit), 91 mutants, one solver.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-earlystop/
+
 **Builds on.** `research/eda-checkorder` (the cascade replay; this project imports its loader and cost model), `research/eda-verify` (the log `experiments/mutants.jsonl`), `research/chip-accel`. No CU Boulder lab's work is built on and no affiliation is implied.
 
 ## Method

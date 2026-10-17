@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Optimistic-verification challenge windows when block proposers can be bribed to censor the challenge; exact attacker value and window. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/challenge-window/
+
 ```bash
 cd research/challenge-window
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, <1 s

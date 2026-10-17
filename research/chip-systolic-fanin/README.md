@@ -2,6 +2,8 @@
 
 Follow-up to `chip-systolic-small` in the LLM chip-design-loop track (`PROJECTS.md`, track 3). That project found the best small array 1.35x worse than 4 MAC lanes on cells x cycles per vector at fan-in 8, and listed "sweep fan-in" as a next step. This project makes the network F-F-4 and runs F = 8, 16 and 32. Produced with AI assistance (Claude). Preliminary and small: one toy network family, one seed, one tool version, one generic-gate synthesis script, no LLM in the loop.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-systolic-fanin/
+
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed. The dataflow is the textbook systolic idea of H. T. Kung, "Why systolic architectures?", *IEEE Computer* 15(1):37-46, 1982, <https://doi.org/10.1109/MC.1982.1653825> (details as cited in `chip-systolic-batch`; the paper was not read in full here). The generators, model and flow are copied (MIT, same author) from `research/chip-systolic-small`, then generalised from fan-in 8 to a parameter F (index and counter widths, accumulator width `2*WB + 2 + ceil(log2 F)`, cycle formulas). `experiments/run.py`, the tests and this README are new.
 
 ## Method

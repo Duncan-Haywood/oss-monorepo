@@ -1,5 +1,7 @@
 Follow-up to [`garment-twonodepen`](../garment-twonodepen) (track 6, `PROJECTS.md`), taking the last item of its next steps: "retune on a wider set of rooms to see whether the 'outside' reversal is a training-set artefact". Everything is a model on a CPU; no person or fabric was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-twonodewide/
+
 **Builds on.** `garment-twonodepen` (equal-units swing penalty, tuning, gates, grids), through it `garment-twonodeprop`, `garment-twonodelag` and `garment-twonodeheld`. Zhang et al. (2019), cited in `garment-thermal`, motivates the gating idea; the actuators here are toys, not models of that textile. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 **Citation check.** No new source; none re-read in this run.

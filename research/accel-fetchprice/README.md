@@ -2,6 +2,8 @@
 
 Sixth step of track 8 (task-specific AI accelerators) in `PROJECTS.md`, and the "price the fetches" next step of `accel-planebatch`. That project measured, in RTL, that weight-stationary (WS) scheduling saves weight fetches (4,480 once instead of 4,480 x B on the 64x70 layer) but costs flops when its partial sums stay in a register file (about 192 extra flops per batch element). Whether that is a good trade depends on the relative price of an SRAM weight fetch and of idle flops, which nobody here has measured. This project does not guess those prices. It solves for the **breakeven price ratio** at each batch size from the RTL-measured counts, so a reader can check their own technology against it. The question: how cheap must an extra flop-cycle be, relative to a weight fetch, for register-file WS to beat output-stationary (OS), and could WS with partial sums in SRAM (the `accel-dataflow` model, not built) ever win?
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-fetchprice/
+
 **Builds on.** `research/accel-planebatch` (all counts come from its `results.json`, copied to `data/` with a test that it still equals the original), `research/accel-dataflow` (the partial-sum SRAM counts `model_p_wr`, `model_p_rd`). No lab in `prompt.md` works on this, so no lab tag is claimed. Dataflow vocabulary follows Chen, Emer and Sze (2016), Eyeriss, ISCA; Horowitz (2014), ISSCC, is the usual source of per-operation energy ratios, but **no figure from it is used or checked here**.
 
 ## Method

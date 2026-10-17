@@ -2,6 +2,8 @@
 
 Follow-up to `garment-thincolor` (track 6, `PROJECTS.md`; the "optimiser for stacks that minimise angle shift" next step). `garment-thincolor` showed that a quarter-wave stack's colour blue-shifts strongly with viewing angle. Here the layer thicknesses of an 8-layer stack are optimised to reduce that shift while keeping the colour, and three non-LLM optimisers are compared at the same evaluation budget. Everything is a model on a CPU; no coating was made or measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-stackopt/
+
 **Builds on.** `research/garment-thincolor/src/garment_thincolor/model.py` (imported, not copied), which implements the standard characteristic-matrix method of thin films (Macleod, *Thin-Film Optical Filters*; Born and Wolf, *Principles of Optics*) and the Wyman, Sloan and Shirley (2013) colour-matching fit. Optimisers are from numpy and SciPy (Nelder-Mead, differential evolution). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. No LLM is used. **Citation check.** No new references. Those inherited from `garment-thincolor` carry its caveats (books cited from memory, editions unverified).
 
 ## Method (`src/garment_stackopt/opt.py`)

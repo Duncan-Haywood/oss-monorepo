@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-misread` (its "Next steps": estimate the confusion matrix and prior, and measure what a wrong estimate costs). Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose, the classifier is a made-up confusion matrix, and nothing is a claim about a real user, device or product.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-confest/
+
 ## Motivation
 
 `ambient-misread` showed that a Bayesian reading of a noisy urgency label never loses to ignoring it, but only if the assistant knows the label's prior mix and confusion matrix exactly. A real assistant must estimate both from an audit set: messages whose true urgency someone has labelled. How large must that set be, and does smoothing the estimate help?

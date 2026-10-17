@@ -2,6 +2,8 @@
 
 Pure Python standard library plus `git` 2.38 or later. A measured follow-up to `swe-schedule`, whose next steps asked for README and `projects.json` merge conflicts to be modelled; this measures them instead, from this repository's own history. Part of milestone 5 of track 10 (the software-engineering loop). Produced with AI assistance (Claude). **Preliminary: one 3-day window, merge times only, and a replay that is an approximation.** All numbers are from `experiments/results.txt`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-sharedfiles/
+
 - **Two files sit in most research merges.** Of 101 first-parent commits touching `research/` on `main` from 2026-10-14 to 2026-10-16, 65 (64.4%) edit both `research/README.md` and `research/_homepage/projects.json` (the shares are equal, as every project edits both).
 - **They land close together.** The median gap between consecutive such merges is 30.6 min; 23% are under 10 min apart and 50% under 30 min.
 - **So a pull request open for a while finds the files moved.** Share of shared-file merges with another one landing in the window before them: 13.8% at 5 min, 23.1% at 10, 36.9% at 20, 49.2% at 30, 73.8% at 60, 93.8% at 120.

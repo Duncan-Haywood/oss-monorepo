@@ -2,6 +2,8 @@
 
 Why it seemed worth doing: `eda-verify` ended with the open step "feed the cheapest effective check order (random, then directed, then formal on survivors) into `eda-harness`". Its per-mutant log is enough to cost every ordering without re-running any tool, so this project does that replay. Produced with AI assistance (Claude). Stylised and preliminary: it is a re-analysis of one design (the `chip-accel` MAC engine, p = 8, 4-bit) and 91 mutants; nothing new was simulated.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-checkorder/
+
 **Builds on.** `research/eda-verify` (the log `experiments/mutants.jsonl`, its definition of killable / equivalent / undecided), `research/chip-accel`, `research/eda-harness`. No CU Boulder lab's work is built on and no affiliation is implied.
 
 ## Method

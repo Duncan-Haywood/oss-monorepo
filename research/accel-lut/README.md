@@ -2,6 +2,8 @@
 
 **Why this was worth doing.** `accel-sparse` left the lookup-table variant of milestone 5 open. This project tests the standard form of it, a k-means weight-sharing codebook with a per-input product table, on the same stylised digits task and under the same assumed cost model. **Result: negative.** At 64-32-10 the table engine does not beat an int8 MAC engine within a 2-point accuracy tolerance. An analytic sweep shows it needs wide layers and cheap table reads to win.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-lut/
+
 **Builds on.** `research/accel-sparse` (task, training recipe, energy constants; `model.py` is copied from it unchanged to keep this project self-contained). Idea used, not reproduced: weight sharing with a small codebook, Han, Mao and Dally (2016), "Deep Compression", ICLR (citation written from memory, **not re-verified in this run**). Energy figures are in the spirit of Horowitz (2014), ISSCC (not re-checked). No CU Boulder group's work is built on or implied. Produced with AI assistance.
 
 ## Method

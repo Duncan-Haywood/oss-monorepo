@@ -2,6 +2,8 @@
 
 Follow-up to `garment-optics` (its "structural colour (thin-film transfer matrix)" next step), in the engineered-clothing track (`PROJECTS.md`, track 6). A stylised plane-wave transfer-matrix model of a dielectric coating on a flat nylon-like substrate: reflectance spectrum, colour, angle dependence and sensitivity to thickness error. Everything is a model on a CPU; no fabric or coating was made or measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-thincolor/
+
 **Builds on.** The standard characteristic-matrix method of optical thin films (e.g. Macleod, *Thin-Film Optical Filters*; Born and Wolf, *Principles of Optics*) and the analytic CIE 1931 colour-matching-function fit of Wyman, Sloan and Shirley (2013), *JCGT* 2(2):1-11. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. **Citation check.** Checked this run: the Wyman, Sloan and Shirley paper exists with those authors, title, journal and year 2013 (NVIDIA Research publication page); volume/issue 2(2) is inferred from the JCGT URL and the page range 1-11 is unverified. The two books are cited from memory; editions are unverified. The Gaussian-fit coefficients were typed from memory; tests only check sanity (peak of y-bar near 1 at 560 nm, perfect white gives L*=100), not exact agreement with the CIE tables.
 
 ## Method (`src/garment_thincolor/model.py`)

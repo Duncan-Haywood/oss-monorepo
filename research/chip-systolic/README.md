@@ -2,6 +2,8 @@
 
 Follow-up to `chip-accel` in the LLM chip-design-loop track (`PROJECTS.md`, track 3). A Python generator emits Verilog for an R x C output-stationary systolic array that runs the same 8-8-4 integer MLP on a batch of R = 4 vectors. The RTL is simulated in Icarus Verilog and must match the integer NumPy reference bit for bit and in cycle count; it is then scored with Yosys against `chip-accel`'s MAC-lane engine at 4, 6 and 8 bits. Produced with AI assistance (Claude). Preliminary and small: one toy network, one batch size, one tool version, one generic-gate synthesis script. No LLM is in this loop.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-systolic/
+
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed. The systolic dataflow is the textbook idea of H. T. Kung, "Why systolic architectures?", *IEEE Computer* 15(1):37-46, 1982, <https://doi.org/10.1109/MC.1982.1653825> (bibliographic details confirmed by web search on 2026-10-13; the paper was not read in full). The output-stationary variant implemented here is generic and not derived from any published accelerator. `model.py` and `baseline_gen.py` are copied from `research/chip-accel` (same author, MIT). Quantisation is plain post-training symmetric rounding (see `chip-accel`).
 
 ## Method

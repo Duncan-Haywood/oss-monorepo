@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A stabilised vehicle keeps `|x_t|≤L` over `T=200` steps under `x_{t+1}=a x_t+w_t`; the twin draws `w` Gaussian, the "real" system a Student-t with the same variance, so a variance fit cannot tell them apart. The twin certifies `P(fail)≤δ` exactly (union bound over its Gaussian stationary tail); real failure at that margin is 0.29 (`ν=3`) / 0.19 / 0.13 / 0.052 (`ν=8`) for `δ=0.01` and 0.21 / 0.12 / 0.065 / 0.017 for `δ=0.001`. The margin the real system needs at `δ=0.001` is 7.3× / 3.5× / 2.3× / 1.25× the twin's for `ν`=3/4/5/8 and the ratio grows as `δ` shrinks (single-big-jump tail, checked against simulation). Inflating the twin variance to match real failure at `δ=0.05` still misses `δ=0.001` by 24× (0.024). Repairs: a conformal margin from real episodes is valid (mean real failure 0.010 at `δ=0.01`) but needs `n≥1/δ` episodes (1,000 for `δ=0.001`); a Hill tail fit to one-step disturbances needs no failures and, at `δ=0.001`, has real failure below target in 78%/93%/100% of repeats at `n`=500/2,000/10,000 samples. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/safety-twin/
+
 ```bash
 cd research/safety-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, ~10 s

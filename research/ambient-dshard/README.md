@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-dscorr` (its first "Next step": a hard-message model). Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose, the classifier and auditors are made-up uniform-error confusion matrices, and nothing is a claim about a real user, device or product.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-dshard/
+
 ## Motivation
 
 `ambient-dscorr` made the auditors share errors by letting the second copy the first, and found Dawid-Skene (DS) reads their agreement as correctness. Copying is the harshest form of dependence. A more realistic one is that some messages are simply hard for everyone. This project asks whether DS suffers as much then, and whether an estimator that knows about hardness repairs it.

@@ -7,6 +7,8 @@ and memory per stage, then add the stages up into a reply latency and ask what b
 Produced with AI assistance. Simulated (synthetic-audio, server-CPU) results only: nothing here
 is a claim about a phone or an earbud.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-pipeline/
+
 ## Motivation
 
 An always-on assistant that speaks into your ear has to answer fast enough that the reply feels

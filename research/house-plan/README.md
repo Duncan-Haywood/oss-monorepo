@@ -2,6 +2,8 @@
 
 Third project of track 12, open-source residential construction (`PROJECTS.md`, milestone 3). A single-storey house plan is a few parameters (footprint, bedrooms, roof pitch, member spacing). From them the code builds rooms, walls and openings, takes off the framing, writes a bill of materials, checks the layout against room-size and light rules, and exports an IFC4 model through IfcOpenShell. Then a search looks for the plan with the least framing lumber per square foot of floor, against a random-search baseline and the exhaustive answer. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-plan/
+
 **Headline.** With at least two bedrooms, the best plan in a 182,520-plan grid needs 4.8 to 5.2 board feet of framing lumber per sq ft of floor at 640 to 1,024 sq ft, then 5.9 at 1,216 sq ft, and no stick-framed plan in the grid reaches 1,400 sq ft. At 1,000 to 1,150 sq ft a (1+1) local search finds the exact optimum in 36 of 40 runs with 2,000 evaluations and random search in none (median gap 0.000 against 0.207 bf/sq ft).
 
 **Builds on.** [`house-spans`](../house-spans) (joists, rafters, girders and headers are sized by its NDS checks) and [`house-framing`](../house-framing) (studs by its column check). IfcOpenShell for the IFC export. Prior art on plans as code: parametric BIM scripts, and OVE framing (NAHB Research Foundation, 1978/79) for why lumber per sq ft is the right first number. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.

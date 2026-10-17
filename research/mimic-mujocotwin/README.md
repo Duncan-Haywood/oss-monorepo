@@ -2,6 +2,8 @@
 
 A side project of track 11 (adversarial human imitation). It applies the classifier two-sample test (C2ST) of `mimic-twinc2st`, a detector's AUROC used as a fidelity score for a simulator, to a pendulum simulated in MuJoCo instead of a hand-written RK4. It was chosen because `mimic-loop` needs local LLM weights that this container cannot reach, and MuJoCo (pip) was the named next step of `mimic-twinc2st`. **No LLM is used and no text is generated.** Stylised and simulated only; builds on none of the labs in `prompt.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-mujocotwin/
+
 Numbers come from `experiments/results.txt` (800 real + 800 twin trajectories, 3 seeds).
 
 - **Setup.** "Real" is a MuJoCo hinge pendulum (point mass 1 kg at 0.5 m, joint damping 0.025, dry friction `frictionloss` 0.075) integrated with RK4 at 0.002 s, sampled every 0.02 s for 100 samples, with Student-t (3 d.o.f.) sensor noise of sd 0.02 rad. A twin changes one thing: the integrator or timestep, or the friction. The paired RMSE compares noise-free trajectories from the same start angle; the C2ST uses independent start angles.

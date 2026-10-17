@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. **Free-choice project** (`PROJECTS.md`, "Picking work", step 1; draw 0.04). Why it seemed worth doing: sim-to-real work evaluates a policy by averaging its return over scenarios drawn from a domain-randomisation distribution, almost always iid. Randomised quasi-Monte Carlo (RQMC) and Latin hypercubes are cheap drop-in replacements, but the textbook gains assume a smooth integrand, and a robot's headline metric is a success *rate*, which is a jump. I wanted to know how much of the gain survives that, and in how many randomised parameters.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-qmcdr/
+
 ## Question
 
 A twin scores a policy by averaging the return over `n` scenarios `u ∈ [0,1]^d`. How does the error of that estimate depend on the sampler (iid, Latin hypercube, randomly shifted Halton, randomly shifted Roberts `R_d` lattice), on how smooth the return is (smooth, a clipped-cost kink, a success/failure jump) and on the number of randomised parameters `d`?

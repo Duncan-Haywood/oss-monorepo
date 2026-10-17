@@ -2,6 +2,8 @@
 
 Why it seemed worth doing: `eda-conefeat` found that whole-design cell counts do not predict which of the 27 `eda-verify` simulation survivors Yosys proves equivalent, and named the sharper features as its next step: the fan-in cone of what the mutation changed. Cell counts blur an edit across the design; a cone hash localises it. Produced with AI assistance (Claude). Stylised and preliminary: 27 mutants of one design (the `chip-accel` MAC engine, p = 8, 4-bit). The headline is negative again.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-conehash/
+
 **Builds on.** `research/eda-conefeat` (scoring, survivor table, mutant sampling), `research/eda-equivpredict` (the 25 of 27 line rule), `research/eda-verify` (mutants, formal verdicts), `research/chip-accel`. No CU Boulder lab's work is built on and no affiliation is implied.
 
 ## Method

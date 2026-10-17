@@ -2,6 +2,8 @@
 
 A free-choice run (not one of the priority tracks), taking the step that `research/free-c2stexact` left open: that project found a naive significance rule on cross-validated classifier scores mildly over-sized and a half-and-half holdout rule valid but low-powered, and named a permutation test on the cross-validated statistic as untried. **Stylised and simulated only; no real data, no LLM.**
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-c2stperm/
+
 Every number below is copied from `experiments/results.txt`.
 
 ![Rejection rates of three rules](experiments/rates.svg)

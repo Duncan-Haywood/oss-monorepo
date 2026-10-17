@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A robot's position error gains drift variance `R` per cycle between loop closures, but the twin it was tuned in says `T=R/ρ²` (`T=0.25`, landmark noise `m=1`). The filter tracks its own covariance, updates with the twin's gain and accepts a closure only if `ν² ≤ g (P⁻+m²)` (χ²₁ at 0.99). With every closure accepted the real posterior variance is exact: `V=((1−K)²R+K²m²)/(1−(1−K)²)` against the twin's claim 0.390, i.e. 1.47×/2.14×/4.03× for ρ=1.5/2/3 (simulation agrees to ≤1%), and a genuine closure passes the design 99% gate only 95.0% (ρ=2) or 86.7% (ρ=3) of the time even before rejections compound. With the gate on, rejection compounds into lock-out: the error grows while the robot's own covariance grows more slowly, so genuine closures keep failing. Real mean-square error at ρ=2 is 9–16× the ungated 0.84 depending on horizon (150–600 cycles), and at ρ=3 it is 88–287 (56–182× ungated); the error is horizon-dependent, i.e. not stationary. Results (stylised): the gate helps when the twin is right (aliasing rate 0.1, offset sd 6m: MSE 0.52 vs 1.27) and hurts badly when it is not (ρ=2: 13.9 vs 1.7 with no gate), and a gate tuned with the real drift is better than no gate only for ρ≤2 in this setup (ρ=3: 3.49 vs 2.94). Repairing by fitting `R` from measured ground-truth drifts fixes the median by n≈10 but the tail needs n≈30 (mean MSE 1.62 vs oracle 1.32; n=3 leaves a 28% chance of lock-out). See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/loop-closure-twin/
+
 ```bash
 cd research/loop-closure-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, <1 s

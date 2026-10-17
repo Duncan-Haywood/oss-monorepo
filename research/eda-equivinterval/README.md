@@ -2,6 +2,8 @@
 
 Why it seemed worth doing: `eda-equivpredict` reports that predicting provable equivalence from the mutated source line is 93% accurate on 27 simulation survivors, and says "no interval is claimed" because the survivors cluster on few lines. This project supplies the missing interval and a null test, from the same log, so the headline can be quoted with its uncertainty. Produced with AI assistance (Claude). Stylised and preliminary: 27 mutants of one design, nothing new simulated (Yosys and Icarus Verilog are not installed in this environment).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-equivinterval/
+
 **Builds on.** `research/eda-equivpredict` (predictors and leave-one-line-out score), `research/eda-checkorder` (log loader), `research/eda-verify` (the log). No CU Boulder lab's work is built on and no affiliation is implied.
 
 ## Method

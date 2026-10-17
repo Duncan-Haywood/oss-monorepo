@@ -2,6 +2,8 @@
 
 Pure Python standard library. Milestone 7 (`swe-orgs`) of track 10, the software-engineering loop, in `PROJECTS.md`, a standing milestone: **this is fourteen batches of sources, not the finished catalogue;** each batch is summarised in [`LOG.md`](LOG.md), which the project page shows as its research log. Produced with AI assistance (Claude). All numbers below come from `experiments/results.txt`, and the sources and practices are the two CSV files in `data/`. No lab's work is built on and no company or author is affiliated with or endorses this project.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-orgs/
+
 ## Question
 
 Companies that ship software have written down how they review, release, organise teams and handle reliability. Which of those practices map onto this repository's loop (`prompt.md`, CI, review, landing), which assumptions behind them do not hold for a fleet of agent sessions, and does the run ledger show a failure big enough to be worth a change?

@@ -2,6 +2,8 @@
 
 Follow-up to `simdesign-dfm` (track 5, `PROJECTS.md`), which listed multi-feature parts, where rules such as hole-to-edge distance bite, as its next step. A flat plate in tension has to carry one required hole of diameter `d`. It is sized for minimum mass under a working-stress limit, with three stress models of different fidelity and with per-process hole rules (FDM, CNC routing, laser cutting, sand casting). Produced with AI assistance (Claude). Everything here is a stylised model: rule values, material properties and the load are assumed round numbers, and nothing was built or tested.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-holes/
+
 **Builds on.** `research/simdesign-dfm` (the process list, material properties and rule style, restated here so the project stays self-contained); scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>); the classical solution for a circular hole in a large plate under tension, which gives a stress concentration factor of 3 (Kirsch, 1898, *Zeitschrift des Vereines deutscher Ingenieure* 42:797–807; citation from memory, not re-verified). This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. It is a fidelity question in the repository's central theme: when is the cheaper stress model good enough to size the part?
 
 ## Method

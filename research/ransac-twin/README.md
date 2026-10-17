@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Real system (simulated): robust line fitting by RANSAC (Fischler & Bolles 1981) on N = 100 correspondences, minimal sample s = 2, in scenes whose inlier count is beta-binomial with mean 50% and concentration κ (κ = 4 gives a scene-to-scene inlier-fraction sd of 0.23). The twin gives every scene exactly 50 inliers, so the textbook budget K = ⌈log(1−p)/log(1−q)⌉ is 17 for p = 0.99, with a twin failure rate of 0.8%. Results (all from `experiments/results.txt`): (1) the exact failure probability at K = 17 is 1.3% (binomial scene variation only), 2.4% (κ = 50), 7.0% (κ = 10), 14.1% (κ = 4), 21.7% (κ = 2) and 30.0% (κ = 1); the budget that restores 99% is 19, 23, 58, 458 and, for κ ≤ 2, does not exist because scenes with fewer than s inliers (2.0% at κ = 2, 8.5% at κ = 1) cannot succeed at any K; (2) the exact failure matches a Monte-Carlo sampler (e.g. 0.1408 vs 0.1397 at κ = 4, 3000 scenes); (3) in an end-to-end line fit with noise, 17 iterations give a slope-failure rate of 0.9% when κ is large but 12.6% at κ = 4, and the 458-iteration budget brings it to 1.8% (1000 scenes each; a different event from the sampling failure, and the 1.8% is above the 1% target).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ransac-twin/
+
 ```bash
 cd research/ransac-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 6 tests, under 1 s

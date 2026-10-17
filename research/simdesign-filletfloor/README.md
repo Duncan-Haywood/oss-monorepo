@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), and a negative result for one explanation. `simdesign-patchsearch` found that the mass price of laser-cutting rules varied across seeds under the peak element stress (0.99–1.15) but barely under a 3 mm patch average (1.03–1.05), and suggested, without testing it, that this was because laser designs use a nearly sharp inner fillet (floor r_min = 0.2 mm) where the peak depends on the mesh. This project raises the floor and looks. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed rule values, materials and load.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-filletfloor/
+
 **Builds on.** `research/simdesign-patchsearch` and, through it, `simdesign-meshmargin`, `simdesign-patchstress`, `simdesign-dfm` and `simdesign-bracket` in this repository (the model, rules, optimiser and patch measure are copied into `src/simdesign_filletfloor/` so the project stays self-contained; only the experiment script and two tests differ); scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>); SciPy's `differential_evolution` (Storn and Price, 1997, *Journal of Global Optimization* 11:341–359). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

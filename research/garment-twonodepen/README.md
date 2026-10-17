@@ -2,6 +2,8 @@
 
 Follow-up to [`garment-twonodeprop`](../garment-twonodeprop) (track 6, `PROJECTS.md`), taking the first item of its next steps: "give the on/off gate a switch penalty again and look for the penalty at which proportional wins". Everything is a model on a CPU; no person or fabric was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-twonodepen/
+
 **Builds on.** `garment-twonodeprop` (proportional ramp gate, 72-band grid, train/held-out protocol), `garment-twonodelag` (rooms, 54-band on/off grid, lags of 0, 2, 5 and 10 min) and, through them, `garment-twonodeheld`, `garment-twonodemet`, `garment-twonodeswitch` and `garment-twonodeoptics`, including the "ours" and "ref" choice sets. The gating idea is motivated by Zhang et al. (2019), cited in `garment-thermal`; the actuators here are toys, not models of that textile. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 **Citation check.** No new source; Zhang et al. (2019) was not re-read in this run.

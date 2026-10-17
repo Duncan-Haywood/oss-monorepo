@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies beyond the sibling project `free-qmcdr` (imported for its return functions and exact means). **Free-choice project** (`PROJECTS.md`, "Picking work", step 1). Why it seemed worth doing: `free-qmcdr` found that Roberts' `R_d` lattice, a cheap way to draw domain-randomisation scenarios, was no better than iid sampling at d = 5 (fitted error exponent about −0.45) though it was excellent at d = 2, and it left open whether that was luck of the random shifts, a general dimension effect, or something about that particular generator. A practitioner who picked `R_d` by default would want to know before trusting it.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-rdseeds/
+
 ## Question
 
 For a randomly shifted Kronecker lattice `x_i = (shift + α·i) mod 1` used to average a policy's return over `n` scenarios, is the poor `R_d` error rate at d = 5 (a) a seed fluke, (b) a smooth decline with dimension, or (c) specific to the generator vector `α`?

@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-materials` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking that project's first listed next step: give the recycling machines their own part lists. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-recyclers/
+
 **Builds on.** `research/selfrep-materials` (per-copy savings from recycling, imported by relative path) and `research/selfrep-closure` (the RepRap Prusa Mendel part list and the shop definitions; Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>). The question follows von Neumann (1966) and Freitas and Merkle (2004). The machine part lists are written for this project; no published shredder, extruder or furnace design is reproduced. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

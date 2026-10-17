@@ -2,6 +2,8 @@
 
 Stdlib-only Python. A front-runner who buys before and sells after a victim's LMSR trade extracts exactly the victim's slippage tolerance times its fair cost, needs capital of only about `ε·b/(1−p)` shares, and is stopped by a proportional fee of about `v(1−p)/(2b)`; pro-rata batching does not help. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/market-sandwich/
+
 ```bash
 cd research/market-sandwich
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 13 tests, <1 s

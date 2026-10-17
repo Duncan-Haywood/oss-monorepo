@@ -2,6 +2,8 @@
 
 Follow-up to `chip-ppa-script` (track 3, `PROJECTS.md`), taking its "designs with more room (FIFOs, MACs)" next step: a 4&times;4 unsigned multiply-accumulate instead of an adder or a multiplier. Produced with AI assistance (Claude). Preliminary and small: one tiny design, one tool version, a generic-gate library.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-ppa-mac/
+
 **Builds on.** `chip-ppa-script`, `chip-abc-sweep` and `chip-ppa-loop` in this repository (same author, MIT): `src/chip_ppa_mac/flow.py` is copied unchanged from `chip-ppa-script`, and `experiments/run.py` is adapted from its runner. Tools: Yosys and its integrated ABC (Brayton and Mishchenko, "ABC: An Academic Industrial-Strength Verification Tool", CAV 2010, LNCS 6174:24-40, <https://doi.org/10.1007/978-3-642-14295-6_5>; checked against Crossref on 2026-10-13 for `chip-abc-sweep`; the paper itself was not read). The `resyn2`-style script is written from memory of the usual ABC alias, so it is one plausible script, not a verified copy. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Question

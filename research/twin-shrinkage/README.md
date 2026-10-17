@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A digital twin predicts the `d` parameters of a real plant (gains, friction, delays) but with an unknown discrepancy `δ`; a real experiment gives an unbiased estimate with noise `s`. Shrinking the estimate toward the twin (James–Stein, 1961) has an **exact** risk `d − (d−2)² E[1/(d−2+2K)]`, `K ~ Poisson(‖δ‖²/2s²)`, matched by simulation to within 0.5% for d ≥ 10 (the negative-part d=3 simulation is unusable: its squared error has infinite variance, see limitations). Its consequences: (1) with `d ≥ 3` the twin can never raise the *total* error, and a perfect twin cuts it to exactly `2s²` at any `d` (saving `1−2/d`: 33% at d=3, 80% at d=10, 98% at d=100); (2) a twin whose per-parameter discrepancy equals the estimation noise (`λ/d = 1`) still saves 14/38/49% at d=3/10/100, against 0% for using the twin alone; (3) at large `d` the twin is worth `n + σ²/τ²` real samples (finite-`d` exact values reach 0.72–0.998 of that, at d=5–100); (4) but the guarantee is *aggregate*: one badly mismatched parameter among `d` is shrunk toward the wrong value and its own risk reaches ≈`d/4` noise variances (measured 1.25/2.86/7.86/25.5 at d=3/10/30/100, against 1 for ignoring the twin), while blocks of 5 parameters cap that at 1.65 (d=30) and still keep 72% of the saving from a perfect twin (96% for one global shrinker). An end-to-end regression identification (d=8, Hadamard design, n=64) reproduces the law: at `τ/s = 1` twin-only ties least squares and James–Stein reaches 0.60 of its error. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/twin-shrinkage/
+
 ```bash
 cd research/twin-shrinkage
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 7 tests, ~2 s

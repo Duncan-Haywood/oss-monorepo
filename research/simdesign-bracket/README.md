@@ -2,6 +2,8 @@
 
 First milestone of the simulation-first design track (`PROJECTS.md`, track 5). A bracket written as code (arm width, inner fillet radius, depth) is analysed with 2D plane-stress finite elements, sized by three optimisers at an equal evaluation budget, checked for FDM printability and exported as an STL. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-bracket/
+
 **Builds on.** scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>) for assembly and solving; SciPy's `differential_evolution` (Storn and Price, 1997, *Journal of Global Optimization* 11:341–359) as the optimiser. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. It is the base for later `simdesign-*` projects (topology optimisation, a fidelity comparison with beam theory, LLM-proposed designs).
 
 ## Method

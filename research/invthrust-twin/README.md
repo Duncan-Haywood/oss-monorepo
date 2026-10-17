@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Free-choice run (`PROJECTS.md`, Picking work): it takes the "next step" listed in `research/thrust-twin` (use the exact inverse instead of the linear one) and asks what that buys when the twin's thrust exponent is itself misidentified. Produced with AI assistance (Claude). Stylised: 1-D altitude, unit mass, noiseless, a simulated "real" system with an assumed `T = g r²` thrust curve (`r` = throttle / hover throttle), exact hover trim, throttle ratio limited to [0, 2] (assumed), no field data.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/invthrust-twin/
+
 **Setup.** `ẍ = g (r² − 1)`. The controller computes `a_cmd = kp (x₀ − x) − kd v` and inverts its thrust model `T = g r^n̂`, with assumed exponent `n̂` (truth: 2). *Linear* inverse: `r = 1 + a_cmd/(n̂ g)` (what `thrust-twin` used, with `n̂ = 2`). *Exact* inverse: `r = (1 + a_cmd/g)^(1/n̂)`. Hover trim is exact for every `n̂`, so there is no steady offset and overshoot is comparable.
 
 ## Reproduce

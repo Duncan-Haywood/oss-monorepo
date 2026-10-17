@@ -2,6 +2,8 @@
 
 Follow-up to `chip-p32netlist` (track 3, `PROJECTS.md`), whose next step was "run `synth` one pass at a time between `coarse` and `fine` to name the pass". Doing that showed that project's middle stage was mislabelled (below), so this one also fixes the stage map. Produced with AI assistance (Claude). Preliminary and small: F = 16, three model seeds, Yosys 0.33, generic cell counts, no LLM in the loop.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-p32passes/
+
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection is claimed. `model.py` and `baseline_gen.py` are copied unchanged (MIT, same author) from `research/chip-p32netlist`; `flow.py` and `experiments/run.py` are new.
 
 ## Method

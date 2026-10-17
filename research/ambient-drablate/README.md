@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-drvalid`, whose first next step was "ablate the three changes". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Mostly negative / preliminary**: no single factor explains the earlier result, and every selector stays far below the label-matched control.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-drablate/
+
 ## Motivation
 
 `ambient-drvalid` found that "doubly robust (DR) score, 8 random folds" was the best cap selector in the uninformed-prior cells, but it changed score, fold count and fold type at once. Here all eight combinations are run on identical data.

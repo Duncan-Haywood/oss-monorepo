@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A robot infers which of two goals a human is heading to from binary motion cues (each points at the true goal with probability `p`) and commits when the lead reaches `h` (a sequential probability ratio test). Against a real human of accuracy `p` the wrong-goal probability is exactly `1/(1+r^h)` (`r=p/(1−p)`), the expected time `h(1−2e)/(2p−1)`, both matched to simulation (0.0326 vs 0.0331 at p=0.7, h=4). A threshold designed for `α=10⁻³` in a twin with `p_s=0.9` (`h=4`) gives real error 3.9× / 33× / 165× the target at p = 0.8 / 0.7 / 0.6; a twin with `p_s=0.6` (`h=18`) is safe (error ≤ 2.4·10⁻⁷) but 2.0–4.5× slower. A heterogeneous population (`Beta`, sd 0.08–0.10, mean 0.7) doubles the error of the mean-human threshold (0.033 → 0.070–0.088) and humans with `p<½` put a floor `P(p<½)` under any threshold. Calibrating `p_s` from `n=10…1000` real cues misses the target with probability 0.38 / 0.42 / 0.33 / 0.30 / 0.14 (n=10/20/50/200/1000) even where the mean error is under target; a lower-confidence-bound design cuts that to ≤ 4% at the price of longer commitment times. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/intent-twin/
+
 ```bash
 cd research/intent-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 6 tests, ~3 s

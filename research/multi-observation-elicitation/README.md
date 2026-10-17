@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Pair scores for variance from two independent draws (Casalaina-Martin, Frongillo, Morgan, Waggoner), applied to the audit cost of pricing benign floating-point drift in verifiable training. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/multi-observation-elicitation/
+
 ```bash
 cd research/multi-observation-elicitation
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests

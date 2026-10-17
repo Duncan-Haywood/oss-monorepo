@@ -2,6 +2,8 @@
 
 Third milestone of the engineered-clothing track (`PROJECTS.md`, track 6). Marker making (laying pattern pieces on a strip of cloth to minimise its length) is a two-dimensional strip-packing problem. This project compares shelf heuristics, bottom-left placement, simulated annealing over placement order, and an exact mixed-integer program, first on small random rectangle markers and then on two stylised garments packed as true polygons. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-nesting/
+
 **Builds on.** The nesting tutorial of Bennell and Oliveira (2008) for the problem framing; the shelf heuristics NFDH and FFDH of Coffman et al. (1980); bottom-left placement (Baker, Coffman and Rivest, 1980); simulated annealing (Kirkpatrick, Gelatt and Vecchi, 1983) over placement orders, in the spirit of order-based nesting metaheuristics; the HiGHS solver (Huangfu and Hall, 2018) through `scipy.optimize.milp`. It extends `garment-teardown`, whose marker efficiency was a fixed assumption. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. Citations were checked against Crossref metadata (title, authors, venue, year, pages); I did not read the papers' full texts, so descriptions of their content are general.
 
 ## Method

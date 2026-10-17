@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5). `simdesign-gaugescatter` found that the price scatter of laser-cutting rules came from one missed sub-search at the narrow 2 mm gauge (1 seed in 20) and that feasible 2 mm results fall into two mass groups. Its next step was to re-search with more restarts. This project does that, at gauge 2 only. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed rule values, materials and load; a small, preliminary experiment.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-gaugerestart/
+
 **Builds on.** `research/simdesign-gaugescatter` (model, rules and optimiser copied into `src/simdesign_gaugerestart/` so the project stays self-contained; only the experiment script and tests differ), and through it `simdesign-filletfloor`, `simdesign-patchsearch` and `simdesign-dfm`. `research/simdesign-gaugemesh` found that every gauge-2 design feasible on the 2.5 mm search mesh is infeasible on finer meshes, so the gauge-2 region is itself a mesh effect; this project studies the search on the 2.5 mm mesh as defined, not the physics. scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>); SciPy's `differential_evolution` (Storn and Price, 1997, "Differential evolution – a simple and efficient heuristic for global optimization over continuous spaces", *Journal of Global Optimization* 11:341–359). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

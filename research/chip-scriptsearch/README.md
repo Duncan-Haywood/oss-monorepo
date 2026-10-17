@@ -2,6 +2,8 @@
 
 Follow-up to `chip-ppa-sky130mac` in the LLM chip-design-loop track (`PROJECTS.md`, track 3), taking its "use the SKY130 area&times;delay as the score in a proposer loop" next step. It is a small, stylised study of a search landscape, not a benchmark of language models. Produced with AI assistance (Claude). This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-scriptsearch/
+
 **Builds on.** `research/chip-ppa-sky130mac` (its flow module, reference design `mac4.v` and carry-save candidate `p0_csa.v`, imported by relative path, not copied), itself built on `chip-ppa-mac` and `chip-pnr`. Tools: Yosys 0.33 with its bundled ABC, the SKY130 HD liberty file from OpenROAD-flow-scripts (Apache-2.0, fetched by `fetch_pdk.sh` at a pinned commit, not vendored). ABC: Brayton and Mishchenko (2010), "ABC: An Academic Industrial-Strength Verification Tool", CAV, LNCS 6174, 24&ndash;40, <https://doi.org/10.1007/978-3-642-14295-6_5>. Hill climbing and random search are textbook methods; no paper's result is reproduced.
 
 ## Question

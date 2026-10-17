@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-alusearch` (track 1, `PROJECTS.md`), taking its "change the closure metric to count imported stock so that heavier is not better" next step. Produced with AI assistance (Claude). Computed only; nothing was built or tested.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-stockmass/
+
 **Headline (stylised, preliminary).** Scored by the mass the shop must still import for one printer copy (vitamins plus raw stock), the best design within a redesign budget of 4.0 imports 5.85 kg, against 6.72 kg for the steel-rod baseline. `selfrep-alusearch`'s mass-closure pick (12 mm aluminium rod) imports 6.79 kg, slightly more than the baseline, so its closure gain did not reduce imports. Scored by import cost the 12 mm aluminium rod stays the choice.
 
 **Builds on.** `selfrep-alusearch` (the 448-design space and rod penalties), `selfrep-alurod`, `selfrep-rodbeam`, `selfrep-redesign`, `selfrep-closure` (RepRap-class bill of materials from the RepRap wiki; Jones et al., *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>). It builds on none of the labs in `prompt.md`.

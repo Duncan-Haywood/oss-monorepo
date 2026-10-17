@@ -2,6 +2,8 @@
 
 Follow-up to [`garment-twonodealign`](../garment-twonodealign) (track 6, `PROJECTS.md`), taking the last item of its next steps: "re-run `garment-thermal`'s fabric comparisons with the reference's choices to see whether its conclusions about optics change." `garment-twonodealign` rebuilt the repository's two-node thermoregulation model with nine switchable design choices, each set to `garment-thermal`'s version ("ours") or to the version in `pythermalcomfort` 4.6.1 ("ref"). Here the fabric-optics extension of `garment-thermal` (infrared transmittance, outer emissivity, solar absorptance, radiant temperature, solar load) is added to that switchable model, and the optical effects are compared under all-ours and all-ref choices. Everything is a model on a CPU; no person or fabric was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-twonodeoptics/
+
 **Builds on.** `research/garment-thermal`, `research/garment-twonodecheck` and `research/garment-twonodealign` in this repository, and the `pythermalcomfort` package (MIT; 4.6.1), whose `two_nodes_gagge` documents itself as the model of Gagge et al. (1986). The reference's choices were read from its installed source (in `garment-twonodealign`); I did not read Gagge et al. (1986). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 **Citation check.** The only source is the `pythermalcomfort` package, run and read; its docstring names Gagge et al. (1986), which I did not look up. The optical extension has no published reference (as in `garment-thermal`).

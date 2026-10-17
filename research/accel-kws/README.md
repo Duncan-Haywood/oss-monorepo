@@ -2,6 +2,8 @@
 
 First milestone of track 8 (task-specific AI accelerators) in `PROJECTS.md`. A small quantised MLP is trained on Speech Commands v0.02 MFCC features, mapped to a serial-MAC RTL engine that is checked **bit for bit** against an integer NumPy reference, and swept over hidden width, weight bits and input size. Each point reports accuracy, cycles, Yosys generic-gate area, modelled energy per inference and an always-on power estimate. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-kws/
+
 **Builds on.** The task and dataset: Warden (2018), "Speech Commands: A Dataset for Limited-Vocabulary Speech Recognition", arXiv:1804.03209. The task framing (keyword spotting on small devices): Zhang, Suda, Lai and Chandra (2017), "Hello Edge: Keyword Spotting on Microcontrollers", arXiv:1711.07128. The integer-only inference idea (quantised weights and activations, integer accumulate, shift to requantise): Jacob et al. (2018), "Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference", CVPR 2018, arXiv:1712.05877; the scheme here is a much simpler power-of-two version written for this project, not a reproduction. Energy-per-operation figures are in the spirit of Horowitz (2014), "Computing's energy problem (and what we can do about it)", ISSCC (see Limitations: not re-checked). Nothing is reproduced from these papers and no number here is comparable with theirs (different classes, features and models). This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. It follows `chip-accel` and the `chip-systolic-*` projects (same flow idea, toy data) in this repository.
 
 ## Method

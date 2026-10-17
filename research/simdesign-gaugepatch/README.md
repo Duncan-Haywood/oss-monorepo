@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5). `simdesign-gaugemesh` found that the 39 gauge-2 bracket designs feasible on the 2.5 mm search mesh all fail the stress limit on finer meshes, because the element-centroid peak stress keeps rising, and listed "a patch/regularised stress measure" as an open step. This project tests that. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed rule values, materials and load. Preliminary, simulated only.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-gaugepatch/
+
 **Builds on.** `research/simdesign-gaugemesh` (same 39 designs, same solver) and, through it, `simdesign-gaugescatter`, `simdesign-patchsearch` (which introduced the patch measure and its 3 mm radius), `simdesign-dfm` and `simdesign-bracket`. The model, rules and measures are copied into `src/simdesign_gaugepatch/` so the project stays self-contained; only the experiment script and tests differ. scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

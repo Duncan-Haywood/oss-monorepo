@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Combines `research/robofab-selfparts` (384 valid assembly orders of a seven-part toy gripper for a side-approach parallel-jaw arm, 30 mm jaw) with `research/robofab-reach` (a two-link turntable arm that must reach a pick, place and lift point per part). The coupling: each part's lift point is `clear` mm above the tallest thing already assembled (including the part), so lift heights depend on the order. All numbers come from `experiments/results.txt`. Milestone follow-up of the `robofab` track, simulation only.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-reachorder/
+
 - **Negative result.** For all 384 valid orders the shortest arm (equal links, l1 on a 10 mm grid, base on a 20 mm grid) is identical, for clearances of 0, 10, 30 and 60 mm: 80 mm at shoulder height 100 mm and 120 mm at 200 mm (tray gap 120 mm).
 - **Wider sweep, same outcome.** Tray gaps 0, 40, 120 mm with clearances 30, 120, 250 mm (H = 100 mm): best equals worst each time (60, 70, 80 mm at the small clearances; 90, 90, 100 mm at 250 mm).
 - **Why (my reading, not separately tested).** The cover, 24 mm tall at the top, has the highest lift point whatever the order, and the tray distance sets the horizontal extent. Orders only move the lift points of earlier parts, which are never binding. The 27 distinct target sets across orders differ, but not in a way that changes the minimum.

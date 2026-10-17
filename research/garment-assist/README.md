@@ -2,6 +2,8 @@
 
 Sixth milestone of the engineered-clothing track (`PROJECTS.md`, track 6). A one-joint (ankle, sagittal) model of an exosuit-style garment that adds plantarflexion torque in parallel with the muscle, with a metabolic cost for the mass it adds. The question is the break-even: how much garment mass cancels the metabolic saving? Everything is a CPU model with assumed parameters; no person or suit was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-assist/
+
 **Not what the milestone asked for.** `PROJECTS.md` suggests OpenSim or MyoSuite. I did not run either: they need heavy installs and models not set up in this container, so this is a hand-built lumped model. It is a sketch of the trade-off, not a musculoskeletal simulation, and its absolute numbers should not be compared with experiments.
 
 **Builds on.** The idea of unpowered and soft assistive devices reducing the metabolic cost of walking: Collins, Wiggin and Sawicki (2015) and Kim et al. (2019); the musculoskeletal-simulation tools OpenSim (Seth et al., 2018) and MyoSuite (Caggiano et al., 2022), which are named as the next step and not used. I did not read these papers in this run and use them for the qualitative idea only; no number below comes from them. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. **Citation check.** The entries were copied from the reference list in `PROJECTS.md` (checked 2026-10-12); this run could not re-check them (no access to doi.org).

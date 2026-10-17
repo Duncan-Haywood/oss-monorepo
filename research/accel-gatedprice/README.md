@@ -2,6 +2,8 @@
 
 Eighth step of track 8 (task-specific AI accelerators) in `PROJECTS.md`. It takes two items from the "Next steps" of `accel-pdkprice`: price a **clock-gated** weight-stationary (WS) design (the integrated clock gate, ICG, is in the liberty file), and repeat the library reading with another open PDK (GF180MCU). It seemed worth doing because `accel-pdkprice` ended on "WS needs cheap idle flops", and clock gating is the standard way to make idle flops cheap. The question: if the extra accumulators of register-file WS sit behind clock gates, does WS beat output-stationary (OS) at SKY130's own prices, and how many flops may share one gate?
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-gatedprice/
+
 **Builds on.** `research/accel-fetchprice` (breakeven ratios, copied to `data/` with a test that it still equals the original), `research/accel-pdkprice` (the four OpenRAM macro access energies, copied to `data/sky130_sram.json` with the same kind of test; the flop figure is re-derived here and a test checks it against the 46.4 fJ there). Liberty files: SKY130 HD `tt_025C_1v80` and GF180MCU `mcu7t5v0` / `mcu9t5v0` `tt_025C` at 3.3 V and 5 V, from OpenROAD-flow-scripts at the commit pinned in `accel-pdkprice/fetch_pdk.sh` (Apache-2.0; fetched, not vendored). No lab in `prompt.md` works on this; no lab tag is claimed.
 
 ## Method

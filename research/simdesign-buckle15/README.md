@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the "confirm the 1.5 mm design in the 3D shell model of `simdesign-webshell`" next step of `simdesign-bucklebound`. Produced with AI assistance (Claude). Stylised and preliminary: an ideal elastic perfect bar, nothing made or tested.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-buckle15/
+
 **Builds on.** `simdesign-bucklebound` (the 1.5 mm design, w = 18.4 mm, 31.0 g, governed by a closed-form buckling factor of 3.5) and `simdesign-webshell` (the scikit-fem hexahedral eigenbuckling code, copied here unchanged as `src/simdesign_buckle15/eigbuckle.py`; its Euler-column validation is repeated in the tests). Closed forms are the cantilever lateral-torsional results of Timoshenko and Gere (1961), as in `simdesign-webbuckle`. It builds on none of the CU Boulder groups in `prompt.md`.
 
 ## Method

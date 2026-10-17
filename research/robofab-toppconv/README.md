@@ -2,6 +2,8 @@
 
 A follow-up to `research/robofab-scurvefine` (its first "next step"), on the same toy arm, parts and limits as `robofab-scurve`, `robofab-trapezoid`, `robofab-jointspeed`, `robofab-jawcap`, `robofab-reach` and `robofab-graspmove` (track `robofab`). `robofab-scurvefine` found that at 400 nodes the time-optimal solver was about 0.5% pessimistic in one row and so sometimes lost to a ramp-resolved trapezoid, but re-solved only one row at higher node counts. Here all 12 rows (3 arm sizes x jaw cap k = 5 or none x wmax = 2 or 1 rad/s, six printed parts each) are re-solved at n = 400, 1600, 6400 and 25600. All numbers are from `experiments/results.txt`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-toppconv/
+
 - **At n = 25600 the time-optimal profile is faster than the ramp-resolved trapezoid in all 12 rows**, by 0.11% to 0.88% (median about 0.18%). At n = 400 the sign was wrong in 7 of 12 rows (edge -0.30% to -0.17%), all at wmax = 1 rad/s or with no jaw cap; so the negative "edges" in `robofab-scurvefine` were solver discretisation, as it suspected.
 - **The solver is converged to within 0.02% by n = 6400** in every row (the total changes by at most 0.0010 s, 0.018%, between n = 6400 and 25600), so n = 25600 is a fair reference; n = 400 is 0.006% to 0.48% pessimistic in total time (up to 0.048 s on totals of 2.5 to 10 s; see the table).
 - **The observed convergence order is not clean.** Estimated from three successive 4x node counts it ranges from 1.1 to 3.2 across the rows (and is undefined where the total is flat to four digits, `L=0.2 m, k=5, wmax=2`). Richardson extrapolation with that order changes the edge by at most 0.005 percentage points from the n = 25600 value, so it is reported but not relied on.

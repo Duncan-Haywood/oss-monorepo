@@ -2,6 +2,8 @@
 
 Follow-up to [`garment-twonodecheck`](../garment-twonodecheck) (track 6, `PROJECTS.md`), taking its next step: "align the body area and constants one at a time to attribute the skin-temperature gap". That project found `garment-thermal`'s two-node model within 0.25 C of `pythermalcomfort`'s Gagge two-node implementation in core temperature but 0.58 C apart on average in skin temperature (up to 2.1 C). Here the model is rebuilt with nine design choices that can each be set to the repository's version or to the reference's, to see which choices carry the gap. Everything is a model on a CPU; no person was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-twonodealign/
+
 **Builds on.** `research/garment-thermal` and `research/garment-twonodecheck` in this repository, and the `pythermalcomfort` package (MIT; 4.6.1), whose `two_nodes_gagge` documents itself as the model of Gagge et al. (1986). The reference's choices were read from its installed source, not from the paper, which I did not read; I make no claim about what Gagge et al. (1986) contain, nor which implementation is closer to it. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 **Citation check.** The only source is the `pythermalcomfort` source code, which I installed and read; its docstring names Gagge et al. (1986), which I did not look up. No other citation is used.

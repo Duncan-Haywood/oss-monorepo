@@ -2,6 +2,8 @@
 
 Follow-up to `chip-systolic-hidden` in the LLM chip-design-loop track (`PROJECTS.md`, track 3). That project fixed the hidden width at 8 and listed "H other than 8" and "P beyond 8 at F = 32" as next steps. This project makes the network F-16-4 and runs F = 16 and 32, with MAC lanes up to P = 16. Produced with AI assistance (Claude). Preliminary and small: one toy network family, one seed, one tool version, one generic-gate synthesis script, no LLM in the loop.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-systolic-hidewide/
+
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed. The dataflow is the textbook systolic idea of H. T. Kung, "Why systolic architectures?", *IEEE Computer* 15(1):37-46, 1982, <https://doi.org/10.1109/MC.1982.1653825> (details as cited in `chip-systolic-batch`; the paper was not read in full here). Code is copied (MIT, same author) from `research/chip-systolic-hidden` and changed in three places: H = 16; the index width now covers max(F, H) (it covered only F, which breaks when H > F); and the activation buffers hold max(F, H) entries per row, with the input repacked on load (they held F, which cannot store a hidden vector wider than the input). The tests and this README are new.
 
 ## Method

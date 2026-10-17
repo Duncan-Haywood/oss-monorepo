@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A shared instrument (plate reader, charging dock, balance) serves robot jobs: Poisson arrivals, one FIFO server. The twin models service as exponential; the "real" service time has the same mean but squared coefficient of variation `c²` (lognormal) or a Pareto tail. By Pollaczek–Khinchine the mean wait is exactly `ρ(1+c²)/(2(1−ρ))` service times, so the twin's wait claim is off by `(1+c²)/2` at every load, and the load admissible at a mean-wait SLA of `w` is `2w/(1+c²+2w)`. At `w=2` the twin admits `ρ=0.667`; the real instrument admits 0.444 (`c²=4`), 0.286 (`c²=9`) or 0.133 (`c²=25`), so the twin's load gives a real mean wait of 2.5×/5×/13× the SLA (matched to a 1.5-million-job Lindley simulation within one standard error). Tails are worse than means: at the twin's load with `c²=4` (9), 11.7% (20.5%) of jobs wait longer than the twin's 99th percentile of 12.6 service times, and the real P99 is 3.8× (9.0×) the claim. With a Pareto tail of index `α<2` the real mean wait is infinite at any load: simulated mean wait keeps growing with run length (1.8: 1.6→3.3→6.2 over 10⁴–10⁶ jobs) while the twin claims 1.0. Negative repair result: fitting `c²` from `n` logged service times and plugging it into the P–K capacity is wrong most of the time, because the sample `c²` is biased low for a heavy tail (violates the SLA in 89%/81%/78%/70% of repeats at `n`=25/100/400/1600, lognormal `c²=4`), and a 90% bootstrap upper bound only reaches 46% violation at `n=1600`. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/queue-twin/
+
 ```bash
 cd research/queue-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, ~3 s

@@ -2,6 +2,8 @@
 
 Follow-up to `osrobot-uav` (track 9, open-source purpose-built robots), taking its "add wind" next step, in the direction of the RECUV and Autonomous Systems IRT interest in UAV simulation and targeted observation. Worth doing because `osrobot-uav` ordered the airframes with no wind at all, and the multirotor's only win (very short stays) is exactly the case a wind could flip. Produced with AI assistance (Claude). Pure Python standard library; it imports the sizing model of `osrobot-uav`. **Every technology constant is an assumed round number (marked ASSUMED in `osrobot-uav/src/osrobot_uav/model.py` and in `src/osrobot_uavwind/wind.py`), not a measurement of any product; no UAV was designed for flight or flown.** All numbers below are from `experiments/results.txt`. Simulation only; a stylised, preliminary study. PX4 or ArduPilot software-in-the-loop flight was not attempted.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-uavwind/
+
 ![All-up mass against steady wind](experiments/mass_vs_wind.svg)
 
 - **Wind does not change the reference ordering.** For 3 km out, 20 min on station and a 0.5 kg payload, the plain fixed wing stays lightest at every wind from 0 to 18 m/s (1.27 kg at 0, 1.30 at 10, 1.50 at 18). The quadrotor, with no credit for translational lift, goes 2.14 → 2.33 kg at 10 m/s → 2.86 at 15 → 7.0 at 18, as it must hold position at airspeed `w` and runs out of speed near its assumed 20 m/s cap. The VTOL wing goes 2.08 → 2.14 → 2.31 → 2.54.

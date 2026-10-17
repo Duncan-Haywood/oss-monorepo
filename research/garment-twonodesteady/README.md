@@ -2,6 +2,8 @@
 
 Follow-up to [`garment-twonodeoptics`](../garment-twonodeoptics) (track 6, `PROJECTS.md`), taking an item from its next steps: "compare optics effects at steady state." Question: do the fabric-optics effects measured after one hour (stylised) keep their size and ranking once the two-node model has stopped changing? Everything is a model on a CPU; no person or fabric was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-twonodesteady/
+
 **Builds on.** `research/garment-twonodeoptics` (its switchable two-node model, in which every design choice is the repository's "ours" or that of `pythermalcomfort` 4.6.1, "ref"), and through it `garment-thermal`, `garment-twonodecheck` and `garment-twonodealign`. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 **Citation check.** No new source. The reference implementation is `pythermalcomfort` 4.6.1 as used in `garment-twonodeoptics`; I did not read Gagge et al. (1986).

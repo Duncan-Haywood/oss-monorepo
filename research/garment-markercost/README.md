@@ -2,6 +2,8 @@
 
 Follow-up to `garment-nesting` and `garment-teardown` (track 6, `PROJECTS.md`; the "Next steps" of both). `garment-teardown` assumed a fixed marker efficiency of 0.78 to 0.80. `garment-nesting` measured efficiencies for stylised pieces with **no seam allowance**. Here I add a 1 to 1.5 cm seam allowance to the pieces, nest three shirt sizes in one marker, and swap the measured efficiencies into the teardown formula as a sensitivity check. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-markercost/
+
 **Builds on.** The nesting and cost code of the two sibling projects (imported, not copied, except for the two stylised garment outlines, which come from `garment-nesting/experiments/run.py`); the nesting framing of Bennell and Oliveira (2008). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method (`src/garment_markercost/model.py`)

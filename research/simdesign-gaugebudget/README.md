@@ -2,6 +2,8 @@
 
 Follow-up (a search-budget test, parallel to the gauge-by-gauge look in `simdesign-gaugescatter`, landed by another run) in the simulation-first design track (`PROJECTS.md`, track 5) to `simdesign-filletfloor`, which ruled out a near-sharp fillet floor as the cause of the scatter in the mass price of laser-cutting rules under the peak element stress (price 0.990–1.145 over seeds 0–4) and listed "per-gauge sub-search results, more seeds, or a different optimiser" as next steps. This project looks at the per-gauge sub-searches and at the search budget. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed rule values, materials and load.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-gaugebudget/
+
 **Builds on.** `research/simdesign-filletfloor` and, through it, `simdesign-patchsearch`, `simdesign-dfm` and `simdesign-bracket` in this repository (the model, rules and optimiser are copied into `src/simdesign_gaugebudget/` so the project stays self-contained; only the experiment script and tests differ); scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>); SciPy's `differential_evolution` (Storn and Price, 1997, "Differential Evolution – A Simple and Efficient Heuristic for Global Optimization over Continuous Spaces", *Journal of Global Optimization* 11:341–359). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

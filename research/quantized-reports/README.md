@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Regret of reporting from a finite grid under Brier/log proper scoring rules. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/quantized-reports/
+
 ```bash
 cd research/quantized-reports
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 7 tests

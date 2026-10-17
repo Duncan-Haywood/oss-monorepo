@@ -2,6 +2,8 @@
 
 Fourth milestone of the LLM chip-design-loop track (`PROJECTS.md`, track 3). A Python generator emits Verilog for an 8-8-4 integer MLP engine with P multiply-accumulate lanes and WB-bit weights and activations; the RTL is simulated in Icarus Verilog and must match an integer NumPy reference bit for bit and in cycle count; then P and WB are swept against synthesised gate count, depth and cycles. Produced with AI assistance (Claude). Preliminary and small: one toy network, one tool version, one generic-gate synthesis script. No LLM is in this loop; it supplies the design under test for the later loop projects.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-accel/
+
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed. Conceptually it follows the generate-simulate-score pattern of the earlier `chip-*` projects here. Quantisation is plain post-training symmetric rounding, a textbook technique (see Jacob et al., "Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference", CVPR 2018, <https://doi.org/10.1109/CVPR.2018.00286>; cited from search results on 2026-10-13, the paper itself was not read). The design is not a systolic array and is not derived from any published accelerator.
 
 ## Method

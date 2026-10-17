@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Periodic averaging of heterogeneous quadratic workers has a closed-form fixed point; this project works out what it implies for bias, verifiability of step counts, and the communication/accuracy trade-off. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/local-sgd-bias/
+
 ```bash
 cd research/local-sgd-bias
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests

@@ -2,6 +2,8 @@
 
 Follow-up to [`garment-twonodegate`](../garment-twonodegate) (track 6, `PROJECTS.md`), taking its next step: "model the switching (a skin-temperature-triggered gate with a delay) in the two-node loop and compare against the fixed-state bounds." Everything is a model on a CPU; no person or fabric was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-twonodeswitch/
+
 **Builds on.** `garment-twonodegate` (fixed closed 0.15 and open 0.8 transmittance), `garment-twonodeoptics` (the switchable two-node model; "ours" is this repository's design choices, "ref" those of `pythermalcomfort` 4.6.1). The gating idea is motivated by Zhang et al. (2019), cited in `garment-thermal`. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 **Citation check.** No new source. I did not re-read Zhang et al. (2019); the thermostat and lag are my own toy actuator, not a model of any published textile.

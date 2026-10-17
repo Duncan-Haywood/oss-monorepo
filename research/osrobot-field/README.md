@@ -2,6 +2,8 @@
 
 Fifth milestone (`osrobot-field`) of track 9, open-source purpose-built robots, in the direction of the ARPG, RECUV and Autonomous Systems IRT interest in field-robot simulation. Produced with AI assistance (Claude). Pure Python standard library. **Every constant (blur law, treatment time, energy per metre, mud penalty, sensor hit rate) is an assumed round number in `src/osrobot_field/model.py` (marked ASSUMED), not a measurement of any robot, camera or crop, and no robot was built or driven.** All numbers below are from `experiments/results.txt` (30 simulated fields per row; fields and random draws are shared across rows). Simulation only; **a stylised, preliminary study. Perception is a probability, not an image pipeline, and terrain enters only as slower, costlier muddy squares; `terrain-twin`'s friction model is not used.**
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-field/
+
 ![Share of weeds killed against time for a speed sweep and an overlap sweep](experiments/kill_vs_time.svg)
 
 - **In this model a second, planned stage never pays.** Scouting every lane at speed `v`, then visiting the detected targets by nearest neighbour, kills the same share of weeds as treating them where they are seen (0.399 against 0.401 at 1 m/s) and takes longer in every one of the 23 paired rows of the sweeps: 57.0 against 51.7 min and 220 against 189 Wh at the reference, a gap of 2.8 to 7.8 min that does not close with weed density (0.05 to 1.2 per m²) or with mud (0 to 60% of squares). The robot treats every target once either way, so a tour adds travel to targets that the lane already passed.

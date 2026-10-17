@@ -2,6 +2,8 @@
 
 Follow-up to `simdesign-meshmargin` in the simulation-first design track (`PROJECTS.md`, track 5), taking up its first next step. That project found the peak element stress of the L-bracket still rising as the mesh is refined (100 to 126 MPa from h = 2.5 to 0.7 mm in a spot check), so a stress limit checked on any one mesh is a moving target. Here four stress measures are compared on one mesh sequence. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed material values.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-patchstress/
+
 **Builds on.** `research/simdesign-meshmargin` and, through it, `simdesign-dfm` and `simdesign-bracket` in this repository (the model in `src/simdesign_patchstress/model.py` is copied from `simdesign-meshmargin` so the project stays self-contained; the only change is an option to return the stress field); scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

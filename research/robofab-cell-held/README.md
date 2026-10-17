@@ -2,6 +2,8 @@
 
 A stylised, simulation-only follow-up to `research/robofab-cell-cv` (track `robofab`, milestone 4's next steps). That project's accounting suggested that most of mean value analysis' (MVA) overshoot at saturation comes from the printer being held through the arm's load and unload. The obvious analytic repair is to add load and unload time to the printer's service demand (`cell_demands(..., hold_printer=True)`). Here I test it as a predictor against the discrete-event simulation, in 32 settings. All numbers are from `experiments/results.txt` (20 seeds, 24 h horizon after a 4 h warm-up, mean rates in good parts per hour). Job types and times are those of `robofab-cell-mva` (A: 20 min print, 10% fail; B: 60 min print, 20% fail; load and unload 2 min; inspect 3 min; equal mix), illustrative and not measured.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-cell-held/
+
 - **Overall the repair does not help.** Mean absolute error against the simulation, over all 32 rows (cv 0.3 and 1.0, 4 to 16 printers, work in process P/2, P, P+2, 2P): plain MVA 4.7%, held-demand MVA 6.2%, plain utilisation bound 8.0%, held-demand bound 5.5%.
 - **It helps only when the cell is saturated.** On the 8 rows with work in process 2P, held-demand MVA errs by 2.9% on average against 8.2% for plain MVA (bounds: 4.7% held, 9.8% plain). On the other 24 rows it is worse: 7.3% against 3.6%. Held demand underestimates at low and moderate work in process (errors of −3% to −12% in the table), where printers are rarely stalled, and plain MVA is already within a few percent.
 - **So no single demand setting is right across loads.** A predictor that switches on load, or a model of the blocking itself (Next steps), would be needed. I did not build one.
