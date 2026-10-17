@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" role="img" aria-label="Grouped bars of nominal and error-averaged colour error for five stack designs at sigma 0.05; designs tuned on the nominal objective degrade most under error">
+<rect width="720" height="400" fill="#fff"/>
+<text x="360.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Colour error J at sigma 0.05, 620 nm target (lower is better)</text>
+<rect x="56" y="40" width="648" height="290" fill="none" stroke="#999"/>
+<line x1="56" x2="704" y1="330.0" y2="330.0" stroke="#eee"/><text x="50" y="334.0" text-anchor="end" font-family="sans-serif" font-size="11">-3.6</text>
+<line x1="56" x2="704" y1="272.0" y2="272.0" stroke="#eee"/><text x="50" y="276.0" text-anchor="end" font-family="sans-serif" font-size="11">6.9</text>
+<line x1="56" x2="704" y1="214.0" y2="214.0" stroke="#eee"/><text x="50" y="218.0" text-anchor="end" font-family="sans-serif" font-size="11">17.5</text>
+<line x1="56" x2="704" y1="156.0" y2="156.0" stroke="#eee"/><text x="50" y="160.0" text-anchor="end" font-family="sans-serif" font-size="11">28.1</text>
+<line x1="56" x2="704" y1="98.0" y2="98.0" stroke="#eee"/><text x="50" y="102.0" text-anchor="end" font-family="sans-serif" font-size="11">38.7</text>
+<line x1="56" x2="704" y1="40.0" y2="40.0" stroke="#eee"/><text x="50" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">49.2</text>
+<line x1="56" x2="704" y1="310.0" y2="310.0" stroke="#333"/>
+<text x="14" y="185.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 185.0)">colour error J</text>
+<rect x="69.0" y="241.8" width="50.8" height="68.2" fill="#1f6fb2"/>
+<rect x="120.8" y="232.1" width="50.8" height="77.9" fill="#c0392b"/>
+<text x="120.8" y="346" text-anchor="middle" font-family="sans-serif" font-size="9">QW</text>
+<rect x="198.6" y="286.0" width="50.8" height="24.0" fill="#1f6fb2"/>
+<rect x="250.4" y="103.1" width="50.8" height="206.9" fill="#c0392b"/>
+<text x="250.4" y="346" text-anchor="middle" font-family="sans-serif" font-size="9">rand, nominal</text>
+<rect x="328.2" y="302.2" width="50.8" height="7.8" fill="#1f6fb2"/>
+<rect x="380.0" y="60.0" width="50.8" height="250.0" fill="#c0392b"/>
+<text x="380.0" y="346" text-anchor="middle" font-family="sans-serif" font-size="9">NM, nominal</text>
+<rect x="457.8" y="228.4" width="50.8" height="81.6" fill="#1f6fb2"/>
+<rect x="509.6" y="183.4" width="50.8" height="126.6" fill="#c0392b"/>
+<text x="509.6" y="346" text-anchor="middle" font-family="sans-serif" font-size="9">rand, robust s=0.05</text>
+<rect x="587.4" y="254.4" width="50.8" height="55.6" fill="#1f6fb2"/>
+<rect x="639.2" y="169.4" width="50.8" height="140.6" fill="#c0392b"/>
+<text x="639.2" y="346" text-anchor="middle" font-family="sans-serif" font-size="9">NM, robust s=0.05</text>
+<rect x="56" y="376" width="12" height="10" fill="#1f6fb2"/><text x="72" y="385" font-family="sans-serif" font-size="11">nominal J</text>
+<rect x="191" y="376" width="12" height="10" fill="#c0392b"/><text x="207" y="385" font-family="sans-serif" font-size="11">mean J under error</text>
+</svg>
