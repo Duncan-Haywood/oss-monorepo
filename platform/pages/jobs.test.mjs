@@ -10,6 +10,7 @@ import {
   BID_OUTCOMES,
   BID_AMOUNT_HELPER,
   BID_PRICE_BAND_HELPERS,
+  bidPriceSide,
   MIN_PRICE_BAND_SIDE,
   MIN_UNDERCUT_SAMPLE,
   MAX_LOST_TO,
@@ -2937,4 +2938,49 @@ test('the browser gets the tested row-group definitions, not a paraphrase', asyn
   // `REPEAT_ATTR` is also read by the runtime's own querySelectorAll.
   assert.match(BID_REPEAT_HELPERS, /var REPEAT_ATTR = "data-pf-repeat";/);
   assert.match(BID_REPEAT_HELPERS, /var MAX_REPEAT_ROWS = \d+;/);
+});
+
+/**
+ * `bump` is the panel's one usage counter, and the privacy promise is that it
+ * stays silent for a browser that asked not to be counted. Run the real
+ * function against a fake navigator and store: counting once proves the
+ * counter works, and each off switch proves it is actually wired.
+ */
+test('the panel counter counts, and stays silent for Do Not Track, Global Privacy Control and the hub opt-out', () => {
+  const script = module_();
+  const start = script.indexOf('var bump = function(event){');
+  assert.ok(start >= 0, 'bump was not found in the panel script');
+  const end = script.indexOf('\n};', start);
+  const source = script.slice(start, end + '\n};'.length);
+
+  const run = (nav, stored = {}) => {
+    const data = { ...stored };
+    const store = { getItem: (k) => (k in data ? data[k] : null), setItem: (k, v) => { data[k] = String(v); } };
+    new Function('navigator', 'store', `${source}; bump('saved'); bump('saved');`)(nav, store);
+    return data['portfolio-hub-usage'] ? JSON.parse(data['portfolio-hub-usage']) : null;
+  };
+
+  assert.equal(run({}).saved, 2, 'an ordinary browser is counted');
+  assert.equal(run({ doNotTrack: '1' }), null, 'Do Not Track did not silence the count');
+  assert.equal(run({ globalPrivacyControl: true }), null, 'Global Privacy Control did not silence the count');
+  assert.equal(run({}, { 'portfolio-hub-optout': '1' }), null, 'the hub opt-out did not silence the count');
+  assert.equal(run({ globalPrivacyControl: false }).saved, 2, 'GPC explicitly off still counts');
+});
+
+/**
+ * The edge of a side is its outer bid, wherever in the list it sits: the
+ * dearest won bid and the cheapest lost one. A loop that merely kept the last
+ * bid it saw would pass any test whose extreme happens to come last.
+ */
+test('bidPriceSide finds the outer edge and the average wherever the extreme sits', () => {
+  const bids = [{ value: 500 }, { value: 900 }, { value: 300 }, { value: 700 }];
+  assert.deepEqual(bidPriceSide(bids, 1), { average: 600, edge: { value: 900 } });
+  assert.deepEqual(bidPriceSide(bids, -1), { average: 600, edge: { value: 300 } });
+  assert.deepEqual(bidPriceSide([{ value: 400 }], 1), { average: 400, edge: { value: 400 } });
+});
+
+test('the outcome menu preselects by option value, not by its label', () => {
+  // `outcome` is 'won' or 'lost'; the labels are 'Won' and 'Lost'. Comparing
+  // against the label would show every restored bid as Waiting.
+  assert.match(module_(), /if \(options\[o\]\[0\] === outcome\) option\.selected = true;|if\(options\[o\]\[0\]===outcome\)option\.selected=true;/);
 });
