@@ -182,3 +182,27 @@ test("the Swiss guide's worked example matches swissPairings and is linked and i
   assert.match(page("sitemap.xml"), /how-to-run-a-swiss-tournament\.html/);
   assert.match(page("index.html"), /href="\.\/how-to-run-a-swiss-tournament\.html"/);
 });
+
+test("the Americano guide's worked example matches americano() and is linked and in the sitemap", async () => {
+  const { americano, validateAmericano, americanoStats } = await import("./calc.mjs");
+  const html = page("how-to-run-an-americano-tournament.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-run-an-americano-tournament\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const P = ["Ana", "Ben", "Cy", "Dee", "Eli", "Fay", "Gus", "Hal"];
+  const plan = americano(P, { courts: 2, rounds: 7, seed: 1 });
+  assert.deepEqual(validateAmericano(P, plan), []);
+  const st = americanoStats(P, plan);
+  assert.equal(st.repeatPartners, 0);
+  assert.equal(st.unmetPartners, 0);
+  plan.rounds.forEach((r, i) => {
+    for (const m of r.matches) {
+      const row = `<tr><td>${i + 1}</td><td>${m.court}</td><td>${m.a.map((x) => P[x]).join(" & ")}</td><td>${m.b.map((x) => P[x]).join(" & ")}</td></tr>`;
+      assert.ok(html.includes(row), row);
+    }
+  });
+  assert.match(page("sitemap.xml"), /how-to-run-an-americano-tournament\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-run-an-americano-tournament\.html"/);
+});
