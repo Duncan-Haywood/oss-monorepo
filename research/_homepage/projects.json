@@ -1267,6 +1267,11 @@
      "summary": "Follow-up to <code>free-c2stpower</code>, where a paired error test stalled at 0.09&ndash;0.20 power for a 10% Coulomb-friction error under Student-t(3) sensor noise. On the same stylised pendulum, the mean squared residual again has power 0.06&ndash;0.10 at every n up to 400, while a median, a 20%-trimmed mean, a mean absolute or a Huber statistic reaches 0.94&ndash;1.00 from n&nbsp;=&nbsp;50 (400 null and 400 test replicates per cell). Under Gaussian noise the choice barely matters. Stylised; one seed per noise kind; not a claim about a physical system."
     },
     {
+     "slug": "free-robusttails",
+     "title": "Which robust paired test still catches a wrong digital twin when noise has infinite variance or whole runs go bad?",
+     "summary": "Follow-up to <code>free-robustpaired</code> on the same stylised pendulum (10% Coulomb-friction error, n = 50&ndash;200 matched trajectories, 400 null replicates). With Student-t(2) cells (infinite variance) the mean squared residual has power about 0.05 at every n, while median and trimmed squared residuals reach 1.00 and a Huber loss with a MAD-estimated scale reaches 0.70&ndash;1.00 (0.20&ndash;0.53 with the scale fixed at 0.02). When 10% of runs are 10&times; noisier, every cell-level statistic stalls (0.04&ndash;0.40) while the median over runs of per-run mean squares reaches 0.89&ndash;1.00; that statistic is nearly the worst under t(2) cells (0.11&ndash;0.19). No statistic wins both, and under Gaussian noise the median pays at n = 50 (0.72 against 0.98). Stylised."
+    },
+    {
      "slug": "free-c2stexact",
      "title": "Which significance rule gives a classifier two-sample test the right false-rejection rate on a digital twin?",
      "summary": "Follow-up to <code>free-c2stpower</code>, whose empirical null was noisy. On the exact pendulum twin (200 replicates per cell, boosted trees, nominal 0.05) a naive rank-sum test on cross-validated scores and a t-test on per-fold AUROCs falsely reject 0.060&ndash;0.130 of the time, never below 0.060, while a half-and-half holdout split with an exact-null rank-sum test stays at 0.040&ndash;0.060 as the theory requires. The price is power: for a 10% Coulomb error holdout rejects 0.20 at <em>n</em>&nbsp;=&nbsp;200 and 0.92 at 400, against 0.62 and 1.00 for the over-sized cross-validated rule, so it needs roughly twice the data. A permutation-calibrated cross-validated statistic is untried. Stylised, simulated, one classifier."
@@ -2714,6 +2719,21 @@
      "slug": "house-costsens",
      "title": "Does the house-cost lever ranking survive its assumed driver splits?",
      "summary": "A Monte Carlo over <code>house-cost</code>'s assumed splits of each construction stage over floor area, footprint and wall area (Dirichlet, concentration 5, 20 and 80; 2,000 draws each). Floor area stays the largest lever in 96&ndash;100% of draws. Storeys is the soft claim: one versus three storeys swings the price index 9.0&ndash;19.9 points at concentration 20 (baseline 14.0), 5.1&ndash;24.1 at 5. The framing-lumber result does not move. Seven of ten levers cannot move under this test by construction. Stylised: tests only the splits, not the lever ranges or the NAHB shares."
+    },
+    {
+     "slug": "house-sobol",
+     "title": "Which uncertain input of the house-cost model drives the uncertainty in a house's price?",
+     "summary": "A variance-based (Sobol) global sensitivity analysis of <code>house-cost</code>, treating the ten lever ranges, the framing materials share and the assumed driver splits as random at once (4,096 base samples, bootstrap intervals). Floor area explains 53% of the price-index variance and storeys 19%; finish level, lot price and foundation type 6&ndash;9% each. The three framing inputs together explain under 1%, so the lumber saving optimised in <code>house-plan</code> barely moves the price of a whole house, and the assumed splits explain none alone and 1.7% through interactions. Per square foot, storeys matters more (25&ndash;27%). Stylised: the answer is relative to the assumed uniform ranges and ignores correlations."
+    },
+    {
+     "slug": "house-schedule",
+     "title": "How much do fewer handoffs, parallel trades, early ordering and a factory shell cut the time to build a house?",
+     "summary": "A Monte Carlo discrete-event model of one house build (20 tasks, a crew per trade, failing inspections, weather, material lead times; 4,000 builds per scenario with common random numbers). The zero-noise critical path is 100 working days but the baseline takes 214: the schedule is driven by waiting. Ordering long-lead materials at day 0 saves 63 days, fewer handoffs 21, parallel rough-in 12.5, faster inspections 11. A factory wall-and-roof shell saves only 6 days if ordered when the foundation starts and 78 if ordered at day 0. All levers together: 96 days, about 1.7% of the price in interest at 8%. <em>Stylised</em>: every duration and rate is my assumption and nothing is calibrated; the 63-day figure rests on a late-ordering baseline."
+    },
+    {
+     "slug": "house-schedule-check",
+     "title": "Does an independent second schedule model agree with house-schedule on what shortens a house build?",
+     "summary": "A second, separately built Monte Carlo schedule (13 tasks, one crew per trade, weather, inspections, long-lead items; 4,000 builds per scenario). It agrees on the ranking: ordering long-lead items on day 0 is the biggest lever (205 to 181 calendar days, &minus;11%, against &minus;29% in <code>house-schedule</code>), prefabricated panels alone save 1.5%, and the handoff gap moves the baseline by 35%. Merging crews does nothing. The disagreement in size shows the magnitudes are set by assumed baselines and lead times. Stylised; every input is an assumption."
     }
    ]
   }

@@ -734,6 +734,35 @@ export function coverOptions(staff, slots, roster, slotIndex, options = {}) {
   return { slot, current: current >= 0 ? staff[current].name : null, fits, blocked };
 }
 
+// Over budget? Rank the assignments by what dropping each one saves in payroll (overtime and burden included, from the
+// person's whole week). A drop is "safe" when another copy of the same shift stays staffed, so the shift is still
+// covered, just thinner; it is "tight" when it would leave the shift empty. `breaksMinimum` marks a drop that would put
+// the person under their minimum hours. Savings are per drop and do not add up exactly (cutting two shifts from one
+// person's week can save more or less than the sum, because overtime is priced across the week). Safe drops first.
+export function trimOptions(staff, slots, roster, options = {}) {
+  if (!roster || !roster.owner) return { error: "Build a roster first." };
+  const ctx = buildContext(staff, slots, { ...(roster.options || {}), ...options });
+  const owner = roster.owner;
+  const key = (s) => `${s.day}|${s.startMin}|${s.endMin}|${s.label}|${s.role}`;
+  const staffed = new Map();
+  owner.forEach((p, i) => { if (p >= 0) staffed.set(key(slots[i]), (staffed.get(key(slots[i])) || 0) + 1); });
+  const sortList = (l) => l.sort((a, b) => slots[a].start - slots[b].start || a - b);
+  const rows = [];
+  owner.forEach((p, i) => {
+    if (p < 0) return;
+    const list = sortList(owner.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0));
+    const rest = list.filter((k) => k !== i);
+    const saves = payroll(ctx, p, list) - payroll(ctx, p, rest);
+    rows.push({
+      slot: slots[i], person: staff[p].name, saves, hoursSaved: (slots[i].end - slots[i].start) / 60,
+      leavesEmpty: staffed.get(key(slots[i])) === 1,
+      breaksMinimum: hoursOf(ctx, rest) < staff[p].minHours - 1e-9 && hoursOf(ctx, list) >= staff[p].minHours - 1e-9,
+    });
+  });
+  rows.sort((a, b) => a.leavesEmpty - b.leavesEmpty || b.saves - a.saves || a.slot.start - b.slot.start);
+  return { rows, safe: rows.filter((r) => !r.leavesEmpty).length };
+}
+
 // "Can I swap Saturday for Sunday?": for the shift at `slotIndex` (owned by someone), list one-for-one trades where
 // another person takes it and hands back one of their own shifts that the first person is free for, with both weeks
 // still passing every hard rule. Each trade carries the payroll change of the pair (overtime included), cheapest first.
@@ -859,6 +888,76 @@ export function lastShiftEnds(csv) {
   return ends;
 }
 
+// A roster CSV (from rosterCsv) -> shifts with absolute minutes from Monday 00:00 (end past midnight runs on).
+// Unfilled rows are skipped. Rows that cannot be read are skipped too, so a hand-edited file still loads.
+export function parseRosterCsv(csv) {
+  const out = [];
+  const lines = String(csv || "").split(/\r?\n/).filter((l) => l.trim());
+  for (const line of lines.slice(1)) {
+    const c = []; let cur = "", inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (inQ) { if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; } else if (ch === '"') inQ = false; else cur += ch; }
+      else if (ch === '"') inQ = true; else if (ch === ",") { c.push(cur); cur = ""; } else cur += ch;
+    }
+    c.push(cur);
+    const person = (c[5] || "").trim();
+    if (!person || person === "UNFILLED") continue;
+    const day = dayIndex((c[0] || "").replace(/\s*\(overnight\)/i, "").trim());
+    const start = parseTime(c[1]);
+    let end = parseTime(c[2]);
+    if (day < 0 || Number.isNaN(start) || Number.isNaN(end)) continue;
+    if (end <= start) end += 1440;
+    out.push({ person, day, start: day * 1440 + start, end: day * 1440 + end, label: (c[4] || "").trim() });
+  }
+  return out;
+}
+
+// What changed between the roster you posted and the one you are working from now, one entry per change:
+// "added" (a shift someone did not have), "cancelled" (a posted shift they no longer have), "moved" (same person,
+// same day, different hours; the hours gained or lost are reported). Notice is the hours between `changedAt`
+// (minutes from Monday 00:00 of that week) and the earliest start the change touches. A change is "short notice" when
+// that is under `noticeHours`, and then owes `premiumHours` of the person's wage unless their name is in `exempt`
+// (swaps and changes the employee asked for). Whether a rule applies, its window and its premium are the operator's
+// to enter: this is arithmetic on their numbers, not a statement of what any ordinance requires.
+export function scheduleChanges(postedCsv, revisedCsv, { changedAt = null, noticeHours = 336, premiumHours = 1, wages = {}, exempt = [] } = {}) {
+  const posted = parseRosterCsv(postedCsv), revised = parseRosterCsv(revisedCsv);
+  const skip = new Set((exempt || []).map((n) => String(n).trim().toLowerCase()).filter(Boolean));
+  const wageOf = new Map(Object.entries(wages || {}).map(([k, v]) => [k.toLowerCase(), String(v ?? "").trim() === "" ? NaN : Number(v)]));
+  const people = [...new Set([...posted, ...revised].map((x) => x.person))];
+  const changes = [];
+  for (const who of people) {
+    const was = posted.filter((x) => x.person === who), now = revised.filter((x) => x.person === who);
+    const keep = (x, y) => x.start === y.start && x.end === y.end;
+    for (const a of [...was]) {
+      const i = now.findIndex((b) => keep(a, b));
+      if (i >= 0) { now.splice(i, 1); was.splice(was.indexOf(a), 1); }
+    }
+    for (const a of [...was]) {
+      const i = now.findIndex((b) => b.day === a.day);
+      if (i < 0) continue;
+      const b = now.splice(i, 1)[0];
+      was.splice(was.indexOf(a), 1);
+      changes.push({ kind: "moved", person: who, from: a, to: b, touchesFrom: Math.min(a.start, b.start), hoursDelta: (b.end - b.start - (a.end - a.start)) / 60 });
+    }
+    for (const a of was) changes.push({ kind: "cancelled", person: who, from: a, to: null, touchesFrom: a.start, hoursDelta: -(a.end - a.start) / 60 });
+    for (const b of now) changes.push({ kind: "added", person: who, from: null, to: b, touchesFrom: b.start, hoursDelta: (b.end - b.start) / 60 });
+  }
+  const known = Number.isFinite(Number(changedAt)) && changedAt !== null && changedAt !== "";
+  let owed = 0;
+  for (const ch of changes) {
+    ch.noticeHours = known ? (ch.touchesFrom - Number(changedAt)) / 60 : null;
+    ch.exempt = skip.has(ch.person.toLowerCase());
+    ch.shortNotice = known && ch.noticeHours < noticeHours;
+    const wage = wageOf.get(ch.person.toLowerCase());
+    ch.premium = ch.shortNotice && !ch.exempt && wage > 0 ? Math.round(premiumHours * wage * 100) / 100 : 0;
+    ch.premiumUnpriced = ch.shortNotice && !ch.exempt && !(wage > 0);
+    owed += ch.premium;
+  }
+  changes.sort((x, y) => x.touchesFrom - y.touchesFrom || x.person.localeCompare(y.person));
+  return { changes, owed: Math.round(owed * 100) / 100, shortNotice: changes.filter((c) => c.shortNotice && !c.exempt).length, noticeKnown: known };
+}
+
 // Sets "prev:" on every staff line whose person worked last week, replacing any old one. Other lines are untouched.
 export function carryOverStaff(staffText, lastWeekCsv) {
   const ends = lastShiftEnds(lastWeekCsv);
@@ -969,6 +1068,20 @@ export function fairnessReport(r, { closeAt = 22 * 60, openAt = 6 * 60 } = {}) {
   const rows = [...by.values()].filter((x) => x.shifts > 0).sort((a, b) => b.tough - a.tough || a.name.localeCompare(b.name));
   const spread = rows.length ? rows[0].tough - rows[rows.length - 1].tough : 0;
   return { rows, spread, flag: spread >= 3, most: rows.length ? rows[0] : null, least: rows.length ? rows[rows.length - 1] : null };
+}
+
+// Weekly-hours cliffs: employers often have a line where hours change what a person is owed (the 30-hour full-time
+// line for health coverage in the US, a benefits or paid-leave eligibility line). Lists who is over `threshold` hours
+// and who is within `within` hours under it, so a few hours can be moved on purpose. A report only, using scheduled
+// (paid) hours; it states no legal requirement and the search does not enforce it.
+export function hoursThresholds(r, { threshold = 30, within = 2 } = {}) {
+  if (!(threshold > 0)) return { threshold, within, over: [], near: [] };
+  const people = (r.people || []).filter((p) => p.hours > 0);
+  const over = people.filter((p) => p.hours >= threshold - 1e-9).map((p) => ({ name: p.name, hours: p.hours, by: p.hours - threshold }));
+  const near = people.filter((p) => p.hours < threshold - 1e-9 && p.hours >= threshold - within - 1e-9).map((p) => ({ name: p.name, hours: p.hours, short: threshold - p.hours }));
+  over.sort((a, b) => b.hours - a.hours || a.name.localeCompare(b.name));
+  near.sort((a, b) => a.short - b.short || a.name.localeCompare(b.name));
+  return { threshold, within, over, near };
 }
 
 export function hoursCsv(r) {

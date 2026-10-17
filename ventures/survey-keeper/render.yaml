@@ -1,0 +1,28 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# No third-party key is required: the survey server has no outside dependencies.
+services:
+  - type: web
+    name: survey-keeper
+    runtime: docker
+    dockerContext: ventures/survey-keeper
+    dockerfilePath: ventures/survey-keeper/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: STATE
+        value: /data/state.json
+      - key: TRUST_PROXY
+        value: "true"
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: PUBLIC_URL
+        sync: false
+      - key: ALERT_WEBHOOK_URL
+        sync: false
+      - key: EMBED_ORIGINS
+        sync: false

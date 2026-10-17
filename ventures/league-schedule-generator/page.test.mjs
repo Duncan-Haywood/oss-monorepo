@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { buildSchedule, readSpec, teamSchedule } from "./calc.mjs";
+import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-make-a-round-robin-schedule.html";
@@ -140,4 +140,24 @@ test("the guide's worked example matches the generator", () => {
 
 test("shift-cover-optimizer links here", () => {
   assert.match(readFileSync(new URL("../shift-cover-optimizer/index.html", import.meta.url), "utf8"), /href="\.\.\/league-schedule-generator\/"/);
+});
+
+test("the team-count page's table matches roundRobin", () => {
+  const html = page("round-robin-schedule-by-number-of-teams.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/round-robin-schedule-by-number-of-teams\.html">/);
+  assert.match(page("sitemap.xml"), /round-robin-schedule-by-number-of-teams\.html/);
+  assert.match(page("index.html"), /href="\.\/round-robin-schedule-by-number-of-teams\.html"/);
+  for (let n = 3; n <= 16; n++) {
+    const rr = roundRobin(n);
+    const sch = { teams: Array.from({ length: n }, (_, i) => i), rounds: rr.map((r) => ({ matches: r.matches.map(([home, away]) => ({ home, away })) })) };
+    const breaks = countBreaks(sch).reduce((a, c) => a + c, 0);
+    const total = (n * (n - 1)) / 2;
+    const row = `<tr><td>${n}</td><td>${rr.length}</td><td>${Math.floor(n / 2)}</td><td>${total}</td><td>${rr.length * 2}</td><td>${total * 2}</td><td>${n % 2 ? "1 team" : "none"}</td><td>${breaks}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    assert.equal(rr.reduce((a, r) => a + r.matches.length, 0), total);
+    if (n % 2 === 0) assert.equal(breaks, n - 2);
+  }
+  for (const m of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)) JSON.parse(m[1]);
 });

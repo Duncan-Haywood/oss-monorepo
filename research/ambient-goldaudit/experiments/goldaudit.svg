@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of mean utility per message at 200 noisy audits and label accuracy 0.7, for gold audits only, noisy audits read as truth, both pooled as truth, and joint EM, against the number of gold audits from 10 to 200: joint EM is highest at every size and gold-only overtakes the noisy reading at about 25 gold audits">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Ambient-goldaudit: utility against gold audits</text>
+<line x1="64" x2="624" y1="310.0" y2="310.0" stroke="#ddd"/><text x="58" y="314.0" text-anchor="end" font-family="sans-serif" font-size="11">0.386</text>
+<line x1="64" x2="624" y1="263.1" y2="263.1" stroke="#ddd"/><text x="58" y="267.1" text-anchor="end" font-family="sans-serif" font-size="11">0.387</text>
+<line x1="64" x2="624" y1="216.3" y2="216.3" stroke="#ddd"/><text x="58" y="220.3" text-anchor="end" font-family="sans-serif" font-size="11">0.388</text>
+<line x1="64" x2="624" y1="169.5" y2="169.5" stroke="#ddd"/><text x="58" y="173.5" text-anchor="end" font-family="sans-serif" font-size="11">0.389</text>
+<line x1="64" x2="624" y1="122.7" y2="122.7" stroke="#ddd"/><text x="58" y="126.7" text-anchor="end" font-family="sans-serif" font-size="11">0.39</text>
+<line x1="64" x2="624" y1="75.9" y2="75.9" stroke="#ddd"/><text x="58" y="79.9" text-anchor="end" font-family="sans-serif" font-size="11">0.391</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="235.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">25</text>
+<text x="364.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="494.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">200</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">gold audits G (log scale)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean utility per message</text>
+<polyline points="64.0,324.0 235.3,216.3 364.9,136.7 494.4,94.6 624.0,75.9" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="235.3" cy="216.3" r="3" fill="#c0392b"/>
+<circle cx="364.9" cy="136.7" r="3" fill="#c0392b"/>
+<circle cx="494.4" cy="94.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="75.9" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">gold only</text>
+<polyline points="64.0,244.4 235.3,253.8 364.9,249.1 494.4,244.4 624.0,258.5" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="244.4" r="3" fill="#1f6fb2"/>
+<circle cx="235.3" cy="253.8" r="3" fill="#1f6fb2"/>
+<circle cx="364.9" cy="249.1" r="3" fill="#1f6fb2"/>
+<circle cx="494.4" cy="244.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="258.5" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">noisy as truth</text>
+<polyline points="64.0,230.4 235.3,221.0 364.9,197.6 494.4,155.4 624.0,118.0" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="230.4" r="3" fill="#2e8b57"/>
+<circle cx="235.3" cy="221.0" r="3" fill="#2e8b57"/>
+<circle cx="364.9" cy="197.6" r="3" fill="#2e8b57"/>
+<circle cx="494.4" cy="155.4" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="118.0" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">pooled as truth</text>
+<polyline points="64.0,108.6 235.3,108.6 364.9,99.3 494.4,85.2 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="108.6" r="3" fill="#8e44ad"/>
+<circle cx="235.3" cy="108.6" r="3" fill="#8e44ad"/>
+<circle cx="364.9" cy="99.3" r="3" fill="#8e44ad"/>
+<circle cx="494.4" cy="85.2" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">joint EM</text>
+</svg>

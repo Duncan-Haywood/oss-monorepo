@@ -8,6 +8,7 @@ export const GROUPS = [
     items: [
       { slug: "support-desk", name: "Support Desk", replaces: "Help Scout, Zendesk (shared inbox)", does: "Email and contact-form tickets in one inbox, threaded by ticket number, with spam guesses that show their reasons and an overdue list for first replies." },
       { slug: "help-keeper", name: "Help Keeper", replaces: "Help Scout Docs, Document360, Intercom Articles", does: "Markdown help center with typo-tolerant ranked search, helpful votes and a report of searches that found nothing." },
+      { slug: "survey-keeper", name: "Survey Keeper", replaces: "Typeform, SurveyMonkey, Delighted (NPS)", does: "Surveys and Net Promoter Score with a 95% range, the words detractors use more than promoters, results by source, CSV export and an alert on every detractor." },
       { slug: "feedback-board", name: "Feedback Board", replaces: "Canny, Nolt", does: "Voting, duplicate detection as people type, a public roadmap and a ship-notification email." },
       { slug: "status-keeper", name: "Status Keeper", replaces: "Statuspage, Better Stack status pages", does: "HTTP and heartbeat checks, a public status page with 90-day uptime bars, incidents, maintenance windows and webhook alerts." },
       { slug: "changelog-keeper", name: "Changelog Keeper", replaces: "Headway, Beamer", does: "Release notes in safe Markdown, a public changelog, Atom and JSON feeds and an embeddable What's new bell." },

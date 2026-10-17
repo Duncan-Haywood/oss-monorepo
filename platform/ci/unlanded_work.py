@@ -181,6 +181,33 @@ def earlier_prs(probe, tip_ref, base_ref):
     return sorted(numbers)
 
 
+def landed_by_content(probe, tip_ref, base_ref):
+    """True when everything the branch changes is already on base_ref under
+    other commit ids (a squash merge, or a cherry-pick). Conservative: an
+    added path counts if base has it, a modified path only if base's copy is
+    byte-identical, a deleted path only if base lacks it."""
+    out = git(["diff", "--name-status", "--no-renames", f"{base_ref}...{tip_ref}"],
+              probe, check=False)
+    changes = [line.split("\t", 1) for line in out.splitlines() if "\t" in line]
+    if not changes:
+        return True
+
+    def blob(ref, path):
+        return git(["rev-parse", "-q", "--verify", f"{ref}:{path}"], probe,
+                   check=False).strip()
+
+    for status, path in changes:
+        on_base = blob(base_ref, path)
+        if status[0] == "A" and on_base:
+            continue
+        if status[0] == "M" and on_base and on_base == blob(tip_ref, path):
+            continue
+        if status[0] == "D" and not on_base:
+            continue
+        return False
+    return True
+
+
 def is_ancestor(probe, tip_ref, base_ref):
     """True when every commit on tip_ref is already on base_ref."""
     proc = subprocess.run(
@@ -362,7 +389,8 @@ def sweep(repo, remote="origin", base="main", since=None, probe=None):
             if len(parents) <= 1:
                 commits.append(commit)
             stack.extend(parents)
-        if commits:
+        if commits and not landed_by_content(
+                probe, f"refs/remotes/origin/{branch}", base_ref):
             commits.sort(key=lambda c: c.day, reverse=True)
             found.append((day, branch, commits, sorted(before)))
     found.sort(key=lambda row: (row[0], row[1]), reverse=True)

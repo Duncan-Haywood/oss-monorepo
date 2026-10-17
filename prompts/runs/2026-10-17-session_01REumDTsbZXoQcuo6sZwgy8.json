@@ -1,0 +1,274 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01REumDTsbZXoQcuo6sZwgy8",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T04:39:21Z",
+  "ended": "2026-10-17T04:39:51Z",
+  "wall_minutes": 2.57,
+  "tokens_in": 1929913,
+  "tokens_out": 8169,
+  "cost_usd": 0.7032,
+  "tool_calls": 25,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "Target shift-roster-builder/calc.mjs, 10 mutants: 5 caught, 2 gaps guarded (money2 zero sign, Sunday-overnight avoid wrap), 3 equivalent. Catch rate 0.714 -> 1.0. One real defect patched.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/shift-roster-builder/calc.mjs",
+        "test": "node --test ventures/shift-roster-builder/**/*.test.mjs  (in .)",
+        "seed": 7,
+        "commit": "4923ab5348",
+        "sites": 1241,
+        "baseline_seconds": 1.4,
+        "mutants": [
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 72,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "const h = Math.floor(m / 60), mm = m % 60;",
+            "after": "const h = Math.floor(m / 61), mm = m % 60;",
+            "line_text": "  const h = Math.floor(m / 60), mm = m % 60;",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 79,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "export const money2 = (n) => (n < 0 ? \"\u2212\" : \"\") + \"$\" + Math.abs(n).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 2 });",
+            "after": "export const money2 = (n) => (n < 1 ? \"\u2212\" : \"\") + \"$\" + Math.abs(n).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 2 });",
+            "line_text": "export const money2 = (n) => (n < 0 ? \"\u2212\" : \"\") + \"$\" + Math.abs(n).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 2 });",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 111,
+            "col": 30,
+            "operator": "false-to-true",
+            "before": "return { days, errors, any: false };",
+            "after": "return { days, errors, any: true };",
+            "line_text": "  return { days, errors, any: false };",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "staff.anyTime is written by parseStaff but never read anywhere (calc.mjs, index.html), so av.any cannot change behaviour"
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 166,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "const hit = (d, a, b) => person[key][d % 7].reduce((t, [x, y]) => t + Math.max(0, Math.min(b, y) - Math.max(a, x)), 0);",
+            "after": "const hit = (d, a, b) => person[key][d % 8].reduce((t, [x, y]) => t + Math.max(0, Math.min(b, y) - Math.max(a, x)), 0);",
+            "line_text": "  const hit = (d, a, b) => person[key][d % 7].reduce((t, [x, y]) => t + Math.max(0, Math.min(b, y) - Math.max(a, x)), 0);",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 271,
+            "col": 101,
+            "operator": "or-to-and",
+            "before": "const role = roleCell ? parseRoles(roleCell)[0] || \"\" : FIXED_CELL.test(c[5] || \"\") ? \"\" : (c[5] || \"\").trim().toLowerCase();",
+            "after": "const role = roleCell ? parseRoles(roleCell)[0] || \"\" : FIXED_CELL.test(c[5] || \"\") ? \"\" : (c[5] && \"\").trim().toLowerCase();",
+            "line_text": "    const role = roleCell ? parseRoles(roleCell)[0] || \"\" : FIXED_CELL.test(c[5] || \"\") ? \"\" : (c[5] || \"\").trim().toLowerCase();",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 560,
+            "col": 72,
+            "operator": "or-to-and",
+            "before": "lists.forEach((l) => l.sort((a, b) => slots[a].start - slots[b].start || a - b));",
+            "after": "lists.forEach((l) => l.sort((a, b) => slots[a].start - slots[b].start && a - b));",
+            "line_text": "  lists.forEach((l) => l.sort((a, b) => slots[a].start - slots[b].start || a - b));",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "slots are sorted by start and lists are filled in ascending slot index, so index order equals start order; stable sort covers ties"
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 640,
+            "col": 86,
+            "operator": "const-plus-one",
+            "before": "const sctx = buildContext(sub, slots, { ...o, restarts: 1, iterations: Math.max(5000, ctx.S * 40) });",
+            "after": "const sctx = buildContext(sub, slots, { ...o, restarts: 1, iterations: Math.max(5001, ctx.S * 40) });",
+            "line_text": "      const sctx = buildContext(sub, slots, { ...o, restarts: 1, iterations: Math.max(5000, ctx.S * 40) });",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "5000 vs 5001 local-search iterations: a heuristic budget, not an observable contract"
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 704,
+            "col": 47,
+            "operator": "eq-flip",
+            "before": "const listOf = (p) => owner.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0);",
+            "after": "const listOf = (p) => owner.map((q, k) => (q !== p ? k : -1)).filter((k) => k >= 0);",
+            "line_text": "  const listOf = (p) => owner.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0);",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 987,
+            "col": 17,
+            "operator": "div-to-times",
+            "before": "const pct = (c / s) * 100;",
+            "after": "const pct = (c * s) * 100;",
+            "line_text": "  const pct = (c / s) * 100;",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/shift-roster-builder/calc.mjs",
+            "line": 1056,
+            "col": 49,
+            "operator": "times-to-div",
+            "before": "export function fairnessReport(r, { closeAt = 22 * 60, openAt = 6 * 60 } = {}) {",
+            "after": "export function fairnessReport(r, { closeAt = 22 / 60, openAt = 6 * 60 } = {}) {",
+            "line_text": "export function fairnessReport(r, { closeAt = 22 * 60, openAt = 6 * 60 } = {}) {",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/shift-roster-builder/calc.mjs",
+        "issue": "scheduleChanges treated a blank wage as $0 (premium silently 0, not flagged unpriced) and a negative wage as a negative premium",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5d16f6c7-4e88-56a7-976d-fd5b464e1d92",
+    "transcripts": 1,
+    "first": "2026-10-17T04:39:21Z",
+    "last": "2026-10-17T04:41:56Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 24,
+        "input": 48,
+        "output": 8169,
+        "thinking": 1537,
+        "cache_read": 1867907,
+        "cache_write_5m": 0,
+        "cache_write_1h": 61958,
+        "api_equivalent_usd": 0.7032,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 24,
+      "input": 48,
+      "output": 8169,
+      "thinking": 1537,
+      "cache_read": 1867907,
+      "cache_write_5m": 0,
+      "cache_write_1h": 61958,
+      "api_equivalent_usd": 0.7032,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 25,
+    "tools": {
+      "Bash": 21,
+      "Read": 3,
+      "bash": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.57,
+      "active_minutes": 2.57,
+      "model_minutes": 1.12,
+      "tool_minutes": 1.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "agent estimate: read target, write 3 tests, one fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 284.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

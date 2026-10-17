@@ -98,3 +98,26 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /MIT License/);
   assert.match(page("VENTURE.yaml"), /^name: ad-spend-saturation-optimizer$/m);
 });
+
+test("marginal ROAS article's table is what the engine returns for the sample account", async () => {
+  const { analyze, simulateSpend } = await import("./calc.mjs");
+  const html = page("marginal-roas-vs-average-roas.html");
+  const r = analyze(simulateSpend({}));
+  const rows = { "Google Search": [5107, 3.14, 2.60, 8658], "Meta Prospecting": [11429, 2.03, 2.03, 13653], TikTok: [4788, 1.95, 0.97, 3063], Influencer: [5316, 1.35, 1.11, 1265] };
+  for (const c of r.modelled) {
+    const [cur, roas, mroas, rec] = rows[c.name];
+    assert.equal(Math.round(c.current), cur, `${c.name} spend`);
+    assert.equal(c.roas.toFixed(2), roas.toFixed(2), `${c.name} average ROAS`);
+    assert.equal(c.mroas.toFixed(2), mroas.toFixed(2), `${c.name} marginal ROAS`);
+    assert.equal(Math.round(c.recommended), rec, `${c.name} suggested`);
+    assert.ok(html.includes(`$${rec.toLocaleString("en-US")}`), `${c.name} row on page`);
+  }
+  assert.equal(Math.round(r.summary.gain), 4323);
+  assert.equal(r.summary.pGain, 1);
+  assert.ok(r.channels.find((c) => c.name === "TikTok").mroasHi < r.summary.breakevenRoas);
+  assert.match(page("sitemap.xml"), /marginal-roas-vs-average-roas\.html/);
+  assert.match(page("index.html"), /marginal-roas-vs-average-roas\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});

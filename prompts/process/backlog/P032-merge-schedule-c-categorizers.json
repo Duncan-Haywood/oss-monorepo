@@ -1,7 +1,7 @@
 {
   "id": "P032",
   "title": "Merge freelancer- and self-employed-schedule-c-categorizer into one venture",
-  "status": "open",
+  "status": "dropped",
   "owner": "agent",
   "effect": 1,
   "cost": 2,
@@ -20,6 +20,11 @@
   "opened": "2026-10-17",
   "source": "P015 duplicate review",
   "pr": null,
-  "result": null,
-  "history": []
+  "result": "Dropped: both are published pages linked from ~20 files (build.mjs, launched.json, expense-tracker, self-employment-tax-calculator, dental-associate-pay-calculator, scores). They target different searches (freelancer vs self-employed/gig worker; the second adds a 1099 gross comparison and personal-row flags), so merging loses a page and breaks links for an effect of 1.",
+  "history": [
+    {
+      "date": "2026-10-17",
+      "note": "Read both VENTURE.yaml, file lists and dependents; dropped, see result."
+    }
+  ]
 }

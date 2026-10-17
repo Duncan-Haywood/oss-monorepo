@@ -18,7 +18,7 @@ test("index page carries the disclaimer, privacy line, and sponsor link", () => 
 });
 
 test("JSON-LD blocks parse and every FAQ question is on the page", () => {
-  for (const name of ["index.html", "183-day-rule-by-state.html"]) {
+  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html"]) {
     const html = page(name);
     const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
     const faq = blocks.find((b) => b["@type"] === "FAQPage");
@@ -80,7 +80,7 @@ test("every element the script looks up exists on the page", () => {
 
 test("usage events named on the page are the ones the code records", () => {
   const html = page("index.html");
-  for (const e of ["count_run", "example_loaded", "report_downloaded"]) {
+  for (const e of ["count_run", "example_loaded", "report_downloaded", "daily_log_downloaded"]) {
     assert.match(html, new RegExp(`record\\("${e}"\\)`));
     assert.match(html, new RegExp(`<code>${e}</code>`));
   }
@@ -97,7 +97,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
 });
 
 test("related-tool links point at ventures that exist", () => {
-  for (const name of ["index.html", "183-day-rule-by-state.html"]) {
+  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html"]) {
     for (const m of page(name).matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)) assert.ok(existsSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
   }
 });
@@ -124,4 +124,22 @@ test("the guide's worked example matches the counter", () => {
 test("footer links back to the quarterly estimated tax calendar, which links here", () => {
   assert.match(page("index.html"), /href="\.\.\/quarterly-estimated-tax-calendar\/"/);
   assert.match(readFileSync(new URL("../quarterly-estimated-tax-calendar/index.html", import.meta.url), "utf8"), /href="\.\.\/state-residency-day-counter\/"/);
+});
+
+test("the employer-rule guide's figures match the counter", async () => {
+  const { sampleSpec, analyze } = await import("./calc.mjs");
+  const spec = sampleSpec();
+  spec.employerState = "NY";
+  const r = analyze(spec);
+  const guide = page("remote-work-convenience-of-the-employer-rule.html");
+  const usd = (n) => "$" + Math.round(n).toLocaleString("en-US");
+  const ny = r.states.find((s) => s.code === "NY");
+  const fl = r.states.find((s) => s.code === "FL");
+  assert.ok(guide.includes(`<td class="n">${r.employer.physicalDays}</td><td class="n">${usd(ny.wages)}</td>`));
+  assert.ok(guide.includes(`<td class="n">${r.employer.claimableDays}</td><td class="n">${usd(r.employer.claimableWages)}</td>`));
+  assert.ok(guide.includes(`${r.employer.remoteDays} Florida workdays carry ${usd(fl.wages)}`));
+  assert.match(guide, /<link rel="canonical" href="\.\/remote-work-convenience-of-the-employer-rule\.html">/);
+  assert.match(guide, /No warranty/);
+  assert.match(page("index.html"), /href="\.\/remote-work-convenience-of-the-employer-rule\.html"/);
+  assert.match(page("sitemap.xml"), /remote-work-convenience-of-the-employer-rule\.html/);
 });

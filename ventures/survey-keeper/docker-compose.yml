@@ -1,0 +1,18 @@
+# Any box with Docker:
+#   ADMIN_KEY=$(openssl rand -hex 16) docker compose up -d
+# Put it behind HTTPS (Caddy, nginx, a tunnel) before real use.
+services:
+  survey-keeper:
+    build: .
+    restart: unless-stopped
+    ports: ["8080:8080"]
+    volumes: ["state:/data"]
+    environment:
+      ADMIN_KEY: ${ADMIN_KEY:?set ADMIN_KEY}
+      STATE: /data/state.json
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+      EMBED_ORIGINS: ${EMBED_ORIGINS:-}
+volumes:
+  state:

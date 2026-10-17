@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { laborPercent, dailyLabor, fairnessReport, scheduleFlags,
+import { laborPercent, dailyLabor, fairnessReport, hoursThresholds, trimOptions, scheduleFlags,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -357,6 +357,8 @@ test("money formats whole dollars and cents, with a minus sign for negatives", (
   assert.equal(money(-42), "\u2212$42");
   assert.equal(money2(1234.5), "$1,234.50");
   assert.equal(money2(-0.5), "\u2212$0.50");
+  assert.equal(money2(0), "$0.00");
+  assert.equal(money2(0.5), "$0.50");
 });
 
 test("ics export: the per-person file holds only that person's shifts and unfilled shifts are left out", () => {
@@ -545,6 +547,13 @@ test("avoid: is still worked when nobody else is available, and says so", () => 
   assert.ok(r.warnings.some((w) => /Ana works 3 hours inside/.test(w)));
 });
 
+test("avoid: a Monday window counts against a Sunday shift that runs past midnight", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any, avoid: Mon 12am-3am");
+  const slots = slotsOf("Sun, 22, 2, 1");
+  const r = buildRoster(staff, slots);
+  assert.equal(r.people[0].avoidHours, 2);
+});
+
 test("avoid: bad days are reported", () => {
   const r = parseStaff("Ana, 15, 40, 0, any, avoid: Funday");
   assert.ok(r.errors.some((e) => /avoid/.test(e)));
@@ -616,6 +625,18 @@ test("prefer: bad days are reported", () => {
   assert.ok(parseStaff("Ana, 15, 40, 0, any, prefer: Funday").errors.some((e) => /prefer/.test(e)));
 });
 
+test("hoursThresholds lists people at or just under a weekly-hours line", () => {
+  const r = { people: [{ name: "A", hours: 32 }, { name: "B", hours: 30 }, { name: "C", hours: 28.5 }, { name: "D", hours: 20 }, { name: "E", hours: 0 }] };
+  const t = hoursThresholds(r);
+  assert.deepEqual(t.over.map((x) => x.name), ["A", "B"]);
+  assert.equal(t.over[0].by, 2);
+  assert.deepEqual(t.near.map((x) => x.name), ["C"]);
+  assert.equal(t.near[0].short, 1.5);
+  assert.equal(hoursThresholds(r, { threshold: 40 }).near.length, 0);
+  assert.equal(hoursThresholds(r, { threshold: 0 }).over.length, 0);
+  assert.equal(hoursThresholds({}).over.length, 0);
+});
+
 test("fairnessReport counts weekend, closing and opening shifts per person and flags a lopsided week", () => {
   const staff = staffOf("Ann,10,60,0,any\nBo,10,60,0,Mon-Fri 9am-5pm");
   const slots = slotsOf("Mon,9am,5pm,1\nTue,9am,5pm,1\nSat,10am,6pm,1\nFri,4pm,11pm,1\nSun,5am,1pm,1");
@@ -629,4 +650,88 @@ test("fairnessReport counts weekend, closing and opening shifts per person and f
   assert.equal(f.most.name, "Ann");
   assert.ok(f.spread >= 3 && f.flag);
   assert.equal(fairnessReport({ people: [], assignments: [] }).flag, false);
+});
+
+import { parseRosterCsv, scheduleChanges } from "./calc.mjs";
+
+const POSTED = [
+  "day,start,end,hours,label,assigned_to,role",
+  "Mon,9:00 AM,5:00 PM,8.00,open,Ana,",
+  "Tue,9:00 AM,5:00 PM,8.00,open,Ana,",
+  "Wed,5:00 PM,11:00 PM,6.00,close,Ben,",
+  "Thu,9:00 AM,1:00 PM,4.00,open,UNFILLED,",
+].join("\n") + "\n";
+
+test("parseRosterCsv reads minutes from Monday and skips unfilled rows", () => {
+  const rows = parseRosterCsv(POSTED);
+  assert.equal(rows.length, 3);
+  assert.deepEqual([rows[0].person, rows[0].start, rows[0].end], ["Ana", 540, 1020]);
+  assert.equal(rows[2].start, 2 * 1440 + 17 * 60);
+});
+
+test("scheduleChanges finds moved, cancelled and added shifts and prices short notice", () => {
+  const revised = [
+    "day,start,end,hours,label,assigned_to,role",
+    "Mon,9:00 AM,5:00 PM,8.00,open,Ana,",
+    "Tue,11:00 AM,5:00 PM,6.00,open,Ana,",
+    "Thu,9:00 AM,1:00 PM,4.00,open,Cleo,",
+  ].join("\n") + "\n";
+  // Changed Monday 8:00 AM: Tuesday's move is 25 h out, Wednesday's cancel is 57 h out, Thursday's add is 73 h out.
+  const r = scheduleChanges(POSTED, revised, { changedAt: 8 * 60, noticeHours: 48, premiumHours: 1, wages: { Ana: 20, Ben: 15, Cleo: 12 } });
+  assert.deepEqual(r.changes.map((c) => c.kind + ":" + c.person), ["moved:Ana", "cancelled:Ben", "added:Cleo"]);
+  assert.equal(r.changes[0].hoursDelta, -2);
+  assert.equal(Math.round(r.changes[0].noticeHours), 25);
+  assert.equal(r.changes[0].shortNotice, true);
+  assert.equal(r.changes[1].shortNotice, false);
+  assert.equal(r.owed, 20);
+  assert.equal(r.shortNotice, 1);
+});
+
+test("scheduleChanges leaves out exempt people and says when notice is unknown", () => {
+  const revised = POSTED.replace("Ana,\nWed", "Ana,\nWed").replace("Ben", "Cleo");
+  const a = scheduleChanges(POSTED, revised, { changedAt: 17 * 60 + 2 * 1440 - 60, noticeHours: 48, wages: { Ben: 15, Cleo: 12 }, exempt: ["ben"] });
+  assert.equal(a.changes.find((c) => c.person === "Ben").exempt, true);
+  assert.equal(a.owed, 12);
+  const b = scheduleChanges(POSTED, revised, {});
+  assert.equal(b.noticeKnown, false);
+  assert.equal(b.owed, 0);
+  assert.equal(b.changes[0].noticeHours, null);
+});
+
+test("scheduleChanges reports nothing for identical rosters", () => {
+  assert.equal(scheduleChanges(POSTED, POSTED, { changedAt: 0 }).changes.length, 0);
+});
+
+test("trimOptions: ranks drops by payroll saved, safe ones first, and prices overtime from the whole week", () => {
+  const staff = staffOf("Ana, 10, 40, 0\nBen, 20, 40, 0");
+  const slots = slotsOf("Mon, 8, 16, 2, open\nTue, 8, 16, 1, close");
+  const r = buildRoster(staff, slots);
+  assert.ok(r.filledAll);
+  const t = trimOptions(staff, slots, r);
+  assert.equal(t.rows.length, 3);
+  assert.equal(t.safe, 2); // the two Monday copies; Tuesday has one person
+  assert.equal(t.rows[2].leavesEmpty, true);
+  assert.equal(t.rows[2].slot.day, 1);
+  const saves = t.rows.map((x) => x.saves);
+  assert.ok(Math.abs(saves[0] - 20 * 8) < 1e-6 || Math.abs(saves[0] - 10 * 8) < 1e-6);
+  assert.ok(saves[0] >= saves[1]);
+  assert.ok(t.rows.every((x) => x.saves > 0));
+});
+
+test("trimOptions: flags a cut that drops someone under their minimum hours; no roster is an error", () => {
+  const staff = staffOf("Ana, 10, 40, 8");
+  const slots = slotsOf("Mon, 8, 16, 1");
+  const r = buildRoster(staff, slots);
+  assert.equal(trimOptions(staff, slots, r).rows[0].breaksMinimum, true);
+  assert.ok(trimOptions(staff, slots, null).error);
+});
+
+test("scheduleChanges: a blank or negative wage is unpriced, never $0 or a negative premium", () => {
+  const head = "Day,Start,End,Hours,Label,Person\n";
+  const a = head + "Mon,9am,5pm,8,x,Ana\n", b = head + "Mon,10am,6pm,8,x,Ana\n";
+  for (const w of ["", -5, "abc"]) {
+    const r = scheduleChanges(a, b, { changedAt: 0, wages: { Ana: w } });
+    assert.equal(r.owed, 0);
+    assert.equal(r.changes[0].premiumUnpriced, true);
+  }
 });
