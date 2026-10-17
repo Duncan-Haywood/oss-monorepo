@@ -53,7 +53,7 @@
     <p id="summary" class="summary" hidden></p>
     <p id="empty" class="privacy">No states yet. Add the first one above, or load sample states to see how the results read.</p>
     <p id="sample-note" class="privacy" role="status" hidden></p>
-    <div style="overflow:auto"><table hidden id="table"><thead><tr><th>State</th><th>Sales</th><th>Transactions</th><th>Status</th><th></th></tr></thead><tbody></tbody></table></div>
+    <div style="overflow:auto"><table hidden id="table"><thead><tr><th>State</th><th>Sales</th><th>Transactions</th><th>Of threshold</th><th>Status</th><th></th></tr></thead><tbody></tbody></table></div>
   </section>
 
   <section class="card privacy"><label><input type="checkbox" id="usage"> Count anonymous local feature use in this browser (off by default)</label><p>Sales figures and state selections stay on this device. Nothing is uploaded. Usage counts contain only feature names and are never sent anywhere.</p></section>
@@ -97,6 +97,7 @@
       });
     })();
   import { checkAll, removeEntry, sampleEntries, toCsv, loadEntries, STATE_OPTIONS } from './calc.mjs';
+  import { percentUsed } from './orders.mjs';
   const form=document.querySelector('#entry-form'), tbody=document.querySelector('#table tbody'), table=document.querySelector('#table'), empty=document.querySelector('#empty'); const storageKey='economic-nexus-threshold-tracker-entries';
   const stateSelect=document.querySelector('#stateSelect');
   stateSelect.innerHTML = STATE_OPTIONS.map(s=>`<option value="${s.value}">${s.label}</option>`).join('');
@@ -107,9 +108,10 @@
   const escapeHtml=(v)=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const statusClass=(row)=>row.crossed===null?'unknown':row.crossed?'crossed':'not-crossed';
   const summary=document.querySelector('#summary');
+  const pctCell=(r)=>r.threshold&&!r.threshold.noSalesTax&&r.grossSales!=null?percentUsed(r.threshold,r.grossSales,r.transactionCount??0)+'%':'—';
   const render=()=>{
     const rows=checkAll(entries);
-    tbody.innerHTML=rows.map(r=>`<tr><td>${escapeHtml(r.threshold?r.threshold.label:r.state||'')}</td><td>${r.grossSales==null?'—':Number(r.grossSales).toFixed(2)}</td><td>${r.transactionCount==null?'—':r.transactionCount}</td><td class="status ${statusClass(r)}">${escapeHtml(r.status)}</td><td><button type="button" class="danger" data-remove="${r.entryIndex}">Remove</button></td></tr>`).join('');
+    tbody.innerHTML=rows.map(r=>`<tr><td>${escapeHtml(r.threshold?r.threshold.label:r.state||'')}</td><td>${r.grossSales==null?'—':Number(r.grossSales).toFixed(2)}</td><td>${r.transactionCount==null?'—':r.transactionCount}</td><td>${pctCell(r)}</td><td class="status ${statusClass(r)}">${escapeHtml(r.status)}</td><td><button type="button" class="danger" data-remove="${r.entryIndex}">Remove</button></td></tr>`).join('');
     table.hidden=!rows.length; empty.hidden=!!rows.length;
     if (rows.length) {
       const crossedCount=rows.filter(r=>r.crossed===true).length;
