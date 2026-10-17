@@ -42,6 +42,12 @@ shuffling on Sunday night.
 
 - Returning each week: people, shifts and settings are remembered in this browser's local storage only ("Forget saved data" removes them), and can be saved to or loaded from a `roster-setup.json` file to move between devices.
 
+## What you use today, and what this does differently
+
+- **Paper, a whiteboard or a spreadsheet:** free and private, but you check availability, rest gaps and overtime by eye, and nothing tells you a shift is unfillable until Sunday night.
+- **Subscription schedulers** (7shifts, When I Work, Homebase, Deputy and similar): staff apps, shift swaps, time clocks and payroll hand-off. They want accounts for you and your staff, and most price per user or per location. This tool does none of that. It solves one week at a time with no signup and no upload.
+- **What this adds:** a solver that fills as many shifts as the rules allow, prices overtime and split shifts, names the shifts it cannot fill and why, and shows who the week depends on. Your staff list stays in your browser. If you need staff-facing apps, a time clock or multi-week publishing, a subscription product is the better fit.
+
 ## Limits
 
 Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), rest-break placement (unpaid meal breaks are deducted from paid time and flagged, not placed on the clock), minor-labor limits beyond the per-person daily cap, union rules, seniority, time-off across weeks. A
