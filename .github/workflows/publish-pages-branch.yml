@@ -61,6 +61,8 @@ on:
       # logs and reports and the portfolio studies, so a new report or run
       # record republishes them.
       - "platform/devlog/**"
+      # The writing section (platform/pages/writing.mjs) renders docs/posts/.
+      - "docs/posts/**"
       - "prompts/**"
       - "portfolio/research/**"
       - "ventures/**"
