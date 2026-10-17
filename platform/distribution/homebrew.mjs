@@ -18,6 +18,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { plan, packageName, VERSION } from './npm.mjs';
 import { toolUrl } from './bluesky.mjs';
+import { tagUrl } from './attribution.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -40,7 +41,7 @@ export function formula({ slug, description, sha256, name = slug, version = VERS
   const desc = rubyString(description.replace(/\.$/, '')).slice(0, 80);
   return `class ${cls} < Formula
   desc "${desc}"
-  homepage "${toolUrl(slug)}"
+  homepage "${tagUrl(toolUrl(slug), 'homebrew')}"
   url "${tarballUrl(name, version)}"
   sha256 "${sha256}"
   license "MIT"

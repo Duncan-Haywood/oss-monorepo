@@ -9,4 +9,4 @@ Free, read-only checker that scans GitHub Actions workflow YAML for pull_request
     path: .
 ```
 
-Runs [`ventures/actions-injection-check/check.py`](../../../../ventures/actions-injection-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/
+Runs [`ventures/actions-injection-check/check.py`](../../../../ventures/actions-injection-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/?ref=gh-action

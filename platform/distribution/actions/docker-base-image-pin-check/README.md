@@ -9,4 +9,4 @@ Free, read-only checker that scans a repository's Dockerfiles and flags every FR
     path: .
 ```
 
-Runs [`ventures/docker-base-image-pin-check/check.py`](../../../../ventures/docker-base-image-pin-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/docker-base-image-pin-check/
+Runs [`ventures/docker-base-image-pin-check/check.py`](../../../../ventures/docker-base-image-pin-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/docker-base-image-pin-check/?ref=gh-action

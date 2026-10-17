@@ -73,5 +73,26 @@ test('server: counts a hit, persists nothing about the request, serves aggregate
 test('pull merge never shrinks a recorded day and ignores junk', () => {
   const merged = mergeDays({ '2026-10-15': { hub: 5 } }, { '2026-10-15': { hub: 3, a: 1 }, '2026-10-16': { hub: 2, bad: -1 }, nope: { x: 1 } });
   assert.deepEqual(merged, { '2026-10-15': { a: 1, hub: 5 }, '2026-10-16': { hub: 2 } });
-  assert.deepEqual(summarise(merged), { days: 2, page_loads: 8, top: [['hub', 7], ['a', 1]] });
+  assert.deepEqual(summarise(merged), { days: 2, page_loads: 8, top: [['hub', 7], ['a', 1]], channels: {} });
+});
+
+test('a known channel tag is attributed; an unknown one is dropped but the view still counts', () => {
+  assert.deepEqual(classify({ ...ok, body: '{"p":"hub","r":"npm"}' }), { count: true, slug: 'hub', ref: 'npm' });
+  assert.deepEqual(classify({ ...ok, body: '{"p":"hub","r":"free text"}' }), { count: true, slug: 'hub' });
+  assert.equal(classify({ ...ok, body: 'null' }).reason, 'body');
+});
+
+test('the server adds ref:<tag> beside the page count, and summarise does not double it', async () => {
+  const tally = new Tally();
+  const server = createCounterServer({ tally, allowOrigin: 'https://x.example', now: () => new Date('2026-10-16T12:00:00Z') });
+  await new Promise((r) => server.listen(0, r));
+  const { port } = server.address();
+  for (const body of ['{"p":"hub","r":"bluesky"}', '{"p":"a","r":"bluesky"}', '{"p":"a"}']) {
+    await fetch(`http://127.0.0.1:${port}/hit`, { method: 'POST', body, headers: { 'user-agent': 'Mozilla/5.0' } });
+  }
+  server.close();
+  assert.deepEqual(tally.days, { '2026-10-16': { hub: 1, a: 2, 'ref:bluesky': 2 } });
+  const s = summarise(tally.days);
+  assert.equal(s.page_loads, 3);
+  assert.deepEqual(s.channels, { bluesky: 2 });
 });

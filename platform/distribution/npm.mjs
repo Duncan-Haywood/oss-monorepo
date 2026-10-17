@@ -26,6 +26,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { toolUrl } from './bluesky.mjs';
+import { tagUrl } from './attribution.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -106,7 +107,7 @@ export async function buildPackage({ slug, dir, scope = '', version = VERSION })
   files['bin.mjs'] = BIN_WRAPPER;
   files.LICENSE = license;
   const readme = await fs.readFile(path.join(dir, 'README.md'), 'utf8').catch(() => `# ${slug}\n\n${description}\n`);
-  files['README.md'] = `${readme.trimEnd()}\n\n---\n\nFree and open source (MIT), from the [monorepo-projects](${toolUrl(slug)}) portfolio. Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`;
+  files['README.md'] = `${readme.trimEnd()}\n\n---\n\nFree and open source (MIT), from the [monorepo-projects](${tagUrl(toolUrl(slug), 'npm')}) portfolio. Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`;
   files['package.json'] = `${JSON.stringify({
     name,
     version,
@@ -116,7 +117,7 @@ export async function buildPackage({ slug, dir, scope = '', version = VERSION })
     files: [...c.files, 'bin.mjs', 'LICENSE', 'README.md'],
     engines: { node: '>=18' },
     license: 'MIT',
-    homepage: toolUrl(slug),
+    homepage: tagUrl(toolUrl(slug), 'npm'),
     repository: { type: 'git', url: `git+${REPO_URL}.git`, directory: `ventures/${slug}` },
     bugs: { url: `${REPO_URL}/issues` },
     keywords: ['cli', 'free', 'open-source', ...slug.split('-').filter((w) => w.length > 2).slice(0, 4)],

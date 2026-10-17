@@ -17,6 +17,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readMeta, toolUrl } from './bluesky.mjs';
+import { tagUrl } from './attribution.mjs';
 import { zip } from './webext.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -37,7 +38,7 @@ export async function collect({ root = REPO_ROOT } = {}) {
     const html = await fs.readFile(path.join(root, 'ventures', slug, 'index.html'), 'utf8').catch(() => null);
     const meta = html && readMeta(html);
     if (!meta) continue;
-    out.push({ slug, title: shortTitle(meta.title), description: meta.description.replace(/\s+/g, ' '), url: toolUrl(slug) });
+    out.push({ slug, title: shortTitle(meta.title), description: meta.description.replace(/\s+/g, ' '), url: tagUrl(toolUrl(slug), 'vscode') });
   }
   return out;
 }

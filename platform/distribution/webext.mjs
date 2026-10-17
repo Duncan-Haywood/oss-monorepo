@@ -20,6 +20,7 @@ import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { importsOf } from './npm.mjs';
 import { readMeta, toolUrl } from './bluesky.mjs';
+import { tagUrl } from './attribution.mjs';
 import { renderIcon } from '../pages/offline.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -138,7 +139,7 @@ export async function buildExtension({ slug, dir, version = VERSION }) {
     icons,
     action: { default_title: `Open ${name}`, default_icon: icons },
     background: { service_worker: 'background.js' },
-    homepage_url: toolUrl(slug),
+    homepage_url: tagUrl(toolUrl(slug), 'webext'),
   }, null, 2)}\n`;
   files['README.md'] = `# ${name} (browser extension)\n\n${meta.description}\n\nClick the toolbar icon to open the tool in a tab. It runs offline, asks for no permissions and sends nothing anywhere.\n\nFree and open source (MIT). Web version: ${toolUrl(slug)}\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n\nNo warranty; an aid, not legal, tax or professional advice.\n`;
   return { name, version, files };

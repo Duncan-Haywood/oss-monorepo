@@ -16,6 +16,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tagUrl } from './attribution.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -77,7 +78,7 @@ export async function plan({ launched, today, seenText = '', readPage, max = MAX
     const html = await readPage(slug);
     const meta = html && readMeta(html);
     if (!meta) continue;
-    out.push({ slug, url, ...composePost(meta, url) });
+    out.push({ slug, url, ...composePost(meta, tagUrl(url, 'bluesky')) });
     if (out.length >= max) break;
   }
   return out;

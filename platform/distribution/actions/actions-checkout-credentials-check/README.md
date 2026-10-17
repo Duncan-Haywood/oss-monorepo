@@ -9,4 +9,4 @@ Free, read-only, zero-dependency CLI that scans GitHub Actions workflow YAML for
     path: .
 ```
 
-Runs [`ventures/actions-checkout-credentials-check/check.py`](../../../../ventures/actions-checkout-credentials-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-checkout-credentials-check/
+Runs [`ventures/actions-checkout-credentials-check/check.py`](../../../../ventures/actions-checkout-credentials-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-checkout-credentials-check/?ref=gh-action

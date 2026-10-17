@@ -9,4 +9,4 @@ Free, read-only heuristic scanner that reads your own JavaScript/TypeScript, Pyt
     path: .
 ```
 
-Runs [`ventures/jwt-verification-misuse-check/check.py`](../../../../ventures/jwt-verification-misuse-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/jwt-verification-misuse-check/
+Runs [`ventures/jwt-verification-misuse-check/check.py`](../../../../ventures/jwt-verification-misuse-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/jwt-verification-misuse-check/?ref=gh-action

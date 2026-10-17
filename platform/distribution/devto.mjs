@@ -15,6 +15,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readMeta, recentLaunches, toolUrl } from './bluesky.mjs';
+import { tagUrl } from './attribution.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -25,12 +26,14 @@ const TAGS = ['opensource', 'tools', 'webdev', 'productivity'];
 const shortTitle = (t) => t.split(/\s[—–|-]\s/)[0].trim();
 
 /** Article payload for one tool; the body says what it is, links to the canonical page, and states the limits. */
-export function composeArticle({ title, description }, url) {
+export function composeArticle({ title, description }, url, ref = 'devto') {
   const name = shortTitle(title);
+  // Links readers follow carry the channel tag; `canonical_url` stays clean so search credits the page.
+  const visit = tagUrl(url, ref);
   const body = [
     `${description}`,
     '',
-    `**[Open ${name}](${url})** — it runs in your browser, needs no account, and is free and open source (MIT).`,
+    `**[Open ${name}](${visit})** — it runs in your browser, needs no account, and is free and open source (MIT).`,
     '',
     '## Good to know',
     '',
@@ -38,7 +41,7 @@ export function composeArticle({ title, description }, url) {
     '- It is a calculator/checker, not legal, tax or professional advice. You make the final call.',
     '- You can self-host your own copy: the source is in the public repository linked from the tool page.',
     '',
-    `_Originally published at [${url.replace(/^https:\/\//, '')}](${url}). Posted automatically from the portfolio's launch feed._`,
+    `_Originally published at [${url.replace(/^https:\/\//, '')}](${visit}). Posted automatically from the portfolio's launch feed._`,
   ].join('\n');
   return {
     title: name.length > 120 ? name.slice(0, 119) + '…' : name,
