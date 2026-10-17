@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01UvWTHF7sqUvk9VB6yExRZy",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: follow prompt.md",
+  "input_sha256": "3e54a4671d69cc91f71654788cc0aa9420c6093cc023245b58cf4de88920f85c",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T15:39:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/research_live_links.py",
+      "issue": "documented as a guard but wired into no workflow, so 3 READMEs drifted unnoticed"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Explore: found live-link drift in 3 research READMEs, fixed, added readme-live-links-ci.yml. Next: audit other unwired platform/ci checkers.",
+  "corrections": [],
+  "redteam": null
+}
