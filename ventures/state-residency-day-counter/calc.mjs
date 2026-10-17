@@ -401,8 +401,10 @@ export function analyze(spec) {
   const notices = [];
   if (employer && employer.remoteDays > 0) notices.push(`${employer.name} may claim wages for ${fmtNum(employer.remoteDays, 1)} remote workday(s) you spent outside it${employer.kind === "retaliatory" ? " (only if the state you worked in applies the same rule to its own residents)" : ""}; ${fmtNum(employer.doubleTaxDays, 1)} of them were in states that tax wages themselves, so ask about a credit.`);
   if (conflicts.length) notices.push(`${conflicts.reduce((n, c) => n + c.days, 0)} day(s) fall in stays in different states that overlap by more than a travel day. Both states are counted for those days; check the dates.`);
-  if (gapsToDate && !home) notices.push(`${gapsToDate} day(s) up to the as-of date are not in any stay. They are not counted anywhere; add a stay or pick the state you assume you were in.`);
-  if (home && gapRanges.length) notices.push(`Days not in any stay are assumed to be in ${home}.`);
+  const gapList = gapRanges.slice(0, 6).map((r) => (r.start === r.end ? dayIso(r.start) : `${dayIso(r.start)} to ${dayIso(r.end)}`)).join("; ")
+    + (gapRanges.length > 6 ? `; and ${gapRanges.length - 6} more` : "");
+  if (gapsToDate && !home) notices.push(`${gapsToDate} day(s) up to the as-of date are not in any stay. They are not counted anywhere; add a stay or pick the state you assume you were in. Uncovered: ${gapList}.`);
+  if (home && gapRanges.length) notices.push(`Days not in any stay are assumed to be in ${home}: ${gapList}. Add stays for any of these you spent elsewhere.`);
   if (unplanned && !home) notices.push(`${unplanned} day(s) after the as-of date have no plan yet.`);
 
   return {
