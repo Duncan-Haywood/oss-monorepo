@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, timelineToStays, EMPLOYER_RULES, fmtNum, fmtMoney } from "./calc.mjs";
+import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, timelineToStays, EMPLOYER_RULES, fmtNum, fmtMoney, dailyLog, dailyLogCsv } from "./calc.mjs";
 
 const Y = 2025;
 const spec = (lines, extra = {}) => ({ year: Y, stays: parseStays(lines.join("\n"), Y).stays, abode: {}, overrides: {}, ...extra });
@@ -264,4 +264,25 @@ test("timelineToStays: Takeout placeVisits resolve addresses, skip travel and no
   assert.equal(parseStays(r.lines.join("\n"), 2025).errors.length, 0);
   assert.equal(timelineToStays("not json", 2025).error, "Not a JSON file.");
   assert.equal(timelineToStays(JSON.stringify([doc, doc]), 2025).lines.length, 2);
+});
+
+test("daily log totals match analyze and brute force, for both conventions", () => {
+  for (const convention of ["inclusive", "nights"]) {
+    const sp = { ...spec(["NY 2025-01-01 to 2025-03-10", "FL 2025-03-10 to 2025-06-30", "NJ 2025-08-01 to 2025-09-15"], { homeState: "NY" }), convention };
+    const log = dailyLog(sp);
+    assert.equal(log.length, 365);
+    const r = analyze(sp);
+    for (const s of r.states) assert.equal(log.filter((x) => x.states.includes(s.code)).length, s.days, `${convention} ${s.code}`);
+  }
+});
+
+test("daily log marks assumed and unrecorded days and writes one CSV row per day", () => {
+  const sp = spec(["NY 2025-01-01 to 2025-01-31"]);
+  const log = dailyLog(sp);
+  assert.equal(log[0].basis, "stay");
+  assert.equal(log[40].basis, "not recorded");
+  assert.equal(dailyLog({ ...sp, homeState: "FL" })[40].basis, "assumed (no stay listed)");
+  assert.equal(dailyLogCsv(sp).trim().split("\n").length, 366);
+  const travel = dailyLog(spec(["NY 2025-01-01 to 2025-01-10", "FL 2025-01-10 to 2025-01-20"]));
+  assert.deepEqual(travel[9].states, ["FL", "NY"]);
 });
