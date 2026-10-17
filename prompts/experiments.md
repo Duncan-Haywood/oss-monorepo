@@ -659,3 +659,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   run (recent outputs mirrored or doc-only).
 - Drift: `prompts/drift/2026-10-17d.md`.
 - Result: (next review)
+
+## E33: review 2026-10-17 (fifth review that day)
+
+- Change: `sync_tree_counts.py` inserts `gitops/tests` on `sys.path` for its
+  import, so it runs with no `PYTHONPATH` (3 reports of `No module named
+  front_door_mirror`).
+- Metric: friction reports naming `platform/ci/sync_tree_counts.py`, next 40 runs.
+- Candidates: unchanged (ventures 2 / research 1 overlap; review/2 has 5 runs).
+- Data: `derive.py fetch` got 25 of 30 PRs; derived/ regenerated. Audit not
+  run (recent outputs mirrored or doc-only).
+- Drift: `prompts/drift/2026-10-17e.md`.
+- Result: (next review)
