@@ -7123,6 +7123,7 @@ ${subgroups
         <a href="#apps">Apps</a>
         <a href="#research">Research</a>
         <a href="#tools">Tools</a>
+        <a href="${WRITING_PATH}">Blog</a>
         <a href="deploy/">Deploy</a>
         <a href="dev/">Development</a>
         <a class="topnav-gh" href="${REPO_URL}">GitHub</a>
