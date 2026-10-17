@@ -1656,6 +1656,123 @@ export function swissText(players, round, roundNumber) {
   return lines.join("\n");
 }
 
+// ---------------------------------------------------------------- Americano
+
+/**
+ * Rotating-partner doubles ("Americano", social padel / pickleball / badminton nights): every round
+ * players are re-paired into teams of two and teams into matches, so each person partners and
+ * opposes as many different people as the round count allows. Greedy by round: byes go to whoever
+ * has sat out least-recently-fewest, then a seeded random search with swap moves minimises repeat
+ * partners (heavily), then repeat opponents. Deterministic for a given seed.
+ * Returns { rounds: [{ matches: [{ court, a: [i, j], b: [k, l] }], byes: [i] }], partner, opponent }.
+ */
+export function americano(players, { courts = 1, rounds = null, seed = 1 } = {}) {
+  const n = players.length;
+  if (n < 4) throw new Error("Americano needs at least 4 players.");
+  if (n > 64) throw new Error("Americano supports up to 64 players.");
+  if (!(courts >= 1)) throw new Error("Americano needs at least 1 court.");
+  const roundCount = rounds ?? Math.max(1, n % 4 === 0 && n / 4 <= courts ? n - 1 : n);
+  const rng = mulberry32(seed);
+  const partner = Array.from({ length: n }, () => new Array(n).fill(0));
+  const opponent = Array.from({ length: n }, () => new Array(n).fill(0));
+  const played = new Array(n).fill(0);
+  const sat = new Array(n).fill(0);
+  const lastSat = new Array(n).fill(-1);
+  const out = [];
+  const seats = Math.min(Math.floor(n / 4), courts) * 4;
+  for (let r = 0; r < roundCount; r++) {
+    // byes: most games played first, then sat out longest ago; random tie-break
+    const order = [...Array(n).keys()].sort((x, y) => played[y] - played[x] || lastSat[x] - lastSat[y] || rng() - 0.5);
+    const byes = order.slice(0, n - seats).sort((x, y) => x - y);
+    const byeSet = new Set(byes);
+    const active = [...Array(n).keys()].filter((i) => !byeSet.has(i));
+    const cost = (arr) => {
+      let c = 0;
+      for (let m = 0; m < arr.length; m += 4) {
+        const [a, b, x, y] = arr.slice(m, m + 4);
+        c += 100 * partner[a][b] * partner[a][b] + 100 * partner[x][y] * partner[x][y];
+        for (const [p, q] of [[a, x], [a, y], [b, x], [b, y]]) c += 10 * opponent[p][q];
+      }
+      return c;
+    };
+    let best = null;
+    let bestCost = Infinity;
+    for (let t = 0; t < 40 && bestCost > 0; t++) {
+      const arr = active.slice();
+      for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+      let c = cost(arr);
+      for (let it = 0; it < 150 && c > 0; it++) {
+        const i = Math.floor(rng() * arr.length);
+        const j = Math.floor(rng() * arr.length);
+        if (Math.floor(i / 4) === Math.floor(j / 4) && ((i % 4 < 2) === (j % 4 < 2))) continue;
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+        const c2 = cost(arr);
+        if (c2 < c) c = c2; else [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      if (c < bestCost) { bestCost = c; best = arr.slice(); }
+    }
+    const matches = [];
+    for (let m = 0; m < best.length; m += 4) {
+      const [a, b, x, y] = best.slice(m, m + 4);
+      matches.push({ court: m / 4 + 1, a: [a, b].sort((p, q) => p - q), b: [x, y].sort((p, q) => p - q) });
+      partner[a][b]++; partner[b][a]++; partner[x][y]++; partner[y][x]++;
+      for (const [p, q] of [[a, x], [a, y], [b, x], [b, y]]) { opponent[p][q]++; opponent[q][p]++; }
+      for (const i of [a, b, x, y]) played[i]++;
+    }
+    for (const i of byes) { sat[i]++; lastSat[i] = r; }
+    out.push({ matches, byes });
+  }
+  return { rounds: out, partner, opponent };
+}
+
+/** Check an Americano plan: nobody twice in a round, byes and games within one of even. Returns problems. */
+export function validateAmericano(players, plan) {
+  const n = players.length;
+  const problems = [];
+  const played = new Array(n).fill(0);
+  for (const [r, round] of plan.rounds.entries()) {
+    const seen = new Set();
+    const mark = (i) => { if (seen.has(i)) problems.push(`${players[i]} appears twice in round ${r + 1}.`); seen.add(i); };
+    for (const m of round.matches) for (const i of [...m.a, ...m.b]) { mark(i); played[i]++; }
+    for (const i of round.byes) mark(i);
+    if (seen.size !== n) problems.push(`Round ${r + 1} does not place every player.`);
+  }
+  if (Math.max(...played) - Math.min(...played) > 1) problems.push("Games played differ by more than one.");
+  return problems;
+}
+
+/** Summary: repeat partners/opponents, games and byes per person. */
+export function americanoStats(players, plan) {
+  const n = players.length;
+  let repeatPartners = 0;
+  let maxPartner = 0;
+  let unmetPartners = 0;
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+    const c = plan.partner[i][j];
+    maxPartner = Math.max(maxPartner, c);
+    if (c > 1) repeatPartners += c - 1;
+    if (c === 0) unmetPartners++;
+  }
+  const games = players.map(() => 0);
+  const byes = players.map(() => 0);
+  for (const round of plan.rounds) {
+    for (const m of round.matches) for (const i of [...m.a, ...m.b]) games[i]++;
+    for (const i of round.byes) byes[i]++;
+  }
+  return { repeatPartners, maxPartner, unmetPartners, games, byes };
+}
+
+/** Plain-text rotation sheet for a group chat. */
+export function americanoText(players, plan) {
+  const lines = [];
+  plan.rounds.forEach((round, r) => {
+    lines.push(`Round ${r + 1}`);
+    for (const m of round.matches) lines.push(`  Court ${m.court}: ${players[m.a[0]]} & ${players[m.a[1]]} vs ${players[m.b[0]]} & ${players[m.b[1]]}`);
+    if (round.byes.length) lines.push(`  Sitting out: ${round.byes.map((i) => players[i]).join(", ")}`);
+  });
+  return lines.join("\n");
+}
+
 // ---------------------------------------------------------------- example
 
 export function sampleFields() {

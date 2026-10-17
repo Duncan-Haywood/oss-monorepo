@@ -938,3 +938,39 @@ test("standingsCsv lists every team ranked, quoting names with commas", () => {
   assert.equal(lines.length, 5);
   assert.equal(lines[4], "");
 });
+
+import { americano, validateAmericano, americanoStats, americanoText } from "./calc.mjs";
+
+test("americano: every size 4..24 passes the validator, byes and games stay even", () => {
+  for (let n = 4; n <= 24; n++) {
+    const players = Array.from({ length: n }, (_, i) => `P${i + 1}`);
+    for (const courts of [1, 2, 6]) {
+      const plan = americano(players, { courts, rounds: 6, seed: n });
+      assert.deepEqual(validateAmericano(players, plan), [], `n=${n} courts=${courts}`);
+      const st = americanoStats(players, plan);
+      assert.ok(Math.max(...st.byes) - Math.min(...st.byes) <= 1, `byes n=${n} courts=${courts}`);
+      assert.ok(plan.rounds.every((r) => r.matches.length <= courts));
+    }
+  }
+});
+
+test("americano: 8 players on 2 courts, 7 rounds never repeat a partner and is deterministic", () => {
+  const players = Array.from({ length: 8 }, (_, i) => `P${i + 1}`);
+  const a = americano(players, { courts: 2, rounds: 7, seed: 3 });
+  const b = americano(players, { courts: 2, rounds: 7, seed: 3 });
+  assert.deepEqual(a.rounds, b.rounds);
+  const st = americanoStats(players, a);
+  assert.equal(st.repeatPartners, 0);
+  assert.ok(st.games.every((g) => g === 7));
+});
+
+test("americano: input errors and text sheet", () => {
+  assert.throws(() => americano(["a", "b", "c"]), /at least 4/);
+  assert.throws(() => americano(["a", "b", "c", "d"], { courts: 0 }), /court/);
+  const players = ["Ana", "Ben", "Cy", "Dee", "Eli"];
+  const plan = americano(players, { courts: 1, rounds: 5 });
+  const txt = americanoText(players, plan);
+  assert.match(txt, /Round 1\n {2}Court 1: \w+ & \w+ vs \w+ & \w+\n {2}Sitting out: \w+/);
+  const st = americanoStats(players, plan);
+  assert.deepEqual(st.byes, [1, 1, 1, 1, 1]);
+});
