@@ -59,6 +59,7 @@
       <div>
         <label for="guests">Guests, one per line <span class="ghost" style="font-weight:400">(optional party, group, meal: Name | Family | Bride side | vegetarian)</span></label>
         <textarea id="guests" spellcheck="false" placeholder="Maya Okafor | Okafor family&#10;Daniel Okafor | Okafor family&#10;Priya Nair"></textarea>
+        <p class="note">Have the list in a spreadsheet? Paste the rows here, or <label class="secondary" style="cursor:pointer;text-decoration:underline">choose a .csv file<input type="file" id="guestfile" aria-label="Choose a guest list CSV file" accept=".csv,.tsv,.txt,text/csv" hidden></label>. Columns named Name (or First and Last), Household or Party, Side or Group, Meal and RSVP are recognised; declined RSVPs are left out. Read in your browser, never uploaded.</p>
       </div>
       <div>
         <label for="rules">Wishes, one per line</label>
@@ -144,14 +145,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or event-planning advice, is not a guarantee that any guest will be content with their seat, and does not replace your own judgement or your planner's. Results come from the wishes you type; real people and venues differ. You are responsible for reviewing and verifying its output before you print place cards.</p>
     <p><strong>Independent.</strong> Not affiliated with any venue, caterer, planner or software company, and none is named or ranked here. The example guests are invented, and no price is stated or implied.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your guest list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>reseat_run</code>, <code>signs_printed</code>, <code>board_printed</code>, <code>caterer_printed</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your guest list is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>reseat_run</code>, <code>signs_printed</code>, <code>board_printed</code>, <code>caterer_printed</code>, <code>guest_sheet_imported</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../bounce-house-rental-calculator/">bounce house rental calculator</a>, the <a href="../container-load-planner/">container load planner</a>, the <a href="../cut-list-optimizer/">cut list optimizer</a> and the <a href="../secret-santa-draw/">Secret Santa draw</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { parseGuests, parseRules, validateSpec, optimize, reseat, parsePlanCsv, verifyPlan, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, sampleSpec, setupJson, parseSetup, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount } from "./calc.mjs";
+    import { importGuestSheet, parseGuests, parseRules, validateSpec, optimize, reseat, parsePlanCsv, verifyPlan, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, sampleSpec, setupJson, parseSetup, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -278,6 +279,27 @@
     });
 
     const KEY = "event-seating-setup-v1";
+    function convertGuests(txt) {
+      const r = importGuestSheet(txt);
+      if (!r.converted) return false;
+      $("#guests").value = r.text; persist();
+      status.textContent = `Imported ${r.imported} guest line${r.imported === 1 ? "" : "s"}. ${r.notes.join(" ")} Check the list, then click Seat my guests.`;
+      record("guest_sheet_imported");
+      return true;
+    }
+    $("#guests").addEventListener("paste", (e) => {
+      const txt = (e.clipboardData || window.clipboardData)?.getData("text") || "";
+      if (!/\t/.test(txt) && !/^[^|\n]*,[^|\n]*\n/.test(txt)) return;
+      const r = importGuestSheet(txt);
+      if (!r.converted) return;
+      e.preventDefault();
+      convertGuests(txt);
+    });
+    $("#guestfile").addEventListener("change", async (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const txt = await f.text(); e.target.value = "";
+      if (!convertGuests(txt)) $("#guests").value = txt;
+    });
     const FIELDS = { guests: "#guests", rules: "#rules", seats: "#seats", tcount: "#tcount", mix: "#mix", prevplan: "#prevplan" };
     function snapshot() {
       const st = { balance: $("#balance").checked };
