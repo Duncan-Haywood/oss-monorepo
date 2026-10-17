@@ -22,6 +22,10 @@ Daily rows are summed into Monday weeks. Amounts in one currency.
 - Per channel, two response curves are fitted by least squares (Nelder-Mead in log space, multiple starts):
   saturating exponential `a (1 - exp(-s/k))` and S-shaped Hill `a s^h / (k^h + s^h)` with `h` in [0.5, 3]. The Hill
   curve is chosen only when it beats the exponential by more than 2 on small-sample AIC.
+- Carry-over (adstock): for channels with 12+ weeks, a geometric carry-over rate of 0, 0.2, 0.4, 0.6 or 0.8 is
+  tried (`e = (1 - r) spend + r e_previous`, so steady spend is unchanged) and kept only if it beats no carry-over
+  by more than 2 on small-sample AIC. The curve is then fitted on the carried spend and read at steady weekly spend;
+  weeks missing from the file count as zero spend. The back-test re-picks the rate on its training weeks only.
 - Marginal return at today's spend (mean of the last 8 weeks) is the curve's slope there.
 - Allocation: exact dynamic programme over the channels on a 400-step budget grid, so S-shaped curves are handled
   properly. Each channel is limited to 0.25x to 2x its current spend and never beyond 1.25x its highest week.
@@ -34,7 +38,7 @@ Daily rows are summed into Monday weeks. Amounts in one currency.
   optimum, a brute-force check on S-shaped curves, and a check that the recommended split beats the current one
   under the true curves.
 
-Not modelled: carry-over (adstock) between weeks, seasonality, promotions and price changes, overlap or halo
+Not modelled: carry-over longer or shaped differently from a single geometric rate, seasonality, promotions and price changes, overlap or halo
 between channels, attribution error (revenue is whatever the file credits to each channel, often platform-reported
 and overstated), incrementality, and any channel with under 8 weeks or nearly constant spend (left where it is).
 The resample range covers noise in the fit, not a wrong curve shape. Unverified against a published marketing
