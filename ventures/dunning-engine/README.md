@@ -25,6 +25,16 @@ Two parts, both free and MIT:
 | Churn Buster, Churnkey, Baremetrics Recover and similar | Paid, often a share of recovered revenue; your customer data goes to a third party | Runs in your account, no per-recovery fee, nobody else sees your customers |
 | A script you write yourself | Easy to get wrong: duplicate charges, retrying lost cards, double emails | Idempotent, tested state machine; dry-run by default |
 
+**It can measure whether it works.** Set `HOLDOUT_PCT=10` and a stable 10% of
+customers (by hash of the customer id) are left alone: their failures are
+recorded, but they get no emails, retries or cancellation. `/v1/summary` and
+`/admin` then compare how often treated and held-out invoices end up paid, with
+a 95% interval on the difference, and say when the gap is still within chance
+and roughly how many invoices it would take to tell. Here the measurement is your own data on your own server, not a vendor's claim. The cost is real: held-out customers are not chased, so keep
+the share small and the experiment short. If Smart Retries is still on in Stripe
+it applies to both groups, so the comparison is "us on top of Stripe" against
+"Stripe alone".
+
 Honest limits: the dashboard at `/admin` is read-only, there is no in-app cancellation flow (see the sibling
 `cancel-flow` venture) and no card-account-updater network access (the expiry
 notice asks the customer instead). It does not claim a recovery uplift over
@@ -65,7 +75,7 @@ it recovered). If Smart Retries already works for you, keep it.
 
 ```sh
 cd ventures/dunning-engine
-node --test        # 51 tests, no network
+node --test        # 64 tests, no network
 STRIPE_SECRET_KEY=rk_test_... STRIPE_WEBHOOK_SECRET=whsec_... \
 ADMIN_KEY=$(openssl rand -hex 16) LINK_SECRET=$(openssl rand -hex 16) \
 PUBLIC_URL=https://dunning.example.com node server.mjs
@@ -101,6 +111,7 @@ Setup in Stripe:
 | `COMPANY_NAME`, `COMPANY_ADDRESS` | email wording and footer |
 | `POLICY_JSON` | override the schedule, e.g. `{"graceDays":10,"softRetryDays":[2,5]}` |
 | `EXPIRY_NOTICES`, `EXPIRY_DAYS` | card-expiry heads-up emails (default on, 30 days) |
+| `HOLDOUT_PCT` | share of customers left alone to measure uplift, 0 to 50 (default 0 = off) |
 | `ALERT_WEBHOOK_URL` | Slack/Discord-style `{"text":...}` alerts |
 | `STATE` | path of the JSON state file |
 
@@ -123,7 +134,7 @@ Email and consumer-protection rules for payment-failure notices differ by
 country; you are the operator and responsible for them.
 
 Files: `dunning.mjs` (classification, schedule; also runs in the browser),
-`templates.mjs` (emails), `engine.mjs` (state machine), `stripe.mjs` (webhook
+`templates.mjs` (emails), `engine.mjs` (state machine), `holdout.mjs` (uplift experiment), `stripe.mjs` (webhook
 verification, API calls), `server.mjs` (HTTP shell), `admin.mjs` (dashboard page), `index.html` (simulator).
 
 Support the project: <https://github.com/sponsors/Duncan-Haywood>.

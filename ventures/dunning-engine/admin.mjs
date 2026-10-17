@@ -18,6 +18,7 @@ input,button{font:inherit;padding:6px 10px}.banner{padding:8px 12px;border-radiu
 <h1>Dunning Engine admin</h1>
 <form id="f"><label>Admin key <input id="k" type="password" autocomplete="off" required></label> <button>Load</button> <span id="e" class="err" role="alert"></span></form>
 <div id="b" class="banner" hidden></div><div id="s" class="cards"></div>
+<div id="x" hidden></div>
 <table id="t" hidden><thead><tr><th>Invoice</th><th>Customer</th><th>Class</th><th>Status</th><th>Next steps</th></tr></thead><tbody></tbody></table>
 <p><small>Open source, MIT. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support the creator</a>. You operate this copy and are responsible for the emails it sends.</small></p>
 <script>
@@ -31,6 +32,11 @@ async function load(k){
     $("b").hidden=!s.dryRun;$("b").textContent="DRY RUN: nothing is sent or retried until you set DRY_RUN=false.";
     var box=$("s");box.textContent="";
     Object.keys(s).filter(function(n){return typeof s[n]!=="object"&&n!=="dryRun"}).forEach(function(n){var d=document.createElement("div");d.className="card";var b=document.createElement("b");b.textContent=s[n];d.appendChild(b);d.appendChild(document.createTextNode(n));box.appendChild(d)});
+    var x=$("x");x.textContent="";x.hidden=!s.experiment;
+    if(s.experiment){var e=s.experiment,pc=function(v){return v==null?"n/a":Math.round(v*100)+"%"},f=function(a){return pc(a.rate)+" of "+a.resolved+" resolved ("+a.recovered+" paid)"};
+      var h=document.createElement("h2");h.textContent="Holdout experiment";x.appendChild(h);
+      [["Treated",f(e.treatment)],["Holdout",f(e.holdout)],["Difference",e.difference?(Math.round(e.difference.diff*100)+" points, 95% interval "+Math.round(e.difference.low*100)+" to "+Math.round(e.difference.high*100)):"n/a"],["Reading",e.verdict]].forEach(function(r){var p=document.createElement("p");var b=document.createElement("b");b.textContent=r[0]+": ";p.appendChild(b);p.appendChild(document.createTextNode(r[1]));x.appendChild(p)});
+      if(e.casesPerArmNeeded){var p=document.createElement("p");p.textContent="At this gap you would need roughly "+e.casesPerArmNeeded+" resolved invoices per group to call it.";x.appendChild(p)}}
     var tb=$("t").querySelector("tbody");tb.textContent="";
     c.forEach(function(x){var tr=document.createElement("tr");td(tr,x.invoiceId);td(tr,x.customer);td(tr,x.class);td(tr,x.status);
       td(tr,(x.steps||[]).filter(function(t){return t.status==="pending"}).map(function(t){return t.kind+" "+t.at.slice(0,10)}).join(", "));tb.appendChild(tr)});
