@@ -14,6 +14,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   for whole or half servings, marginal costs by re-solving, a shopper's
   rule-of-thumb baseline, and an independent `verifyPlan`.
 - Variety limit: set "Most calories from one food (%)" (for example 30) and no single food may supply more than that share of the day's calories, which stops the cheapest plan being a bag of rice and nothing else. It is a linear row per food in the same solver, checked again by `verifyPlan`; leave it blank for the plain cheapest plan. Compare two runs to see what variety costs.
+- Share link: "Copy share link" writes the food list and targets into the URL fragment (`#foods=...`), which browsers never send to a server, so you can bookmark a menu or send it to someone; opening the link refills the form. `encodeShare`/`decodeShare` in `calc.mjs` keep only known numeric fields.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-eat-high-protein-on-a-budget.html` - guide whose worked example is
   recomputed by the test suite.
