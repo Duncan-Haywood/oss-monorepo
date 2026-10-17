@@ -861,7 +861,7 @@ Census Survey of Construction for where a house's price goes.
 7. `house-offsite`: factory against site. Panelised and modular construction as a simulated
    process: wall-panel layout, sheet-goods nesting (reuse `garment-nesting`'s nester for
    sheathing), transport limits, crew time and weather. When does offsite win, and by how much?
-8. `house-schedule` (first version done 2026-10-17; calibration and a seasonal calendar are next steps): the build as a process. A discrete-event model of the trades, inspections,
+8. `house-schedule` (first version done 2026-10-17; the seasonal calendar is `house-season`, calibration is a next step): the build as a process. A discrete-event model of the trades, inspections,
    weather and material lead times. How much do sequencing, prefabrication and fewer handoffs
    cut the build time and the interest paid while it runs?
 9. `house-open-design`: an open-source plan set. A small house (for example an accessory
