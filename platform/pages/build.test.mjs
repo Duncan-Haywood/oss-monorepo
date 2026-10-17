@@ -4491,6 +4491,12 @@ test('the hub sitemap holds the hub, the categories, About, /compare/, /research
 
   // Each research project's home page is listed under /research/.
   assert.ok(renderHubSitemap(BASE, [], [], ['accel-kws']).includes(`<loc>${BASE}${RESEARCH_PATH}accel-kws/</loc>`));
+
+  // The writing index and each post, and neither when there are no posts.
+  const withPosts = renderHubSitemap(BASE, [], [], [], ['a-post']);
+  assert.ok(withPosts.includes(`<loc>${BASE}writing/</loc>`));
+  assert.ok(withPosts.includes(`<loc>${BASE}writing/a-post/</loc>`));
+  assert.ok(!renderHubSitemap(BASE).includes('writing/'));
 });
 
 test('tools whose audience browses a section are filed in it', async () => {

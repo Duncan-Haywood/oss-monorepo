@@ -92,7 +92,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/llm-spend-guard/"/>
     <id>tag:marisstella.dev,2026:tool/llm-spend-guard</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Stop a runaway OpenAI or Anthropic bill before it happens: hard per-user, per-feature and per-run dollar caps, an output-token ceiling, and circuit breakers that trip on agent loops. Free, open source, self-hosted proxy or a zero-dependency library. Replay your own usage log here to see what a policy would have stopped.</summary>
   </entry>
   <entry>
@@ -124,7 +124,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/self-hosted-saas-stack/"/>
     <id>tag:marisstella.dev,2026:tool/self-hosted-saas-stack</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Self-hosted business apps"/>
     <summary type="text">27 open-source, self-hosted tools that replace the small-SaaS subscriptions a founder pays for: booking, help center, error tracking, feature flags, analytics, email, referrals, billing metrics and e-signature. MIT licensed, zero dependencies, one-click deploy.</summary>
   </entry>
   <entry>

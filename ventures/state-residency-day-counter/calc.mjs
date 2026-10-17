@@ -182,6 +182,46 @@ export function icsToStays(text, year) {
     if (year && (+dayIso(end).slice(0, 4) < +year || +dayIso(a.day).slice(0, 4) > +year)) { skipped++; continue; }
     found.push({ state, start: a.day, end });
   }
+  return mergeFound(found, skipped);
+}
+
+// Google Timeline import. Pass the text of a Takeout "Semantic Location
+// History" month file (Location History/Semantic Location History/2025/
+// 2025_MARCH.json): each placeVisit with an address ending in a state code or
+// name becomes one stay, dated by the visit's start and end timestamps (the
+// first 10 characters, i.e. the date the export recorded). A visit that spans
+// midnight covers each day it touches. Visits without an address, and
+// activitySegments (travel), are skipped and counted. Several month files can
+// be passed concatenated as a JSON array or one after another.
+export function timelineToStays(text, year) {
+  let docs;
+  try {
+    const parsed = JSON.parse(String(text || ""));
+    docs = Array.isArray(parsed) ? parsed : [parsed];
+  } catch {
+    return { lines: [], imported: 0, skipped: 0, error: "Not a JSON file." };
+  }
+  const found = [];
+  let skipped = 0;
+  for (const doc of docs) {
+    for (const obj of (doc && doc.timelineObjects) || []) {
+      const v = obj && obj.placeVisit;
+      if (!v) { skipped++; continue; }
+      const d = v.duration || {};
+      const a = icsDay((d.startTimestamp || "").slice(0, 10).replace(/-/g, ""));
+      const b = icsDay((d.endTimestamp || d.startTimestamp || "").slice(0, 10).replace(/-/g, ""));
+      const loc = v.location || {};
+      const state = icsState(loc.address) || icsState(loc.name);
+      if (!a || !b || !state) { skipped++; continue; }
+      const end = Math.max(a.day, b.day);
+      if (year && (+dayIso(end).slice(0, 4) < +year || +dayIso(a.day).slice(0, 4) > +year)) { skipped++; continue; }
+      found.push({ state, start: a.day, end });
+    }
+  }
+  return mergeFound(found, skipped);
+}
+
+function mergeFound(found, skipped) {
   found.sort((x, y) => x.start - y.start || x.end - y.end);
   const merged = [];
   for (const f of found) {

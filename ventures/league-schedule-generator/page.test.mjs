@@ -77,7 +77,7 @@ test("every element the script looks up exists on the page", () => {
   const used = [...html.matchAll(/\$\("#([\w-]+)"\)|getElementById\("([\w-]+)"\)/g)].map((m) => m[1] || m[2]);
   assert.ok(used.length > 25);
   for (const id of used) assert.ok(ids.has(id), `#${id} is used by the script but missing from the markup`);
-  for (const id of ["teams", "double", "start", "minutes", "seed", "skip", "blackouts", "courts", "times", "playoff", "results", "team"]) assert.ok(ids.has(id), id);
+  for (const id of ["teams", "double", "start", "minutes", "seed", "skip", "blackouts", "courts", "times", "playoff", "playoffDouble", "results", "team"]) assert.ok(ids.has(id), id);
   for (let i = 0; i < 7; i++) assert.ok(ids.has(`wd${i}`), `wd${i}`);
 });
 

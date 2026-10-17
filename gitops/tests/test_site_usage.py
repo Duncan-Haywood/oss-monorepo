@@ -396,7 +396,9 @@ def test_every_published_tool_is_reachable_by_slug_for() -> None:
             # build.mjs at RESEARCH_PATH, a top-level page like `about`.
             # `engineering` is the engineering status page (engineering.mjs),
             # another top-level page about the site rather than a tool.
-            | {"_hub", "about", "compare", "guides", "research", "engineering", "404", "offline"}
+            # `writing` is the essays index and its posts (writing.mjs); every
+            # post counts toward the one `writing` row.
+            | {"_hub", "about", "compare", "guides", "research", "engineering", "writing", "404", "offline"}
         )
         for page in sorted(out.rglob("*.html")):
             uri = "/" + page.relative_to(out).as_posix()

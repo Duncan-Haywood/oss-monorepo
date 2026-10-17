@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   applyRainouts, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs,
-  scheduleText, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, bracketText, sampleFields, encodeFields, decodeFields,
+  scheduleText, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   splitPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText,
 } from "./calc.mjs";
 
@@ -706,4 +706,108 @@ test("swiss refuses when no rematch-free pairing exists and prints a sheet", () 
   assert.throws(() => swissPairings(players, games), /rematch/);
   const text = swissText(players, swissPairings(players, []), 1);
   assert.match(text, /Board 1: A \(white\) vs C \(black\)/);
+});
+
+test("head-to-head puts the winner of the meeting above a level team with a better goal difference", () => {
+  const teams = ["A", "B", "C", "D"];
+  const results = [[0, 1, 0, 1], [0, 3, 5, 0], [1, 2, 0, 1], [2, 3, 0, 0], [1, 3, 0, 2]].map(([a, b, ga, gb]) => ({ a, b, ga, gb }));
+  assert.deepEqual(names2(standings(teams, results)), ["C", "D", "A", "B"]);
+  assert.deepEqual(names2(standings(teams, results, { headToHead: true })), ["C", "D", "B", "A"]);
+});
+const names2 = (rows) => rows.map((r) => r.name);
+
+test("schedule stats keep one court and time tally per team, no more", () => {
+  const s = buildSchedule(baseSpec(4, { courts: ["Court 1", "Court 2"], times: ["18:00", "19:00"] }));
+  assert.equal(s.stats.byCourt.length, 4);
+  assert.equal(s.stats.byTime.length, 4);
+});
+
+test("swiss standings start every player at zero games played", () => {
+  const t = swissStandings(["A", "B", "C"], [{ a: 0, b: 1, ga: 1, gb: 0 }], [2]);
+  assert.deepEqual(t.map((r) => [r.name, r.played]).sort(), [["A", 1], ["B", 1], ["C", 0]]);
+});
+
+test("head-to-head falls back to goals scored in the meetings when points and goal difference are level", () => {
+  const results = [[0, 1, 2, 1], [1, 2, 3, 2], [2, 0, 1, 0]].map(([a, b, ga, gb]) => ({ a, b, ga, gb }));
+  assert.deepEqual(names2(standings(["A", "B", "C"], results, { headToHead: true })), ["B", "C", "A"]);
+});
+
+test("schedule stats count each team's court and time use from zero", () => {
+  const s = buildSchedule(baseSpec(4, { courts: ["Court 1", "Court 2"], times: ["18:00", "19:00"] }));
+  const total = (rec) => rec.reduce((a, o) => a + Object.values(o).reduce((x, y) => x + y, 0), 0);
+  assert.equal(total(s.stats.byCourt), 2 * s.stats.matches);
+  assert.equal(total(s.stats.byTime), 2 * s.stats.matches);
+});
+
+// ---------------------------------------------------------------- double elimination
+
+function playDouble(names, pick) {
+  const b = doubleEliminationBracket(names);
+  const win = new Map(), lose = new Map(), losses = new Map(), opponents = [];
+  const res = (s) => (s.none ? null : s.seed ? s.name : s.from ? win.get(s.from) : lose.get(s.loserOf));
+  let played = 0;
+  for (const r of b.rounds) {
+    for (const m of r.matches) {
+      if (m.dead) continue;
+      const x = res(m.a), y = res(m.b);
+      if (r.conditional) {
+        const gf = opponents.at(-1);
+        if (win.get("GF1") === gf.lbTeam) {
+          const w = pick(x, y);
+          win.set(m.id, w); lose.set(m.id, w === x ? y : x); losses.set(lose.get(m.id), (losses.get(lose.get(m.id)) || 0) + 1); played++;
+        }
+        continue;
+      }
+      assert.ok(x !== undefined && y !== undefined, `${m.id} has an unresolved slot`);
+      if (x === null || y === null) { assert.ok(m.bye, m.id); win.set(m.id, x ?? y); lose.set(m.id, null); continue; }
+      assert.notEqual(x, y, `${m.id} plays itself`);
+      const w = pick(x, y);
+      win.set(m.id, w); lose.set(m.id, w === x ? y : x);
+      losses.set(lose.get(m.id), (losses.get(lose.get(m.id)) || 0) + 1); played++;
+      if (m.id === "GF1") opponents.push({ lbTeam: y });
+    }
+  }
+  return { b, played, losses, champion: win.get("GF2") && opponents.at(-1) && win.get("GF1") === opponents.at(-1).lbTeam ? win.get("GF2") : win.get("GF1") };
+}
+
+test("double elimination: top seed always winning plays exactly 2k-2 games and nobody loses more than twice", () => {
+  for (let k = 3; k <= 17; k++) {
+    const names = Array.from({ length: k }, (_, i) => `T${i + 1}`);
+    const rank = (n) => Number(n.slice(1));
+    const { b, played, losses, champion } = playDouble(names, (x, y) => (rank(x) < rank(y) ? x : y));
+    assert.equal(champion, "T1", `k=${k}`);
+    assert.equal(played, 2 * k - 2, `k=${k} games`);
+    assert.equal(b.games, 2 * k - 2, `k=${k} reported games`);
+    assert.equal(b.maxGames, 2 * k - 1);
+    for (const [t, n] of losses) if (t) assert.ok(n <= 2, `${t} lost ${n}`);
+    assert.equal(losses.get("T1") || 0, 0);
+  }
+});
+
+test("double elimination: random results always end with one champion, every other team out on two losses", () => {
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 32);
+  for (let k = 3; k <= 17; k++) {
+    for (let rep = 0; rep < 20; rep++) {
+      const names = Array.from({ length: k }, (_, i) => `T${i + 1}`);
+      const { b, played, losses, champion } = playDouble(names, (x, y) => (rnd() < 0.5 ? x : y));
+      assert.ok(champion);
+      const out = [...losses].filter(([t, n]) => t && n === 2).length;
+      assert.equal(out, k - 1, `k=${k}: exactly k-1 teams eliminated`);
+      assert.ok((losses.get(champion) || 0) <= 1);
+      assert.ok(played === b.games || played === b.maxGames, `k=${k}: ${played}`);
+    }
+  }
+});
+
+test("double elimination: byes, text and refusals", () => {
+  const b = doubleEliminationBracket(["A", "B", "C", "D", "E"]);
+  assert.equal(b.size, 8);
+  assert.ok(b.rounds[0].matches.some((m) => m.bye));
+  const txt = bracketText(b);
+  assert.match(txt, /double elimination/);
+  assert.match(txt, /loser of W1M/);
+  assert.match(txt, /Grand final/);
+  assert.doesNotMatch(txt, /NaN|undefined/);
+  assert.throws(() => doubleEliminationBracket(["A", "B"]), /at least three/);
 });

@@ -1182,26 +1182,106 @@ export function playoffBracket(seedNames, { afterDay = null, weekdays = [], skip
   return { size, teams: k, rounds, games };
 }
 
+const NONE = { none: true };
+
+function deMatch(id, a, b) {
+  const dead = !!(a.none && b.none);
+  return { id, a, b, dead, bye: !dead && !!(a.none || b.none) };
+}
+const deWinner = (m) => (m.dead ? NONE : m.bye ? (m.a.none ? m.b : m.a) : { from: m.id });
+const deLoser = (m) => (m.dead || m.bye ? NONE : { loserOf: m.id });
+
+/**
+ * Double-elimination bracket for the seeds given in order (best first): everyone must lose
+ * twice to go out. A non-power-of-two field gives the top seeds a first-round bye, and the
+ * losers' bracket skips every match a bye leaves without an opponent. Winners rounds come
+ * first, then losers rounds, then the grand final and a reset game that is played only if
+ * the losers-bracket team wins the grand final. Slots name the match they come from
+ * (`from`: its winner, `loserOf`: its loser). Optional dates continue after `afterDay`.
+ */
+export function doubleEliminationBracket(seedNames, { afterDay = null, weekdays = [], skipDays = [] } = {}) {
+  const k = seedNames.length;
+  if (k < 3) throw new Error("A double-elimination play-off needs at least three teams.");
+  const size = nextPow2(k);
+  const order = seedOrder(size);
+  const seedSlot = (s) => (s <= k ? { seed: s, name: seedNames[s - 1] } : NONE);
+  const rounds = [];
+  const wb = [];
+  let cur = [];
+  for (let i = 0; i < size; i += 2) cur.push(deMatch(`W1M${i / 2 + 1}`, seedSlot(order[i]), seedSlot(order[i + 1])));
+  wb.push(cur);
+  rounds.push({ name: `Winners ${roundName(cur.length)}`, bracket: "winners", matches: cur });
+  for (let r = 2; cur.length > 1; r++) {
+    const next = [];
+    for (let i = 0; i < cur.length; i += 2) next.push(deMatch(`W${r}M${i / 2 + 1}`, deWinner(cur[i]), deWinner(cur[i + 1])));
+    wb.push(next);
+    rounds.push({ name: `Winners ${roundName(next.length)}`, bracket: "winners", matches: next });
+    cur = next;
+  }
+  const p = wb.length;
+  let lb = [];
+  let lr = 1;
+  const pushLb = (matches, label) => {
+    rounds.push({ name: `Losers round ${lr}${label ? " (" + label + ")" : ""}`, bracket: "losers", matches });
+    lb = matches;
+    lr++;
+  };
+  const first = [];
+  for (let i = 0; i < wb[0].length; i += 2) first.push(deMatch(`L${lr}M${i / 2 + 1}`, deLoser(wb[0][i]), deLoser(wb[0][i + 1])));
+  pushLb(first, "first losses");
+  for (let j = 1; j < p; j++) {
+    const drops = wb[j];
+    const drop = lb.map((m, i) => deMatch(`L${lr}M${i + 1}`, deWinner(m), deLoser(drops[lb.length - 1 - i])));
+    pushLb(drop, "WB drop-downs");
+    if (j < p - 1) {
+      const cons = [];
+      for (let i = 0; i < lb.length; i += 2) cons.push(deMatch(`L${lr}M${i / 2 + 1}`, deWinner(lb[i]), deWinner(lb[i + 1])));
+      pushLb(cons);
+    }
+  }
+  const gf = deMatch("GF1", deWinner(wb[p - 1][0]), deWinner(lb[0]));
+  rounds.push({ name: "Grand final", bracket: "final", matches: [gf] });
+  const reset = deMatch("GF2", { from: "GF1" }, { loserOf: "GF1" });
+  rounds.push({ name: "Grand final reset (only if the losers-bracket team wins GF1)", bracket: "final", conditional: true, matches: [reset] });
+  if (afterDay !== null && weekdays.length) {
+    const wd = new Set(weekdays);
+    const skip = new Set(skipDays);
+    let d = afterDay + 1;
+    for (const r of rounds) {
+      if (r.matches.every((m) => m.bye || m.dead)) continue;
+      d = nextPlayDay(d, wd, skip);
+      if (d === null) break;
+      r.day = d;
+      d++;
+    }
+  }
+  const games = rounds.filter((r) => !r.conditional).reduce((n, r) => n + r.matches.filter((m) => !m.bye && !m.dead).length, 0);
+  return { size, teams: k, type: "double", rounds, games, maxGames: games + 1 };
+}
+
 function slotText(s) {
+  if (!s || s.none) return "BYE";
+  if (s.loserOf) return `loser of ${s.loserOf}`;
+
   if (!s) return "BYE";
   if (s.from) return `winner of ${s.from}`;
   return `#${s.seed} ${s.name}`;
 }
 
 export function bracketText(bracket) {
-  const lines = [`Play-offs (${bracket.teams} teams, single elimination)`];
+  const lines = [`Play-offs (${bracket.teams} teams, ${bracket.type === "double" ? "double" : "single"} elimination)`];
   for (const r of bracket.rounds) {
-    const real = r.matches.filter((m) => !m.bye);
+    const real = r.matches.filter((m) => !m.bye && !m.dead);
     if (real.length) lines.push(`${r.name}${r.day ? " - " + dayLabel(r.day) : ""}`);
     for (const m of real) lines.push(`  ${m.id}: ${slotText(m.a)} vs ${slotText(m.b)}`);
-    for (const m of r.matches.filter((x) => x.bye)) lines.push(`  Bye: ${slotText(m.a || m.b)}`);
+    for (const m of r.matches.filter((x) => x.bye)) lines.push(`  Bye: ${slotText(!m.a || m.a.none ? m.b : m.a)}`);
   }
   return lines.join("\n");
 }
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courts", "times", "seed", "minutes", "results", "playoff", "rainouts", "officials"];
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "rainouts", "officials"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {

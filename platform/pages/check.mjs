@@ -115,6 +115,8 @@ export const RESEARCH_DIR = 'research';
 // The engineering status page (`engineering.mjs`): about how the repository is
 // worked on, not a tool. `noindex`, so it is exempt from the sitemap checks.
 export const ENGINEERING_DIR = 'engineering';
+// Essays from `docs/posts/` (`writing.mjs`): indexed pages about the repository.
+export const WRITING_DIR = 'writing';
 
 // Directories the site builds for itself. They are not products, so the
 // reachability check below must not demand a `data-tool` card on the hub for
@@ -128,7 +130,7 @@ export const DEPLOY_DIR = 'deploy';
 // check on the same terms as the deploy page.
 export const DEV_DIR = 'dev';
 
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR]);
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -660,6 +662,27 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
         if (!productDirs.includes(slug)) {
           problems.push(`${relative}: links "${slug}" but no such product shipped`);
         }
+      }
+    }
+  }
+
+  {
+    // Optional: a fixture build has no posts directory. Every page under it
+    // (the index and each post) carries the disclaimer, and the hub links it.
+    const dir = path.join(site, WRITING_DIR);
+    const pages = await fs
+      .readdir(dir, { recursive: true })
+      .then((names) => names.filter((n) => n.endsWith('index.html')))
+      .catch(() => null);
+    if (pages !== null) {
+      for (const name of pages) {
+        const html = await fs.readFile(path.join(dir, name), 'utf8');
+        if (!DISCLAIMER_MARKER.test(html)) {
+          problems.push(`${path.join(WRITING_DIR, name)}: carries no disclaimer, so it must not ship`);
+        }
+      }
+      if (hubHtml !== null && !/href="writing\/"/.test(hubHtml)) {
+        problems.push(`${WRITING_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
       }
     }
   }
