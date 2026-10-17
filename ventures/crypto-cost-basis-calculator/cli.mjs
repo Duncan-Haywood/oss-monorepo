@@ -33,7 +33,7 @@ Options:
   --example           use the built-in sample instead of a file
   -h, --help          this message
 
-Reads Coinbase, Kraken, Binance.US, Crypto.com App and Gemini exports or the
+Reads Coinbase, Kraken, Binance.US, Crypto.com App, Gemini and Bitstamp exports or the
 plain CSV (date,type,asset,quantity,total,fee,wallet). Several files are
 merged. Arithmetic on the figures in your files, not tax advice: it fetches no
 prices, and rows an export gives no USD value for are flagged, never zero.
