@@ -1430,6 +1430,9 @@ test('tools that belong to a named category are not left in the catch-all', () =
 test('a contractor pre-bid tool and a statement-reconciliation tool are not left in the catch-all either', () => {
   assert.equal(categoryFor('equipment-lease-buyout-calculator').id, 'backoffice');
   assert.equal(categoryFor('card-processing-fee-audit').id, 'backoffice');
+  // UK tax, pay and benefits tools have their own section (split from backoffice 2026-10-17).
+  assert.equal(categoryFor('uk-take-home-pay-calculator').id, 'uk-tax');
+  assert.equal(categoryFor('uk-vat-flat-rate-scheme-calculator').id, 'uk-tax');
   assert.equal(categoryFor('tender-bid-readiness').id, 'trades');
   assert.equal(subcategoryFor('tender-bid-readiness').id, 'trades-paid');
   assert.equal(categoryFor('tender-radar').id, 'trades');
@@ -3201,7 +3204,7 @@ test("a category's offline bundle stays small enough to fetch on mobile data", a
       // 3.25 MiB since 2026-10-11: `backoffice` sat 131 bytes under 3 MiB, and the related-tool strip reshuffles on every new tool, moving that
       // category by +/-300 bytes at random, so any venture anywhere could turn this red. Headroom for ~100 more backoffice tools' worth of noise, not a growth licence.
       // 4 MiB since 2026-10-14: a run of UK tax calculators (all filed under `backoffice`) took it to 3.5 MB, over the 3.25 MiB line above. Raised rather than split
-      // so the gate goes green; the real fix is a dedicated category for the UK tax tools.
+      // so the gate goes green; the real fix is a dedicated category for the UK tax tools, which landed 2026-10-17 (`uk-tax`).
       bytes < 4 * 1024 * 1024,
       `gzipped offline bundle for category ${category.id} is ${(bytes / 1e6).toFixed(1)} MB`,
     );

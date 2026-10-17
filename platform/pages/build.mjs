@@ -1697,6 +1697,17 @@ const CATEGORY_RULES = [
       || slug === 'google-contacts-csv-check',
   },
   {
+    // UK tax, pay and benefits, split out of `backoffice` 2026-10-17: 52 `uk-`
+    // calculators had taken that category's offline bundle past its 4 MiB
+    // gzipped bound (build.test.mjs), and a UK visitor looking for take-home
+    // pay or Self Assessment should not have to find it among US cash-flow tools.
+    id: 'uk-tax',
+    title: 'UK tax, pay & benefits',
+    accent: '#3b3f8f',
+    blurb: 'Take-home pay, Self Assessment, dividends, IR35, VAT, pensions, statutory pay and the 100k trap — worked with HMRC rates for the current tax year, in your browser.',
+    test: (slug) => /^uk-/.test(slug),
+  },
+  {
     id: 'backoffice',
     title: 'Back-office money & contracts',
     accent: '#1f5c35',
@@ -4266,6 +4277,14 @@ export function groupGuidesByCategory(groups) {
  * that carries it twice is what search engines truncate.
  */
 const CATEGORY_PAGE_COPY = {
+  'uk-tax': {
+    title: 'Free UK tax, pay and benefits calculators',
+    description:
+      'Free UK calculators: take-home pay, Self Assessment, dividend tax, IR35, VAT schemes, pension relief, statutory pay and the £100k personal-allowance trap.',
+    intro:
+      'Each tool works one UK tax or pay question with HMRC rates and thresholds, shows the arithmetic, and says which tax year it assumes. Nothing you type leaves your browser.',
+    audience: 'UK employees, sole traders, company directors and landlords',
+  },
   marketplace: {
     title: 'Free marketplace seller fee calculators',
     description:
