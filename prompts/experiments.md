@@ -644,3 +644,18 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Audit: not run (recent records mirrored or doc-only); `derive.py fetch` not
   run, third review in one day.
 - Result: (next review)
+
+## E32: review 2026-10-17 (fourth review that day)
+
+- Change: `review/prompt-1.md` says `derive.py fetch` is incremental (~30 PRs
+  per call, run once in the background) and that an unrunnable audit is
+  expected, not friction. Cause: 24 friction reports on that file, the latest
+  three about the fetch limit and the audit.
+- Metric: friction reports per run naming `prompts/review/prompt-1.md`.
+  Compare the next review.
+- Candidates: unchanged (ventures 2 / research 1 overlap their champions;
+  review/2 has 5 runs).
+- Data: `derive.py fetch` got 25 of 30 PRs; derived/ regenerated. Audit not
+  run (recent outputs mirrored or doc-only).
+- Drift: `prompts/drift/2026-10-17d.md`.
+- Result: (next review)

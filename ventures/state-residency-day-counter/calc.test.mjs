@@ -213,6 +213,15 @@ test("Maryland (183 or more) and Maine (more than 183) thresholds follow the 'mo
   assert.equal(RULES.ME.requiresAbode, true);
 });
 
+test("Utah: 183 or more days with a place of abode, so the limit is 182", () => {
+  assert.equal(RULES.UT.limit, 182);
+  assert.equal(RULES.UT.requiresAbode, true);
+  assert.equal(RULES.UT.kind, "statutory");
+  const sp = spec(["UT 2025-01-01 to 2025-07-02"], { abode: { UT: true }, homeState: "FL" }); // 183 days
+  assert.equal(by(analyze(sp), "UT").days, 183);
+  assert.equal(by(analyze(sp), "UT").status, "over");
+});
+
 test("convenience-of-the-employer view pulls remote workdays back to the employer's state", () => {
   // 5 workdays in NY, 5 in NJ, 5 in FL (no wage tax); employer in NY.
   const lines = ["2025-06-02 to 2025-06-06 NY", "2025-06-09 to 2025-06-13 NJ", "2025-06-16 to 2025-06-20 FL"];

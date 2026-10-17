@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   CURVES, curveValue, marginal, fitCurve, fitBest, frontier, allocate, parseSpend, parseDay, dayToIso, weekStart,
-  weekly, analyze, backtestChannel, reportCsv, simulateSpend, sampleText, percentile, nelderMead, money,
+  weekly, adstock, fitAdstock, analyze, backtestChannel, reportCsv, simulateSpend, sampleText, percentile, nelderMead, money,
 } from "./calc.mjs";
 
 const near = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ""} ${a} vs ${b}`);
@@ -296,4 +296,30 @@ test("the calculation is offline: no network or dynamic import in the source", a
   globalThis.fetch = () => { called++; throw new Error("network"); };
   try { analyze(SAMPLE.rows, { boots: 5 }); } finally { globalThis.fetch = realFetch; }
   assert.equal(called, 0);
+});
+
+test("adstock: constant spend is unchanged in steady state, a gap decays, lambda 0 is the identity", () => {
+  const pts = [0, 1, 2, 3, 6].map((i) => ({ week: 7 * i, s: 100, r: 1 }));
+  near(adstock(pts, 0.5)[3].s, 100 * (1 - 0.5 ** 4), 1e-9, "warms up from zero");
+  const gap = adstock(pts, 0.5);
+  assert.ok(gap[4].s < gap[3].s * 0.7, "two empty weeks pull the carried spend down");
+  assert.deepEqual(adstock(pts, 0).map((p) => p.s), pts.map((p) => p.s));
+});
+
+test("fitAdstock recovers carry-over from simulated data and leaves memoryless channels alone", () => {
+  const ch = (lambda) => [{ name: "A", type: "exp", p: [40000, 8000], mean: 6000, cv: 0.45, noise: 0.03, lambda }];
+  const withLag = analyze(simulateSpend({ channels: ch(0.6), weeks: 104, seed: 3 }));
+  const lag = withLag.modelled[0].lambda;
+  assert.ok(lag >= 0.4 && lag <= 0.8, `carry-over found: ${lag}`);
+  assert.ok(withLag.findings.some((f) => /keeps working into later weeks/.test(f.title)));
+  const none = analyze(simulateSpend({ channels: ch(0), weeks: 104, seed: 3 }));
+  assert.equal(none.modelled[0].lambda, 0);
+  assert.ok(!none.findings.some((f) => /later weeks/.test(f.title)));
+});
+
+test("carry-over model fits lagged data better than the memoryless one, and can be switched off", () => {
+  const rows = simulateSpend({ channels: [{ name: "A", type: "exp", p: [40000, 8000], mean: 6000, cv: 0.45, noise: 0.03, lambda: 0.6 }], weeks: 104, seed: 3 });
+  const on = analyze(rows), off = analyze(rows, { adstock: false });
+  assert.equal(off.modelled[0].lambda, 0);
+  assert.ok(on.modelled[0].fit.rmse < off.modelled[0].fit.rmse * 0.8, `${on.modelled[0].fit.rmse} vs ${off.modelled[0].fit.rmse}`);
 });

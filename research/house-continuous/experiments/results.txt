@@ -1,0 +1,44 @@
+house-continuous experiments (SPF No. 2, equal spans, clear span per span, 1.5 in bearing, pattern loading)
+
+A. floor: simple / 2-span / 3-span clear span, governing check (bend, defl, shea, bear)
+  size                           12 in                        16 in                      19.2 in                        24 in
+  2x6     10' 1" 11' 4" 11' 1" 9' 2" 9' 9" 10' 0" 8' 7" 8'11" 9' 4" 7'11" 7'11" 8' 4"
+  2x8     13' 4" 14' 4" 14' 8" 12' 1" 12' 5" 13' 1" 11' 4" 11' 4" 11'11" 10' 1" 10' 1" 10' 8"
+  2x10    17' 1" 17' 7" 18' 6" 15' 3" 15' 3" 16' 0" 13'11" 13'11" 14' 7" 12' 5" 12' 5" 13' 0"
+  2x12    20' 5" 20' 5" 21' 6" 17' 8" 17' 8" 18' 7" 16' 1" 16' 1" 16'11" 14' 5" 14' 5" 15' 2"
+  governing, 1-span: bend 10, defl 6
+  governing, 2-span: bend 16
+  governing, 3-span: bend 13, defl 3
+  gain of 2-span over simple: min -0.1%, max +12.2%
+
+A. ceiling: simple / 2-span / 3-span clear span, governing check (bend, defl, shea, bear)
+  size                           12 in                        16 in                      19.2 in                        24 in
+  2x6     16' 1" 19' 1" 18' 4" 14' 7" 17' 4" 16' 8" 13' 9" 16' 3" 15' 8" 12' 9" 14' 8" 14' 6"
+  2x8     21' 3" 25' 3" 24' 3" 19' 4" 22'10" 22' 0" 18' 2" 20'10" 20' 8" 16'10" 18' 7" 19' 2"
+  2x10    27' 3" 32' 3" 31' 0" 24' 8" 27'11" 28' 1" 23' 3" 25' 6" 26' 5" 21' 7" 22' 9" 24' 2"
+  2x12    33' 2" 37' 5" 37' 8" 30' 1" 32' 5" 34' 3" 28' 4" 29' 7" 31' 4" 26' 3" 26' 5" 28' 0"
+  governing, 1-span: defl 16
+  governing, 2-span: bend 11, defl 5
+  governing, 3-span: bend 3, defl 13
+  gain of 2-span over simple: min +0.6%, max +18.5%
+
+A. roof-snow30: simple / 2-span / 3-span clear span, governing check (bend, defl, shea, bear)
+  size                           12 in                        16 in                      19.2 in                        24 in
+  2x6     12' 3" 12'10" 13' 7" 11' 1" 11' 1" 11' 9" 10' 1" 10' 1" 10' 9" 9' 0" 9' 0" 9' 7"
+  2x8     16' 3" 16' 3" 17' 3" 14' 1" 14' 1" 14'11" 12'10" 12'10" 13' 7" 11' 6" 11' 5" 12' 2"
+  2x10    19'11" 19'11" 21' 2" 17' 3" 17' 3" 18' 3" 15' 9" 15' 9" 16' 8" 14' 0" 14' 0" 14'11"
+  2x12    23' 1" 23' 1" 24' 6" 20' 0" 20' 0" 21' 3" 18' 3" 18' 3" 19' 4" 16' 4" 16' 4" 17' 4"
+  governing, 1-span: bend 14, defl 2
+  governing, 2-span: bend 16
+  governing, 3-span: bend 16
+  gain of 2-span over simple: min -0.1%, max +4.6%
+
+B. Which check ends a 2-span joist's span when bending stops governing? 2x10 at 16 in, floor
+  live limit L/360: simple 15' 3" (bending), 2-span 15' 3" (bending), 3-span 16' 0" (bending)
+  live limit L/480: simple 14' 1" (deflection live), 2-span 15' 3" (bending), 3-span 15' 5" (deflection live)
+
+C. Interior bearing length, 2x10 at 16 in, floor, 2-span: clear span per span and what governs
+  1.5 in at the middle support: 11' 4" (bearing)
+  3.5 in at the middle support: 15' 3" (bending)
+  5.5 in at the middle support: 15' 3" (bending)
+

@@ -4,7 +4,7 @@ Free, browser-only multi-state day counter for remote workers, snowbirds and
 digital nomads. List where you were and when; it totals the days per state,
 checks them against the commonly published statutory residency tests (more than
 183 days plus a permanent place of abode in New York, New Jersey, Connecticut,
-Massachusetts, Pennsylvania, Minnesota, Rhode Island, Virginia, Maryland (183 days or more) and Maine; more than 200 days in
+Massachusetts, Pennsylvania, Minnesota, Rhode Island, Virginia, Maryland and Utah (183 days or more) and Maine; more than 200 days in
 Oregon; more than 270 days in Idaho; the nine-month presumption in California), shows the room left and the
 date you would cross a limit, splits remote-work wages by workdays, draws a
 year calendar coloured by state, imports stays from a calendar (.ics) export or Google Timeline (Takeout) history, and exports a day-range CSV. Nothing is uploaded.
@@ -23,6 +23,9 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `183-day-rule-by-state.html` - guide with a worked example that the test
   suite recomputes.
+- `snowbird-days-in-new-york.html` - guide for Florida snowbirds with a New
+  York home: three invented summers (1 May to 31 October is 184 days), the
+  room left in each, figures recomputed by the test suite.
 - `remote-work-convenience-of-the-employer-rule.html` - guide on the
   employer-state rule, its dollar figures recomputed by the test suite.
 
