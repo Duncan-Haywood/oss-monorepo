@@ -26,7 +26,7 @@ test('names no vendor or competing product', () => {
 });
 
 test('the page carries the standard disclaimer and sponsors link', () => {
-  assert.match(html, /<title>This calculator vs\. comparing the quoted rates by eye<\/title>/);
+  assert.match(html, /<title>This calculator vs\. comparing the quoted rates by eye \| Supplier Rate Break-Even Calculator<\/title>/);
   assert.match(html, /"@type":"FAQPage"/);
   assert.match(html, /No warranty/);
   assert.match(html, /Best-effort hosting, no SLA/);
