@@ -1,0 +1,239 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_013AajfpwCSrXux13R4YtKXN",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T18:38:44Z",
+  "ended": "2026-10-17T18:39:01Z",
+  "wall_minutes": 1.16,
+  "tokens_in": 911456,
+  "tokens_out": 5684,
+  "cost_usd": 0.4471,
+  "tool_calls": 14,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "Campaign on platform/pages/link.mjs: 2/8 caught, 6 escaped (5 gaps, 1 equivalent CSS). Added vm-run page-script tests; all gaps now caught. No real defects found.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/link.mjs",
+        "test": "node --test platform/pages/link.test.mjs  (in .)",
+        "seed": 909577090,
+        "commit": "9c240c565d",
+        "sites": 211,
+        "baseline_seconds": 1.8,
+        "mutants": [
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 173,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "let count = 0;",
+            "after": "let count = 1;",
+            "line_text": "  let count = 0;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 274,
+            "col": 48,
+            "operator": "eq-flip",
+            "before": "const a = normalizeHeadlineAmount(typeof sent === 'string' ? sent : '');",
+            "after": "const a = normalizeHeadlineAmount(typeof sent !== 'string' ? sent : '');",
+            "line_text": "  const a = normalizeHeadlineAmount(typeof sent === 'string' ? sent : '');",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 326,
+            "col": 39,
+            "operator": "false-to-true",
+            "before": "if (typeof html !== 'string') return false;",
+            "after": "if (typeof html !== 'string') return true;",
+            "line_text": "  if (typeof html !== 'string') return false;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Now killed by the vm-run page script tests / non-string gate test in platform/pages/link.test.mjs."
+          },
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 408,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": ".pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;",
+            "after": ".pf-link-note{margin:8px 1 0;font-size:.85rem;line-height:1.45;opacity:.9;",
+            "line_text": ".pf-link-note{margin:8px 0 0;font-size:.85rem;line-height:1.45;opacity:.9;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "CSS opacity/line-height constant in an injected style block; no test or user-visible behaviour depends on the exact value."
+          },
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 486,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "counts[event] = (counts[event] || 0) + 1;",
+            "after": "counts[event] = (counts[event] || 0) + 2;",
+            "line_text": "      counts[event] = (counts[event] || 0) + 1;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Now killed by the vm-run page script tests / non-string gate test in platform/pages/link.test.mjs."
+          },
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 625,
+            "col": 22,
+            "operator": "lt-to-le",
+            "before": "for (var i = 0; i < fields.length; i++) formIds.push(fields[i].id);",
+            "after": "for (var i = 0; i <= fields.length; i++) formIds.push(fields[i].id);",
+            "line_text": "    for (var i = 0; i < fields.length; i++) formIds.push(fields[i].id);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Now killed by the vm-run page script tests / non-string gate test in platform/pages/link.test.mjs."
+          },
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 643,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "if (missing.length > 0 || extra.length > 0) {",
+            "after": "if (missing.length > 0 || extra.length > 1) {",
+            "line_text": "    if (missing.length > 0 || extra.length > 0) {",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Now killed by the vm-run page script tests / non-string gate test in platform/pages/link.test.mjs."
+          },
+          {
+            "file": "platform/pages/link.mjs",
+            "line": 645,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "if (missing.length > 0) parts.push(missing.length + ' this form does not have');",
+            "after": "if (missing.length > 1) parts.push(missing.length + ' this form does not have');",
+            "line_text": "      if (missing.length > 0) parts.push(missing.length + ' this form does not have');",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Now killed by the vm-run page script tests / non-string gate test in platform/pages/link.test.mjs."
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0a60f292-4fff-5e2f-854f-ec0f71f6fc8a",
+    "transcripts": 1,
+    "first": "2026-10-17T18:38:44Z",
+    "last": "2026-10-17T18:39:54Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 13,
+        "input": 26,
+        "output": 5684,
+        "thinking": 1076,
+        "cache_read": 856717,
+        "cache_write_5m": 0,
+        "cache_write_1h": 54713,
+        "api_equivalent_usd": 0.4471,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 13,
+      "input": 26,
+      "output": 5684,
+      "thinking": 1076,
+      "cache_read": 856717,
+      "cache_write_5m": 0,
+      "cache_write_1h": 54713,
+      "api_equivalent_usd": 0.4471,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.94,
+    "tool_calls": 14,
+    "tools": {
+      "Bash": 11,
+      "Read": 3
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.16,
+      "active_minutes": 1.16,
+      "model_minutes": 0.75,
+      "tool_minutes": 0.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "read module, write fake-DOM harness and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 223.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

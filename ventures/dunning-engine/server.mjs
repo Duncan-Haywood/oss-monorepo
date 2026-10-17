@@ -10,6 +10,7 @@ import fs from "node:fs";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { verifySignature, createStripe } from "./stripe.mjs";
 import { ADMIN_HTML, ADMIN_CSP } from "./admin.mjs";
+import { clampPct } from "./holdout.mjs";
 import { applyEvent, tick, scanExpiring, summary, newState } from "./engine.mjs";
 
 const env = process.env;
@@ -54,7 +55,7 @@ export function handler(cfg) {
         const event = JSON.parse(raw);
         let declineCode = null;
         if (event.type === "invoice.payment_failed") declineCode = await cfg.stripe.declineCodeFor(event.data.object).catch(() => null);
-        const result = applyEvent(cfg.state, event, { now: now(), policy: cfg.policy, declineCode });
+        const result = applyEvent(cfg.state, event, { now: now(), policy: cfg.policy, declineCode, holdoutPct: cfg.holdoutPct });
         cfg.save();
         return send(200, result, "application/json");
       }
@@ -117,6 +118,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (!dryRun && (!env.RESEND_API_KEY || !env.MAIL_FROM)) { console.error("DRY_RUN=false needs RESEND_API_KEY and MAIL_FROM"); process.exit(1); }
   setInterval(async () => { try { const now = Date.now();
     const log = [...await tick(state, now, deps), ...await scanExpiring(state, now, deps).catch((e) => [`expiry scan failed: ${e.message}`])]; log.forEach((l) => console.log(l)); if (log.length) save(); } catch (e) { console.error("tick failed:", e.message); } }, 60000).unref?.();
-  const cfg = { state, save, stripe, webhookSecret: env.STRIPE_WEBHOOK_SECRET, linkSecret: env.LINK_SECRET, adminKey: env.ADMIN_KEY, publicUrl, policy, dryRun };
+  const cfg = { state, save, stripe, webhookSecret: env.STRIPE_WEBHOOK_SECRET, linkSecret: env.LINK_SECRET, adminKey: env.ADMIN_KEY, publicUrl, policy, dryRun, holdoutPct: clampPct(env.HOLDOUT_PCT) };
   http.createServer(handler(cfg)).listen(Number(env.PORT || 8080), () => console.log(`dunning-engine on :${env.PORT || 8080} (${dryRun ? "DRY RUN" : "LIVE"})`));
 }

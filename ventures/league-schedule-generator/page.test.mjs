@@ -320,3 +320,29 @@ test("the odd-team round robin guide's worked example matches roundRobin() and i
   assert.match(page("sitemap.xml"), /how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html/);
   assert.match(page("index.html"), /href="\.\/how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html"/);
 });
+
+test("the courts-and-time-slots guide's worked example matches buildSchedule() and is linked and in the sitemap", () => {
+  const name = "how-to-schedule-a-league-with-limited-courts-and-time-slots.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const { errors, spec } = readSpec({ teams: "Hawks\nOwls\nFoxes\nBears\nLynx\nWolves", start: "2026-10-06", weekdays: "Tue", courts: "Court A\nCourt B", times: "18:00\n19:00", seed: 1 });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.equal(s.rounds.length, 5);
+  const early = {};
+  s.rounds.forEach((r) => {
+    const row = `<tr><td>${r.number}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+    assert.equal(new Set(r.matches.map((m) => `${m.court}|${m.time}`)).size, r.matches.length);
+    for (const m of r.matches) if (m.time === "18:00") for (const t of [m.homeName, m.awayName]) early[t] = (early[t] || 0) + 1;
+  });
+  assert.ok(Object.values(early).every((c) => c === 2 || c === 3));
+  const tooFew = readSpec({ teams: "A\nB\nC\nD\nE\nF", start: "2026-10-06", weekdays: "Tue", courts: "Court A", times: "18:00", seed: 1 });
+  assert.throws(() => buildSchedule(tooFew.spec), /3 matches a round, but 1 court\(s\) x 1 time slot\(s\) only fit 1/);
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});

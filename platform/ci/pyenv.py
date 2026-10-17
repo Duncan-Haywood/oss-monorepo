@@ -15,7 +15,9 @@ Order: an interpreter that already imports everything wins. Otherwise each
 candidate tries `<it> -m pip install` (pip then always targets that
 interpreter), then `apt-get install python3-<module>`, and the first one that
 imports everything afterwards is printed. Progress goes to stderr; stdout is
-only the path. Exit 1 when nothing works, with what was tried.
+only the path. If all of that fails, a private venv (`$PYENV_VENV`, default
+~/.cache/pyenv-venv) gets the pip install. Exit 1 when nothing works, with what
+was tried.
 """
 import glob
 import os
@@ -86,7 +88,23 @@ def apt_install(modules, run=subprocess.run):
         return False
 
 
-def find(modules, cands, run=subprocess.run, log=lambda m: print(m, file=sys.stderr)):
+def venv_install(py, modules, venv_dir, run=subprocess.run, log=lambda m: print(m, file=sys.stderr)):
+    """Last resort: a private venv, where a system-site install failed (2026-10-17:
+    pip into the system interpreter could not build scikit-fem; a plain venv could).
+    Returns the venv's python when it imports every module, else None."""
+    vpy = os.path.join(venv_dir, "bin", "python")
+    try:
+        if not os.path.isfile(vpy) and run([py, "-m", "venv", venv_dir], capture_output=True, timeout=300).returncode != 0:
+            return None
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if imports(vpy, modules, run) or pip_install(vpy, modules, run, log) and imports(vpy, modules, run):
+        log(f"pyenv: using venv {venv_dir}")
+        return vpy
+    return None
+
+
+def find(modules, cands, run=subprocess.run, log=lambda m: print(m, file=sys.stderr), venv_dir=None):
     for py in cands:
         if imports(py, modules, run):
             return py
@@ -100,6 +118,8 @@ def find(modules, cands, run=subprocess.run, log=lambda m: print(m, file=sys.std
             if imports(py, modules, run):
                 log(f"pyenv: installed with apt-get; {py} imports them")
                 return py
+    if venv_dir and cands:
+        return venv_install(cands[0], modules, venv_dir, run, log)
     return None
 
 
@@ -109,7 +129,8 @@ def main(argv=None):
         print(__doc__, file=sys.stderr)
         return 2
     cands = candidates()
-    py = find(modules, cands)
+    venv_dir = os.environ.get("PYENV_VENV") or os.path.join(os.path.expanduser("~"), ".cache", "pyenv-venv")
+    py = find(modules, cands, venv_dir=venv_dir)
     if not py:
         print(f"pyenv: no interpreter imports {', '.join(modules)} after pip and apt; "
               f"tried {cands}", file=sys.stderr)

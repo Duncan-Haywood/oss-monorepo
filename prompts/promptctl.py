@@ -634,7 +634,8 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
         for item in rec.get("doc_friction") or []:
             if not isinstance(item, dict):  # malformed free-text entry: keep it countable
                 item = {"file": "(unattributed)", "issue": str(item)}
-            friction[item["file"]].append(f"{rec['date']}: {item['issue']}")
+            # the run's end time (minutes) when known, so a same-day report can be told from a stale one
+            friction[item["file"]].append(f"{(rec.get('ended') or rec['date'])[:16]}: {item['issue']}")
         for item in rec.get("deviations") or []:
             if not isinstance(item, dict):
                 item = {"file": "(unattributed)", "why": str(item)}
@@ -773,17 +774,30 @@ def print_measure(m: dict[str, Any]) -> None:
 def _changed_note(path: str) -> tuple[str, str]:
     """(' (file last changed D)', D): so a reader can tell a stale complaint from a live one."""
     try:
-        out = subprocess.run(["git", "log", "-1", "--format=%cs", "--", path], cwd=ROOT.parent,
+        out = subprocess.run(["git", "log", "-1", "--format=%cI", "--", path], cwd=ROOT.parent,
                              capture_output=True, text=True, timeout=20).stdout.strip()
     except (OSError, subprocess.SubprocessError):
         return "", ""
-    return (f" (file last changed {out})", out) if out else ("", "")
+    return (f" (file last changed {out[:10]})", out) if out else ("", "")
+
+
+def _when(text: str) -> datetime | None:
+    """Parse a leading 'YYYY-MM-DD' or 'YYYY-MM-DDTHH:MM' (UTC unless it has an offset)."""
+    m = re.match(r"\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(Z|[+-]\d{2}:\d{2})?)?", text)
+    if not m:
+        return None
+    try:
+        t = datetime.fromisoformat(m.group(0).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return t if t.tzinfo else t.replace(tzinfo=timezone.utc)
 
 
 def _flag_stale(report: str, changed: str) -> str:
-    """Tag a 'YYYY-MM-DD: issue' report written before the file last changed: check it still reproduces."""
-    date = report[:10]
-    if changed and re.fullmatch(r"\d{4}-\d{2}-\d{2}", date) and date < changed:
+    """Tag a report written before the file last changed: check it still reproduces.
+    Reports carry the run's end time when it is known, else only a date (then same-day is not stale)."""
+    when, file_changed = _when(report), _when(changed)
+    if when and file_changed and when < file_changed and (report[10:11] == "T" or when.date() < file_changed.date()):
         return f"[file changed since] {report}"
     return report
 

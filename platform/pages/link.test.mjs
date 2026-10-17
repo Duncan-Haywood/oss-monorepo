@@ -1,4 +1,5 @@
 import { test } from 'node:test';
+import vm from 'node:vm';
 import assert from 'node:assert/strict';
 
 import {
@@ -579,4 +580,85 @@ test('the itemised calculators are offered the control once they declare their r
   assert.equal(pageBuildsFieldsAtRuntime(undeclared), true);
   assert.deepEqual(pageRepeatPrefixes(undeclared), []);
   assert.equal(pageTakesBidLink(undeclared), false);
+});
+
+// ---------------------------------------------------------------------------
+// The shipped page script, run end to end against a stand-in page
+// ---------------------------------------------------------------------------
+//
+// Red-team seeding (2026-10-17) showed the in-page `apply` guard, its refusal
+// wording and the usage counter were only pinned by regexes on the source, so
+// flipping a comparison in them passed every test. This runs the emitted module
+// itself in a `vm` with the smallest document it needs.
+
+function runLinkModule(hash, formIds, { storage = {} } = {}) {
+  const note = { textContent: '', hidden: true, attrs: {}, setAttribute(k, v) { this.attrs[k] = v; },
+    removeAttribute(k) { delete this.attrs[k]; } };
+  const nodes = formIds.map((id) => ({
+    id, tagName: 'INPUT', type: 'text', value: '', closest: () => null, dispatchEvent() {},
+    getAttribute: () => null,
+  }));
+  const document = {
+    querySelector: () => null,
+    getElementById: (id) => (id === 'pf-link-note' ? note : null),
+    querySelectorAll: (sel) => (sel.startsWith('input[id]') ? nodes : []),
+  };
+  const store = { ...storage };
+  const context = {
+    document, navigator: {}, Event: class {}, setTimeout: (fn) => fn(),
+    location: { hash, origin: 'https://x.test', pathname: '/', search: '' },
+    localStorage: { getItem: (k) => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = v; } },
+  };
+  vm.runInNewContext(renderBidLinkModule(), context);
+  return { note, nodes, store };
+}
+
+test('the page script writes a link whose fields are exactly the form fields', () => {
+  const hash = '#' + encodeBidLink({ fields: { lengthFt: '14', width: '3' } });
+  const { note, nodes, store } = runLinkModule(hash, ['lengthFt', 'width']);
+  assert.deepEqual(nodes.map((n) => n.value), ['14', '3']);
+  assert.match(note.textContent, /^Opened from a shared bid — 2 fields/);
+  assert.equal(JSON.parse(store['portfolio-hub-usage']).bid_link_opened, 1);
+});
+
+test('the page script refuses a link naming a field the form lacks, and writes nothing', () => {
+  const hash = '#' + encodeBidLink({ fields: { lengthFt: '14', width: '3' } });
+  const { note, nodes } = runLinkModule(hash, ['lengthFt']);
+  assert.deepEqual(nodes.map((n) => n.value), ['']);
+  assert.match(note.textContent, /This bid link was not opened\. It carries 1 this form does not have, so/);
+  assert.doesNotMatch(note.textContent, /never priced/);
+});
+
+test('the page script refuses when the form has one control the link never priced', () => {
+  const hash = '#' + encodeBidLink({ fields: { lengthFt: '14' } });
+  const { note, nodes } = runLinkModule(hash, ['lengthFt', 'extraRow']);
+  assert.deepEqual(nodes.map((n) => n.value), ['', '']);
+  assert.match(note.textContent, /carries 1 this form has that the link never priced, so/);
+  assert.doesNotMatch(note.textContent, /does not have/);
+});
+
+test('the page script names both kinds of mismatch together', () => {
+  const hash = '#' + encodeBidLink({ fields: { a: '1', b: '2' } });
+  const { note } = runLinkModule(hash, ['a', 'c']);
+  assert.match(note.textContent,
+    /carries 1 this form does not have, and 1 this form has that the link never priced, so/);
+});
+
+test('a refused link counts once in the usage counter', () => {
+  const hash = '#' + encodeBidLink({ fields: { a: '1', b: '2' } });
+  const { store } = runLinkModule(hash, ['a']);
+  assert.equal(JSON.parse(store['portfolio-hub-usage']).bid_link_refused, 1);
+});
+
+test('the usage counter adds to an existing count and honours the opt-out', () => {
+  const hash = '#' + encodeBidLink({ fields: { a: '1' } });
+  const seeded = { 'portfolio-hub-usage': JSON.stringify({ bid_link_opened: 4 }) };
+  const { store } = runLinkModule(hash, ['a'], { storage: seeded });
+  assert.equal(JSON.parse(store['portfolio-hub-usage']).bid_link_opened, 5);
+  const off = runLinkModule(hash, ['a'], { storage: { 'portfolio-hub-optout': '1' } });
+  assert.equal('portfolio-hub-usage' in off.store, false);
+});
+
+test('a non-string page is never offered the control', () => {
+  for (const html of [undefined, null, 7, {}]) assert.equal(pageTakesBidLink(html), false);
 });

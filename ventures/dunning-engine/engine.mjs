@@ -4,6 +4,7 @@
 import { planRecovery, replan, classifyDecline, formatMoney, mergePolicy } from "./dunning.mjs";
 import { renderEmail } from "./templates.mjs";
 import { findExpiring } from "./expiry.mjs";
+import { assignArm, experiment } from "./holdout.mjs";
 
 export function newState() { return { cases: {}, seen: [], stats: { recoveredMinor: {}, recovered: 0, lost: 0, emails: 0, retries: 0 } }; }
 
@@ -22,7 +23,7 @@ function closeCase(state, c, outcome, now) {
 
 // Feed one verified Stripe event in. `declineCode` is resolved by the caller
 // (it needs an API call) and only used for payment_failed.
-export function applyEvent(state, event, { now, policy, declineCode }) {
+export function applyEvent(state, event, { now, policy, declineCode, holdoutPct = 0 }) {
   if (state.seen.includes(event.id)) return { ignored: "duplicate" };
   state.seen.push(event.id);
   if (state.seen.length > MAX_SEEN) state.seen.splice(0, state.seen.length - MAX_SEEN);
@@ -35,12 +36,17 @@ export function applyEvent(state, event, { now, policy, declineCode }) {
       if (existing && existing.status === "open") {
         existing.attempts = obj.attempt_count ?? existing.attempts + 1;
         existing.lastDecline = declineCode || existing.lastDecline;
+        if (existing.arm === "holdout") return { updated: obj.id, class: existing.class, arm: "holdout" };
         const next = replan(existing, { declineCode: existing.lastDecline, now, policy });
         existing.class = next.class; existing.steps = next.steps;
         return { updated: obj.id, class: existing.class };
       }
       const plan = planRecovery({ declineCode, t0: now, policy });
+      const arm = assignArm(obj.customer || obj.id, holdoutPct);
+      // Holdout: record the failure, take no action, close it on the same clock.
+      if (arm === "holdout") plan.steps = plan.steps.filter((s) => s.kind === "expire");
       state.cases[obj.id] = {
+        ...(holdoutPct ? { arm } : {}),
         invoiceId: obj.id, customer: obj.customer, subscription: obj.subscription || obj.parent?.subscription_details?.subscription || null,
         email: obj.customer_email || null, name: obj.customer_name || null,
         amountMinor: obj.amount_remaining ?? obj.amount_due ?? 0, currency: obj.currency || "usd",
@@ -69,7 +75,7 @@ export function applyEvent(state, event, { now, policy, declineCode }) {
       const cust = obj.customer || (event.type === "customer.updated" ? obj.id : null);
       let n = 0;
       for (const c of Object.values(state.cases)) {
-        if (c.status === "open" && c.customer === cust && !c.steps.some((s) => s.id.startsWith("card-updated") && s.status === "pending")) {
+        if (c.status === "open" && c.arm !== "holdout" && c.customer === cust && !c.steps.some((s) => s.id.startsWith("card-updated") && s.status === "pending")) {
           c.steps.push({ id: `card-updated-${now}`, kind: "retry", at: now, status: "pending", reason: "card updated" }); n++;
         }
       }
@@ -128,6 +134,7 @@ export async function tick(state, now, deps) {
           note(`retry declined: ${c.lastDecline || e.message}`);
         }
       } else if (s.kind === "expire") {
+        if (c.arm === "holdout") { s.status = "done"; closeCase(state, c, "lost", now); note("holdout: grace period over, left alone by design"); continue; }
         if (deps.cancelOnExpire && c.subscription && !deps.dryRun) await deps.stripe.cancelSubscription(c.subscription, `dd-${c.invoiceId}-cancel`);
         s.status = "done"; closeCase(state, c, "lost", now);
         note(deps.cancelOnExpire && !deps.dryRun ? "grace period over: subscription cancelled" : "grace period over: left for you to decide");
@@ -176,6 +183,7 @@ export function summary(state) {
   const open = Object.values(state.cases).filter((c) => c.status === "open");
   const atRisk = {};
   for (const c of open) atRisk[c.currency] = (atRisk[c.currency] || 0) + c.amountMinor;
-  return { open: open.length, atRiskMinor: atRisk, ...state.stats };
+  const ex = experiment(state.cases);
+  return { open: open.length, atRiskMinor: atRisk, ...state.stats, ...(ex ? { experiment: ex } : {}) };
 }
 export { classifyDecline };

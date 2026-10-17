@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, WEIGHTS,
+  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, WEIGHTS,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -287,4 +287,19 @@ test("a list with no meals has no tally and an unchanged CSV header", () => {
   assert.deepEqual(mealTally(spec, optimize(spec).table), []);
   assert.match(planCsv(spec, optimize(spec)), /^Table,Guest,Party,Group\n/);
   assert.match(catererSheetHtml(spec, optimize(spec)), /No meal choices were typed/);
+});
+
+test("setup round-trips and unknown or mistyped fields are dropped", () => {
+  const state = { guests: "Ana | Lee family\nBen", rules: "Ana + Ben", seats: "8", tcount: "", balance: false, mix: "spread", prevplan: "Table,Guest\n1,Ana" };
+  const { state: back, error } = parseSetup(setupJson(state));
+  assert.equal(error, null);
+  assert.deepEqual(back, state);
+  const hostile = JSON.stringify({ app: "event-seating-chart-optimizer", guests: 5, mix: "<script>", balance: "yes", seats: 12, extra: "x" });
+  assert.deepEqual(parseSetup(hostile).state, { seats: "12" });
+});
+
+test("setup parser rejects other JSON and non-JSON", () => {
+  assert.match(parseSetup("not json").error, /not valid JSON/);
+  assert.match(parseSetup("[]").error, /not a seating setup/);
+  assert.match(parseSetup('{"app":"shift-roster-builder"}').error, /not a seating setup/);
 });

@@ -54,7 +54,7 @@
     <p class="note">LEAGUE SCHEDULE GENERATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Make a fair round-robin league schedule in a minute</h1>
     <p>Paste the <strong>team names</strong>, pick a <strong>start date and weekday</strong>, and get every round with <strong>real dates</strong>, <strong>home and away balanced</strong>, <strong>courts and time slots shared evenly</strong>, and <strong>blackout dates</strong> handled. Export a <strong>CSV</strong>, a <strong>calendar file</strong> for the league or one team, or <strong>plain text</strong> for the group chat.</p>
-    <p class="note">For rec leagues, youth sports, pickleball, darts and chess clubs and office leagues. New to this? Read <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule, with a worked example</a>, <a href="./how-to-run-a-swiss-tournament.html">how Swiss pairings work</a>, <a href="./how-to-run-an-americano-tournament.html">how an Americano rotation works</a>, <a href="./how-to-run-a-mexicano-tournament.html">how a Mexicano draw works</a>, <a href="./how-to-run-a-single-elimination-bracket.html">how to seed a single-elimination bracket and give byes</a>, <a href="./how-to-run-a-double-elimination-tournament.html">how double elimination and the grand final reset work</a>, <a href="./how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html">how byes work with an odd number of teams</a>, or look up <a href="./round-robin-schedule-by-number-of-teams.html">rounds and games for 3 to 16 teams</a>, or copy a <a href="./round-robin-schedule-template.html">ready-made round robin fixture list for 4 to 16 teams</a>.</p>
+    <p class="note">For rec leagues, youth sports, pickleball, darts and chess clubs and office leagues. New to this? Read <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule, with a worked example</a>, <a href="./how-to-run-a-swiss-tournament.html">how Swiss pairings work</a>, <a href="./how-to-run-an-americano-tournament.html">how an Americano rotation works</a>, <a href="./how-to-run-a-mexicano-tournament.html">how a Mexicano draw works</a>, <a href="./how-to-run-a-single-elimination-bracket.html">how to seed a single-elimination bracket and give byes</a>, <a href="./how-to-run-a-double-elimination-tournament.html">how double elimination and the grand final reset work</a>, <a href="./how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html">how byes work with an odd number of teams</a>, <a href="./how-to-schedule-a-league-with-limited-courts-and-time-slots.html">how to fit a league onto limited courts and time slots</a>, or look up <a href="./round-robin-schedule-by-number-of-teams.html">rounds and games for 3 to 16 teams</a>, or copy a <a href="./round-robin-schedule-template.html">ready-made round robin fixture list for 4 to 16 teams</a>.</p>
   </header>
 
   <main>
@@ -92,7 +92,7 @@
       <div><label for="playoff">Teams in the play-off (0 = none)</label><input id="playoff" inputmode="numeric" value="0"></div>
       <div><label for="playoffDouble">Double elimination (out after two losses)</label><input id="playoffDouble" type="checkbox"></div>
     </div>
-    <label for="results">Results so far, one per line, to rank the teams (blank = seeded in the order you listed them): <code>Hawks 3 - 2 Owls</code>, or <code>Hawks w/o Owls</code> when Owls forfeit (Hawks get a 3-0 win)</label>
+    <label for="results">Results so far, one per line, to rank the teams (blank = seeded in the order you listed them): <code>Hawks 3 - 2 Owls</code>, or <code>Hawks w/o Owls</code> when Owls forfeit (Hawks get a 3-0 win), or <code>Owls -3 pts</code> for a points deduction (<code>+1</code> adds one)</label>
     <textarea id="results" rows="3" placeholder="Hawks 3 - 2 Owls"></textarea>
     <input type="checkbox" id="h2h" style="margin-top:6px"> <label for="h2h" style="display:inline">Break ties on points by head-to-head results first</label>
 
@@ -394,13 +394,13 @@
       if (resText.trim()) {
         const pr = parseResults(resText, s.teams);
         warnings.push(...pr.errors);
-        table = standings(s.teams, pr.results, { headToHead: $("#h2h").checked });
+        table = standings(s.teams, pr.results, { headToHead: $("#h2h").checked, adjustments: pr.adjustments });
         seeds = table.map((r) => r.name);
       }
       let race = null;
       if (resText.trim() && want >= 1 && want < s.teams.length) {
         const pr2 = parseResults(resText, s.teams);
-        race = { spots: want, rows: playoffRace(s.teams, pr2.results, remainingFixtures(s, pr2.results), want) };
+        race = { spots: want, rows: playoffRace(s.teams, pr2.results, remainingFixtures(s, pr2.results), want, { adjustments: pr2.adjustments }) };
       }
       let bracketTxt = "";
       if (want >= 2) {
@@ -485,7 +485,7 @@
         parts.push(`${p.name.toUpperCase()}: ${sched.teams.join(", ")}\n${scheduleText(sched)}`);
         if (resText.trim()) {
           const pr = parseResults(resText, sched.teams);
-          tables.push(standings(sched.teams, pr.results, { headToHead: $("#h2h").checked }));
+          tables.push(standings(sched.teams, pr.results, { headToHead: $("#h2h").checked, adjustments: pr.adjustments }));
         }
       }
       if (tables.length) {

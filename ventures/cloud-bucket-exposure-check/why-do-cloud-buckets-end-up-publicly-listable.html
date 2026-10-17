@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why do cloud buckets end up publicly listable?</title>
+<meta name="description" content="How an S3, GCS, or Azure Blob bucket ends up allowing anonymous public listing despite every provider defaulting new buckets to private -- legacy ACL grants, wildcard bucket policies, static-website-hosting tutorials, and forgotten test buckets -- and how to check whether your own bucket is exposed with a free tool.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/cloud-bucket-exposure-check/why-do-cloud-buckets-end-up-publicly-listable.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to check whether your own cloud storage bucket allows anonymous public listing",
+  "step": [
+    { "@type": "HowToStep", "name": "Name the bucket or container", "text": "Get the bucket name (S3, GCS) or the storage account plus container name (Azure) for the resource you own and want to check -- the same name you'd use in the provider's own console." },
+    { "@type": "HowToStep", "name": "Send one anonymous request to the provider's own listing endpoint", "text": "No credentials, no SDK -- a plain HTTP GET to the bucket's root (S3, GCS) or to the container with ?restype=container&comp=list (Azure). Each provider's own documented API returns either a real listing document or a structured access-denied/not-found error." },
+    { "@type": "HowToStep", "name": "Read the response BODY, not just the status code", "text": "A public bucket and a private one can both answer 200 or 403 depending on the provider and the exact misconfiguration. Only a body that parses as the provider's own ListBucketResult (S3/GCS) or EnumerationResults (Azure) XML confirms public listing is actually happening." },
+    { "@type": "HowToStep", "name": "Automate it, or use a free tool", "text": "A free CLI and browser report viewer that runs exactly this check against a bucket or container you name is at ../cloud-bucket-exposure-check/." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+</style>
+</head>
+<body>
+<p><a href="index.html">&larr; Cloud bucket exposure checker</a></p>
+
+<h1>Why do cloud buckets end up publicly listable?</h1>
+
+<p>
+  Every major provider defaults a newly created bucket or container to private, and AWS has gone
+  further than a default: since 2018 it offers <strong>Block Public Access</strong>, an
+  account-level switch that overrides any bucket policy or ACL underneath it and can only be
+  turned off deliberately. Despite that, publicly listable buckets keep turning up in security
+  research and breach disclosures years later -- including the two cited on
+  <a href="index.html">this checker's own page</a>: 14 million Verizon customer records exposed
+  through a vendor's misconfigured S3 bucket in 2017, and a Pentagon contractor's exposed
+  monitoring archive the same year. The defaults are not the problem; what overrides them is.
+</p>
+
+<h2>Three separate settings, and any one of them can win</h2>
+<p>
+  A bucket's effective access is not one switch, it's several, layered:
+</p>
+<table>
+  <thead><tr><th>Layer</th><th>What it is</th><th>How it goes wrong</th></tr></thead>
+  <tbody>
+    <tr><td>ACL (S3, legacy)</td><td>A per-object or per-bucket grant list, older than bucket policies</td><td>A grant to the <code>AllUsers</code> group made years ago, before Block Public Access existed, quietly persists</td></tr>
+    <tr><td>Bucket policy (S3, GCS IAM)</td><td>A JSON document naming who can do what</td><td>A statement written for a static-website-hosting tutorial grants <code>s3:GetObject</code> to <code>Principal: "*"</code> -- and a later edit, meant to widen read access for one prefix, is copy-pasted without scoping the <code>Resource</code> field, granting <code>s3:ListBucket</code> too</td></tr>
+    <tr><td>Account/container-level toggle</td><td>AWS's account-wide Block Public Access; Azure's per-account "Allow Blob public access" plus a separate per-container public-access level</td><td>Two independent settings that both have to agree "private" -- an admin who checks only one assumes the other matches</td></tr>
+  </tbody>
+</table>
+<p>
+  Any layer that permits the request wins for an actual anonymous visitor, regardless of what the
+  other layers say -- which is exactly why <a href="vs-manually-checking-in-the-cloud-console.html">reading
+  each setting in the console</a> is a different question from sending the real request and seeing
+  what comes back.
+</p>
+
+<h2>The recurring path: infrastructure meant to be public, scoped too wide</h2>
+<p>
+  The single most common route to an exposed bucket is not an admin deliberately choosing "public"
+  for private data -- it's a bucket that was <em>supposed</em> to allow some public access
+  (a static website, a public dataset, a CDN origin, a CI artifact download) getting a policy or
+  ACL broad enough to also permit listing every other object inside it. A policy statement written
+  to let anyone <code>GetObject</code> a website's HTML and images does not need
+  <code>ListBucket</code> at all -- but templates copied from tutorials, and IaC modules reused
+  across projects, often grant both together because nobody removed the unneeded permission before
+  applying it to a bucket that also holds internal files.
+</p>
+<p>
+  Forgotten buckets compound it: a staging or migration bucket created for a one-time job, given a
+  wide-open policy to make the job easier, and never revisited once the job finished. Nothing
+  about a bucket's public-listing state changes on its own after that -- it stays exactly as wide
+  as the last edit left it until someone checks again.
+</p>
+
+<h2>Check your own bucket</h2>
+<p>
+  A free tool that runs exactly the check above -- one real, read-only request to a bucket or
+  container's own anonymous listing endpoint across AWS S3, Google Cloud Storage, or Azure Blob
+  Storage -- is at <a href="index.html">the cloud bucket exposure checker</a>. It never fetches
+  any object's own content, only the listing, and it sends nothing about the bucket or the result
+  to this site. As with any tool that sends requests to infrastructure you name, only run it
+  against a bucket or container you own or are authorised to test.
+</p>
+
+<p><a href="index.html">&larr; Back to the cloud bucket exposure checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page and the tool it describes are
+  provided free and as-is, without warranty of any kind, express or implied. It is not security
+  advice, and it does not replace a qualified security review or a cloud provider's own
+  configuration audit. You are responsible for reviewing and verifying its output before relying
+  on it, and for having authorisation to test any bucket or container you point it at. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising
+  from its use.</p>
+</footer>
+</body>
+</html>
