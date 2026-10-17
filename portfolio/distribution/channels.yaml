@@ -221,6 +221,19 @@ channels:
     owner_ask: none
     dry_run: node platform/distribution/precommit.mjs
     verified: ran one hook through real pre-commit against a scratch repository; it failed on a workflow with no timeout-minutes, as the check does
+  - id: nix-flake
+    rung: artifact
+    built: 2026-10-17
+    code: platform/distribution/nixflake.mjs
+    workflow: none (the flake is one committed file, `flake.nix`; `nixflake.mjs --check` fails when it is stale)
+    enabled_by: 'nothing in the tree is gated and no account or secret is needed. Anyone with Nix can run `nix run github:duncan-haywood/oss-monorepo#<slug> -- --fail-on-risk .`'
+    what_it_posts: nothing automatically. The same 19 stdlib-only `*-check` venture linters as github-actions become Nix packages and apps (python3 plus the venture check.py, no network calls)
+    dedupe: not applicable (deterministic file)
+    terms_to_confirm_by_owner_when_enabling:
+      - none; Nix reads the file from the public repository
+    owner_ask: none
+    dry_run: node platform/distribution/nixflake.mjs
+    verified: built actions-timeout-check from the flake against a local nixpkgs (the sandbox cannot reach api.github.com for nixpkgs-unstable) and ran it on this repository (528 workflows, no findings); all 19 packages evaluate for x86_64-linux. Not run on macOS or aarch64.
   - id: android-play-store
     rung: artifact
     built: 2026-10-16
