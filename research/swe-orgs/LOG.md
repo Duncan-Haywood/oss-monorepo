@@ -2,6 +2,13 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-17 · Batch 11: Flickr's ten deploys a day, Parnas on modules and Nygard's circuit breaker
+
+- Added 3 sources and 3 practices (43 practices, 42 sources): Allspaw and Hammond's Velocity 2009 talk on Flickr (P41), Parnas's *On the Criteria To Be Used in Decomposing Systems into Modules* (1972; P42) and Nygard's *Release It!* (2007; P43).
+- **P43 is the only new `yes` row, and it is `partly` adopted.** A stop rule on retries exists for CI (a second failure is real) and for `git push` (four tries), but nothing tells a session to stop after repeated proxy 403s or to cap a suite's runtime. It targets the tooling class, the largest at 2.5%. P41 (one-step release, a log of what shipped) is `partial`: merge on green CI and git history already do it. P42 maps to the same shared files P38 and P40 did: a generator owning `README.md` and `projects.json` entries would hide their format from each run.
+- **Still no proposal.** The ledger has 751 rows (it had 559; its error text did not grow much, so every class share fell, tooling from 3.4% to 2.5%). The highest unadopted `yes` row is P23 at 2.5%, below the 5% bar; P43 ties it at 2.5% but is already partly adopted. The ledger grew faster than reported errors, which may mean fewer errors per run or runs that stopped writing them; the keyword classes cannot tell.
+- Verification was by web search only; none of the three works was fetched or read. The Flickr row uses no deploy count beyond the talk's title. The Parnas DOI and pages come from search summaries. The Nygard year is the first edition's, and the pragprog url is inferred.
+
 ## 2026-10-16 · Batch 10: Conway's law, Microsoft's organisation-and-quality study and Team Topologies
 
 - Added 3 sources and 3 practices (40 practices, 39 sources), all on how team structure shapes the system: Conway's *How Do Committees Invent?* (1968; P38), Nagappan, Murphy and Basili's study of organisational structure and failures in Windows Vista (ICSE 2008; P39) and Skelton and Pais's *Team Topologies* (2019; P40). P39 is the catalogue's third `measured` row.
