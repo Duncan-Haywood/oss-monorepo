@@ -575,6 +575,18 @@ test("swapOptions: open shifts and a missing roster are reported, not guessed", 
   assert.ok(swapOptions(staff, slots, null, 0).error);
 });
 
+test("an unpaid meal break lowers pay on long shifts only, never the hours a person is scheduled", () => {
+  const staff = staffOf("Ana, $20, 40");
+  const slots = slotsOf("Mon, 9am, 5pm, 1, Open\nTue, 9am, 1pm, 1, Short");
+  const plain = buildRoster(staff, slots, {});
+  const meal = buildRoster(staff, slots, { mealAfter: 6, mealMin: 30 });
+  assert.equal(meal.unfilledSlots, 0);
+  assert.equal(meal.hours, plain.hours);
+  // 8h shift loses 30 min of pay, the 4h shift does not: 20 * (12 - 0.5)
+  assert.ok(Math.abs(plain.cost - 240) < 1e-6);
+  assert.ok(Math.abs(meal.cost - 230) < 1e-6);
+});
+
 test("prefer: gives the hours to the person who asked, but never leaves a shift open", () => {
   const staff = staffOf("Ana, 15, 40, 0, any\nBen, 15, 40, 0, any, prefer: Sat");
   const r = buildRoster(staff, slotsOf("Sat, 9, 17, 1"), { balance: 0 });

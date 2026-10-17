@@ -1,7 +1,7 @@
 {
   "id": "P031",
   "title": "Move venture-only rules from CLAUDE.md to ventures/CLAUDE.md",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 1,
@@ -18,7 +18,12 @@
   "baseline": "CLAUDE.md 21,663 bytes",
   "opened": "2026-10-17",
   "source": "split of P017 by process run 2026-10-17 (P021 asked for per-step rows)",
-  "pr": null,
-  "result": null,
-  "history": []
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7603",
+  "result": "CLAUDE.md 21,663 -> 20,095 bytes (helped; -7%). Nested ventures/CLAUDE.md loads only for venture work.",
+  "history": [
+    {
+      "date": "2026-10-17",
+      "note": "Moved Product-first/self-deploy/deploy-first sections to ventures/CLAUDE.md; root CLAUDE.md 21,663 -> 20,095 bytes (-1,568). Nothing in code greps the moved headings."
+    }
+  ]
 }

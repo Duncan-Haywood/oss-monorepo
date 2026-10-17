@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_012oaHkpp6XBmhkdFmFjfRtx",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T01:21:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "free-choice follow-up to free-qmcdr",
+  "projects": [
+    "research/free-rdseeds"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7602",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says projects are self-contained but a follow-up needs the sibling's return functions; I imported it via PYTHONPATH."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Diagnosed the R_d d=5 anomaly from free-qmcdr: not a seed fluke, not smooth in d, generator-specific; resonance score was a negative result. Merged after local checks (CI not awaited if starved).",
+  "corrections": [],
+  "redteam": null
+}

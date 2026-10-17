@@ -297,6 +297,7 @@ function mulberry32(seed) {
 }
 
 const DEFAULTS = {
+  mealAfter: 0, mealMin: 30, // unpaid meal break: shifts longer than mealAfter hours lose mealMin minutes of pay (0 = off)
   burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
   balance: 25, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0,
 };
@@ -380,10 +381,16 @@ function hoursOf(ctx, list) {
 // Hours split into straight time, overtime and double time. Weekly overtime counts only hours not already
 // paid at a daily premium (the California method). A shift counts on the day it starts.
 // dailyOtAfter / dailyDtAfter of 0 turn the daily rules off, which gives the plain weekly rule.
+// Minutes of a shift that are paid: an unpaid meal break comes off shifts longer than mealAfter hours.
+// The shift still occupies the person for its full length (availability, rest, hour caps), only pay changes.
+function paidMinutes(o, s) {
+  const len = s.end - s.start;
+  return o.mealAfter > 0 && len > o.mealAfter * 60 ? Math.max(0, len - Math.max(0, o.mealMin)) : len;
+}
 function payParts(ctx, list) {
   const { o, slots } = ctx;
   const byDay = new Map();
-  for (const i of list) byDay.set(slots[i].day, (byDay.get(slots[i].day) || 0) + (slots[i].end - slots[i].start) / 60);
+  for (const i of list) byDay.set(slots[i].day, (byDay.get(slots[i].day) || 0) + paidMinutes(o, slots[i]) / 60);
   let straight = 0, ot = 0, dt = 0;
   for (const h of byDay.values()) {
     let rest = h;
@@ -953,4 +960,5 @@ export function sampleShifts() {
   ].join("\n");
 }
 
+export const _paidMinutes = paidMinutes;
 export const _internals = { buildContext, scoreOwner, ownerValid, validList, BIG };
