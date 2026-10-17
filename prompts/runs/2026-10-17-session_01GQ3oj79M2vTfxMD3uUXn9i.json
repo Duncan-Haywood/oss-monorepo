@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01GQ3oj79M2vTfxMD3uUXn9i",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T03:40:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "project-pages figures (milestone 9)",
+  "projects": [
+    "ambient-dsaudit",
+    "ambient-dshard",
+    "ambient-goldaudit"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Milestone 9 progress paragraph is one ~6k-token line; costly to read and its '117 have none' count (images under experiments/) did not match my script's counts (108 with results.txt and no figure.py)."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Three figure.py scripts copied from twin-upkeep template; tight y axis since utilities differ in 3rd decimal. Did not run prompts/runcost.py attach (no transcript access in this routine).",
+  "corrections": [],
+  "redteam": null
+}
