@@ -51,6 +51,7 @@ RISK_CLASSIFICATIONS = frozenset({WITH_UPLOAD, PERSISTS})
 
 _CHECKOUT_RE = re.compile(r"^\s*-?\s*uses:\s*[\"']?actions/checkout(?:@\S*)?[\"']?\s*(?:#.*)?$")
 _EXPORT_RE = re.compile(r"uses:\s*[\"']?actions/(?:upload-artifact|cache)(?:/\w+)?(?:@|\s|[\"']|$)")
+_PUSH_RE = re.compile(r"\bgit\b[^\n|;&]*\bpush\b")
 _JOBS_RE = re.compile(r"^jobs:\s*(?:#.*)?$")
 _KEY_RE = re.compile(r"^(?P<indent> *)(?P<key>[\"']?[A-Za-z0-9_.-]+[\"']?):\s*(?P<value>.*?)\s*$")
 _PERSIST_RE = re.compile(r"^\s*-?\s*persist-credentials:\s*[\"']?(\w+|\$\{\{.*\}\})[\"']?\s*(?:#.*)?$")
@@ -119,6 +120,7 @@ def scan_text(text, filename="<workflow>"):
     for block in _job_blocks(text.splitlines()):
         lines = block["lines"]
         exports = any(_EXPORT_RE.search(l) for _, l in lines if not _skip(l))
+        pushes = any(_PUSH_RE.search(l) for _, l in lines if not _skip(l))
         for idx, (no, line) in enumerate(lines):
             if _skip(line) or not _CHECKOUT_RE.match(line):
                 continue
@@ -134,6 +136,8 @@ def scan_text(text, filename="<workflow>"):
             detail = f"job '{block['name']}': actions/checkout leaves the token in .git/config"
             if exports:
                 detail += "; the same job runs actions/upload-artifact or actions/cache"
+            if pushes:
+                detail += "; the job also runs `git push`, so check whether it relies on this credential"
             findings.append(
                 {"file": filename, "line": no, "type": kind, "detail": detail, "remediation": _FIX}
             )

@@ -75,6 +75,16 @@ class Scan(unittest.TestCase):
         t = "jobs:\n  a:\n    runs-on: x\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/cache@v4\n"
         self.assertEqual(check.scan_text(t)[0]["type"], check.WITH_UPLOAD)
 
+    def test_push_job_is_noted_not_dropped(self):
+        t = "jobs:\n  a:\n    runs-on: x\n    steps:\n      - uses: actions/checkout@v4\n      - run: |\n          git commit -m x\n          git push origin HEAD\n"
+        f = check.scan_text(t)
+        self.assertEqual([x["type"] for x in f], [check.PERSISTS])
+        self.assertIn("runs `git push`", f[0]["detail"])
+
+    def test_non_push_job_has_no_push_note(self):
+        t = "jobs:\n  a:\n    runs-on: x\n    steps:\n      - uses: actions/checkout@v4\n      - run: echo pushing the button\n"
+        self.assertNotIn("git push", check.scan_text(t)[0]["detail"])
+
 
 class Cli(unittest.TestCase):
     def _repo(self):

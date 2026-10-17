@@ -9,6 +9,7 @@ export const RISK_CLASSIFICATIONS = new Set([WITH_UPLOAD, PERSISTS]);
 
 const CHECKOUT_RE = /^\s*-?\s*uses:\s*["']?actions\/checkout(?:@\S*)?["']?\s*(?:#.*)?$/;
 const EXPORT_RE = /uses:\s*["']?actions\/(?:upload-artifact|cache)(?:\/\w+)?(?:@|\s|["']|$)/;
+const PUSH_RE = /\bgit\b[^\n|;&]*\bpush\b/;
 const JOBS_RE = /^jobs:\s*(?:#.*)?$/;
 const KEY_RE = /^( *)(["']?[A-Za-z0-9_.-]+["']?):\s*(.*?)\s*$/;
 const PERSIST_RE = /^\s*-?\s*persist-credentials:\s*["']?(\w+|\$\{\{.*\}\})["']?\s*(?:#.*)?$/;
@@ -79,6 +80,7 @@ export function scanText(text, filename = "<workflow>") {
   for (const block of jobBlocks(text.split(/\r\n|\r|\n/))) {
     const lines = block.lines;
     const exports = lines.some(([, l]) => !skip(l) && EXPORT_RE.test(l));
+    const pushes = lines.some(([, l]) => !skip(l) && PUSH_RE.test(l));
     lines.forEach(([no, line], idx) => {
       if (skip(line) || !CHECKOUT_RE.test(line)) return;
       const [start, end] = stepSpan(lines, idx);
@@ -90,6 +92,7 @@ export function scanText(text, filename = "<workflow>") {
       if (value !== null && (value.toLowerCase() === "false" || value.startsWith("${{"))) return;
       let detail = `job '${block.name}': actions/checkout leaves the token in .git/config`;
       if (exports) detail += "; the same job runs actions/upload-artifact or actions/cache";
+      if (pushes) detail += "; the job also runs `git push`, so check whether it relies on this credential";
       findings.push({
         file: filename,
         line: no,
