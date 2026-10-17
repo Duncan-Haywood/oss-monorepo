@@ -77,3 +77,27 @@ test("sitemap and robots point at pages that exist", () => {
   for (const m of sm.matchAll(/<loc>\.\/([^<]+)<\/loc>/g)) assert.ok(page(m[1]).length > 100, m[1]);
   assert.match(page("robots.txt"), /Sitemap: \.\/sitemap\.xml/);
 });
+
+const ASK = "how-to-ask-customers-for-google-reviews.html";
+
+test("the ask-for-reviews guide's scripts are what composeRequest writes today, and pass the checker", async () => {
+  const { composeRequest, checkRequest } = await import("./request.mjs");
+  const html = page(ASK);
+  const link = "https://g.page/r/your-business/review";
+  const profile = { business: "Luigi's Trattoria", owner: "Luigi", tone: "warm" };
+  for (const channel of ["sms", "email", "receipt"]) {
+    const m = composeRequest({ name: "Maria", service: "" }, channel, profile, link);
+    const esc = m.text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/\n/g, "<br>");
+    assert.ok(html.includes(esc), `${channel} script drifted from composeRequest`);
+    assert.deepEqual(checkRequest(m.text, { channel, link }).errors, []);
+  }
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal advice/i);
+});
+
+test("request.mjs makes no network calls and the ask card is on the page", () => {
+  assert.doesNotMatch(page("request.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|import\(/);
+  const html = page("index.html");
+  assert.match(html, /id="ask"/);
+  assert.match(html, /how-to-ask-customers-for-google-reviews\.html/);
+});

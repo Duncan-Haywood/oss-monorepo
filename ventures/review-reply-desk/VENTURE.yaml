@@ -5,7 +5,9 @@ description: >-
   and get a ready-to-post, rating-aware reply to each, risky reviews (legal
   threats, injury claims, health privacy, possible fakes) flagged first, every
   reply checked before you post, CSV export, and optional AI polish on the
-  owner's own key. Nothing leaves the browser.
+  owner's own key. Also writes the review requests (text, email, receipt line) that
+  get more reviews, checked for gating, incentives and missing opt-outs. Nothing
+  leaves the browser.
 stage: prototype
 owner: duncan
 
