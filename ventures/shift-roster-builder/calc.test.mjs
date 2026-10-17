@@ -754,3 +754,25 @@ test("split-shift premium: priced per split day, off by default, and the search 
   assert.equal(r.cost, 20 * 6);
   assert.ok(r.people.every((p) => p.splitDays === 0));
 });
+
+test("off: dated entries apply only to the week they fall in", () => {
+  const cell = "Ana, 20, 40, 0, any, off: 2026-11-04..2026-11-05; 2026-11-06 5pm-close";
+  const wk = parseStaff(cell, { weekStart: "2026-11-02" });
+  assert.deepEqual(wk.errors, []);
+  const d = wk.staff[0].days;
+  assert.deepEqual(d[2], []);
+  assert.deepEqual(d[3], []);
+  assert.deepEqual(d[4], [[0, 1020]]);
+  assert.deepEqual(d[0], [[0, 1440]]);
+  const next = parseStaff(cell, { weekStart: "2026-11-09" });
+  assert.deepEqual(next.staff[0].days[2], [[0, 1440]]);
+  assert.deepEqual(next.notes, []);
+});
+
+test("off: a dated entry without a week start is reported, not silently dropped", () => {
+  const r = parseStaff("Ana, 20, 40, 0, any, off: 2026-11-04");
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.notes.length, 1);
+  assert.deepEqual(r.staff[0].days[2], [[0, 1440]]);
+  assert.equal(parseStaff("Ana, 20, 40, 0, any, off: 2026-13-99x", { weekStart: "2026-11-02" }).errors.length, 1);
+});

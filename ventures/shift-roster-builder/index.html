@@ -225,7 +225,7 @@
     $("#cover-shift").addEventListener("change", showCover);
 
     function run() {
-      const st = parseStaff($("#staff").value), sh = parseShifts($("#shifts").value);
+      const st = parseStaff($("#staff").value, { weekStart: $("#weekstart").value || null }), sh = parseShifts($("#shifts").value);
       const errors = [...st.errors, ...sh.errors];
       if (errors.length) { status.textContent = errors.slice(0, 4).join(" · ") + (errors.length > 4 ? ` · and ${errors.length - 4} more` : ""); report.hidden = true; return false; }
       status.textContent = "Building…";
@@ -245,7 +245,7 @@
         ...sf.longStretches.map((x) => `${x.person} works ${num(x.hours)} hours straight on ${x.day} (${fmtClock(x.startMin)}–${fmtClock(x.endMin)}). Many places require an unpaid or paid meal break after about 5 hours; the roster does not schedule breaks.`),
         ...(sf.notice && sf.notice.short ? [`The week starts in ${sf.notice.days} days. Fair-workweek rules in some cities require ${sf.notice.required} days of notice, so changes after posting may owe premium pay.`] : []),
       ];
-      $("#notices").innerHTML = r.warnings.concat(flagMsgs).map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      $("#notices").innerHTML = r.warnings.concat(st.notes, flagMsgs).map((w) => `<div class="warn">${esc(w)}</div>`).join("");
       const big = [
         [r.filledAll ? "All filled" : `${r.unfilledSlots} open`, r.filledAll ? `Every one of the ${r.slots} shifts has a person` : `shift${r.unfilledSlots === 1 ? "" : "s"} could not be filled (${num(r.unfilledHours)} hours)`],
         [money(r.cost), `Estimated payroll for ${num(r.hours)} scheduled hours`],
