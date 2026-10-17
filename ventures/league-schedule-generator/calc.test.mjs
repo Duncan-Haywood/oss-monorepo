@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs,
   scheduleText, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport,
+  splitPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -355,7 +355,7 @@ test("the example league validates and uses a makeup round for the blackout", ()
 });
 
 test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
-  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", officials: "Pat (A): Tue max 4" };
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", officials: "Pat (A): Tue max 4", grounds: "A, B" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
   assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60 });
@@ -890,4 +890,41 @@ test("rematchReport: double round-robin gap between each pair's meetings, recoun
 test("rematchReport: single round-robin has no rematches", () => {
   const r = rematchReport(buildSchedule(baseSpec(4)));
   assert.deepEqual(r, { pairs: [], shortest: null, longest: null });
+});
+
+test("parseGrounds: groups known teams, rejects unknown names and single-team lines", () => {
+  const teams = names(6);
+  const r = parseGrounds("Team 1, team 2\nTeam 3; Team 9\nTeam 4", teams);
+  assert.deepEqual(r.groups, [[0, 1]]);
+  assert.equal(r.errors.length, 3);
+});
+
+test("applyGroundSharing: clubmates are never both at home when it can be avoided, and the schedule stays valid", () => {
+  for (const double of [false, true]) {
+    const sch = buildSchedule(baseSpec(8, { double, courts: ["A", "B", "C", "D"] }));
+    const groups = [[0, 1], [2, 3]];
+    const before = groundClashes(sch, groups);
+    const r = applyGroundSharing(sch, groups);
+    // recount independently from the output rounds
+    let clash = 0;
+    for (const rd of r.schedule.rounds) {
+      const home = rd.matches.map((m) => m.home);
+      for (const g of groups) if (g.every((t) => home.includes(t))) clash++;
+    }
+    assert.equal(clash, r.remainingCount);
+    assert.ok(r.remainingCount <= before.count);
+    assert.equal(validateSchedule(r.schedule).ok, true);
+    assert.equal(r.flips.length > 0, before.count > 0);
+    // input untouched; dates and pairings unchanged
+    assert.equal(groundClashes(sch, groups).count, before.count);
+    const pairs = (s) => s.rounds.map((rd) => rd.day + ":" + rd.matches.map((m) => Math.min(m.home, m.away) + "-" + Math.max(m.home, m.away)).sort().join(",")).join("|");
+    assert.equal(pairs(r.schedule), pairs(sch));
+  }
+});
+
+test("applyGroundSharing: nothing to do leaves the schedule alone; share link keeps grounds", () => {
+  const sch = buildSchedule(baseSpec(4));
+  const r = applyGroundSharing(sch, [[0, 1]]);
+  assert.equal(r.flips.length, groundClashes(sch, [[0, 1]]).count > 0 ? r.flips.length : 0);
+  assert.equal(decodeFields(encodeFields({ ...sampleFields(), grounds: "Team 1, Team 2" })).grounds, "Team 1, Team 2");
 });

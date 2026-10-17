@@ -763,6 +763,88 @@ export function applyWithdrawals(schedule, text) {
   return { schedule: s, withdrawals: fresh, errors };
 }
 
+// ---------------------------------------------------------------- shared grounds
+
+/** Lines like "Hawks, Owls" (teams that share one ground, rink or pitch). Two or more known teams per line. */
+export function parseGrounds(text, teams) {
+  const groups = [];
+  const errors = [];
+  for (const raw of String(text ?? "").split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const names = line.split(/\s*[,;]\s*/).filter(Boolean);
+    const idx = [];
+    for (const name of names) {
+      const i = teamIndex(teams, name);
+      if (i < 0) errors.push(`Shared grounds: "${name}" is not one of the teams.`);
+      else if (!idx.includes(i)) idx.push(i);
+    }
+    if (idx.length < 2) { errors.push(`Shared grounds: "${line}" needs at least two teams from the list.`); continue; }
+    groups.push(idx);
+  }
+  return { groups, errors };
+}
+
+/**
+ * Rounds where two or more teams that share a ground are both at home. Returns
+ * { clashes: [{ round, day, teams[] }], count } where count is the number of surplus home teams
+ * (three clubmates at home on one night count as 2).
+ */
+export function groundClashes(schedule, groups) {
+  const clashes = [];
+  let count = 0;
+  for (const r of schedule.rounds) {
+    const home = new Set(r.matches.map((m) => m.home));
+    for (const g of groups) {
+      const at = g.filter((t) => home.has(t));
+      if (at.length > 1) { clashes.push({ round: r.label, day: r.day, teams: at.map((t) => schedule.teams[t]) }); count += at.length - 1; }
+    }
+  }
+  return { clashes, count };
+}
+
+/**
+ * Moves home games so teams that share a ground are not all at home on the same night. It only
+ * flips venues (a double round robin flips both meetings of the pair, so each side still hosts
+ * once) and keeps a flip only when it removes a clash and the independent validator still passes,
+ * so dates, courts, times and the pairings never change. Returns a new schedule (input untouched),
+ * the flips made, and the clashes left, which a league with more clubmates than away nights cannot avoid.
+ */
+export function applyGroundSharing(schedule, groups) {
+  const s = JSON.parse(JSON.stringify(schedule));
+  const flips = [];
+  let best = groundClashes(s, groups).count;
+  const flip = (m) => { [m.home, m.away] = [m.away, m.home]; [m.homeName, m.awayName] = [m.awayName, m.homeName]; };
+  const inGroup = new Set(groups.flat());
+  for (let pass = 0; pass < 3 && best > 0; pass++) {
+    let changed = false;
+    for (const r of s.rounds) {
+      for (const m of r.matches) {
+        if (best === 0) break;
+        if (!inGroup.has(m.home)) continue;
+        const key = (x) => Math.min(x.home, x.away) + "-" + Math.max(x.home, x.away);
+        const pairKey = key(m);
+        const same = [];
+        for (const rr of s.rounds) for (const x of rr.matches) if (key(x) === pairKey) same.push([rr, x]);
+        const before = groundClashes(s, groups).count;
+        if (before === 0) break;
+        for (const [, x] of same) flip(x);
+        const after = groundClashes(s, groups).count;
+        if (after < before && validateSchedule(s).ok) {
+          best = after; changed = true;
+          flips.push({ round: r.label, day: r.day, home: s.teams[m.home], away: s.teams[m.away] });
+        } else {
+          for (const [, x] of same) flip(x);
+        }
+      }
+    }
+    if (!changed) break;
+  }
+  const left = groundClashes(s, groups);
+  s.stats = scheduleStats(s);
+  return { schedule: s, flips, remaining: left.clashes, remainingCount: left.count };
+}
+
 // ---------------------------------------------------------------- views and exports
 
 // ---------------------------------------------------------------- officials (referees, umpires, scorers)
@@ -1391,7 +1473,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "rainouts", "withdrawals", "officials"];
+const SHARE_KEYS = ["teams", "double", "start", "weekdays", "skip", "blackouts", "timeLimits", "courts", "times", "seed", "minutes", "results", "playoff", "playoffDouble", "rainouts", "withdrawals", "officials", "grounds"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -1419,7 +1501,7 @@ export function decodeFields(text) {
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
-      rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials),
+      rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), officials: str(o.officials), grounds: str(o.grounds),
     };
   } catch { return null; }
 }
