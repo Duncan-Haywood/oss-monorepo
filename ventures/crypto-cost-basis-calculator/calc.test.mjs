@@ -365,3 +365,72 @@ test("transfers without a destination stay skipped; a transfer with no source wa
   assert.equal(r.skipped.length, 2);
   assert.equal(r.errors.length, 1);
 });
+
+// ---- capital-loss netting and carryover ----------------------------------
+
+import { netCapital, carryoverChain } from "./calc.mjs";
+
+test("netCapital: a net loss deducts up to $3,000 and carries the rest with its character", () => {
+  const r = netCapital(-5000, -2000);
+  assert.equal(r.deduction, 3000);
+  assert.equal(r.carryShortOut, 2000); // short-term loss is used up first
+  assert.equal(r.carryLongOut, 2000);
+  assert.equal(r.tax, 0);
+});
+
+test("netCapital: a long gain absorbs a short loss before the limit applies", () => {
+  const r = netCapital(-5000, 2000);
+  assert.equal(r.totalNet, -3000);
+  assert.equal(r.deduction, 3000);
+  assert.equal(r.carryShortOut, 0);
+  assert.equal(r.carryLongOut, 0);
+});
+
+test("netCapital: an all-long loss carries as long-term, the $1,500 limit is honoured", () => {
+  const r = netCapital(0, -10000, { limit: 1500 });
+  assert.equal(r.deduction, 1500);
+  assert.equal(r.carryLongOut, 8500);
+  assert.equal(r.carryShortOut, 0);
+});
+
+test("netCapital: carried loss reduces tax on a later gain, bucket by bucket", () => {
+  const r = netCapital(1000, 6000, { carryLong: 4000, shortRate: 0.3, longRate: 0.2 });
+  assert.equal(r.longNet, 2000);
+  assert.equal(r.tax, 1000 * 0.3 + 2000 * 0.2);
+  const cross = netCapital(1000, 500, { carryShort: 3000, shortRate: 0.3, longRate: 0.2 });
+  assert.equal(cross.shortNet, -2000);
+  assert.equal(cross.totalNet, -1500);
+  assert.equal(cross.deduction, 1500);
+  assert.equal(cross.tax, 0);
+});
+
+test("carryoverChain: a big loss year feeds the next years until it is used", () => {
+  const c = carryoverChain([
+    { year: 2023, shortGain: 0, longGain: -10000 },
+    { year: 2022, shortGain: 500, longGain: 0 },
+    { year: 2024, shortGain: 0, longGain: 2000 },
+  ], { longRate: 0.15, shortRate: 0.24 });
+  assert.deepEqual(c.map((y) => y.year), [2022, 2023, 2024]);
+  assert.equal(c[1].carryLongOut, 7000);
+  assert.equal(c[2].carryLongIn, 7000);
+  assert.equal(c[2].deduction, 3000);
+  assert.equal(c[2].carryLongOut, 2000); // 2000 gain - 7000 carry = -5000, minus the 3000 deduction
+});
+
+test("analyze: reports the netting for the chosen year with the earlier-year loss carried in", () => {
+  const csv = `date,type,asset,quantity,total,fee,wallet
+2022-01-10,buy,BTC,1,30000,0,A
+2022-12-01,sell,BTC,0.5,5000,0,A
+2023-02-01,buy,ETH,1,1000,0,A
+2023-06-01,sell,BTC,0.5,20000,0,A
+`;
+  const r = analyze(csv, { method: "FIFO", year: 2023 });
+  const y22 = r.carryChain.find((c) => c.year === 2022);
+  assert.equal(y22.shortNet, -10000);
+  assert.equal(y22.carryShortOut, 7000);
+  assert.equal(r.netting.carryShortIn, 7000);
+  assert.equal(r.netting.longGain, 5000); // 0.5 BTC: 20000 proceeds against 15000 basis
+  assert.equal(r.netting.shortNet, -7000);
+  assert.equal(r.netting.totalNet, -2000);
+  assert.equal(r.netting.deduction, 2000);
+});

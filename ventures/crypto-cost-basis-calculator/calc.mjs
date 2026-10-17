@@ -353,16 +353,55 @@ export function estimateTax(summary, { shortRate, longRate }) {
   return cents(tax);
 }
 
+// Capital-loss netting with the $3,000 annual limit and indefinite carryforward
+// (Schedule D and its Capital Loss Carryover Worksheet, simplified): short-term
+// and long-term results net within their own bucket, then against each other; a
+// net loss is deductible up to `limit` ($3,000, or $1,500 married filing
+// separately) and the rest carries to next year keeping its character, with the
+// deduction taken from the short-term loss first. Tax on a net gain uses the
+// short and long rates on whatever remains of each bucket. Ignores NIIT, state
+// tax and the effect of the deduction on ordinary tax (`deduction` is reported,
+// not valued).
+export function netCapital(shortGain, longGain, { carryShort = 0, carryLong = 0, limit = 3000, shortRate = 0.24, longRate = 0.15 } = {}) {
+  const s = cents(shortGain - Math.abs(carryShort));
+  const l = cents(longGain - Math.abs(carryLong));
+  const total = cents(s + l);
+  let deduction = 0, outShort = 0, outLong = 0, tax = 0;
+  if (total < 0) {
+    deduction = Math.min(limit, -total);
+    const rest = cents(-total - deduction);
+    if (s < 0 && l < 0) { outShort = Math.max(0, cents(-s - deduction)); outLong = cents(rest - outShort); }
+    else if (s < 0) outShort = rest;
+    else outLong = rest;
+  } else if (s >= 0 && l >= 0) tax = s * shortRate + l * longRate;
+  else if (s < 0) tax = total * longRate;
+  else tax = total * shortRate;
+  return { shortNet: s, longNet: l, totalNet: total, deduction: cents(deduction), carryShortOut: cents(outShort), carryLongOut: cents(outLong), tax: cents(tax) };
+}
+
+// Chains `netCapital` over several years: [{ year, shortGain, longGain }] in
+// any order, years with no sales between them carry through unchanged.
+export function carryoverChain(yearSummaries, opts = {}) {
+  let carryShort = Math.abs(opts.carryShort || 0), carryLong = Math.abs(opts.carryLong || 0);
+  const out = [];
+  for (const y of [...yearSummaries].sort((a, b) => a.year - b.year)) {
+    const r = netCapital(y.shortGain, y.longGain, { ...opts, carryShort, carryLong });
+    out.push({ year: y.year, carryShortIn: cents(carryShort), carryLongIn: cents(carryLong), shortGain: y.shortGain, longGain: y.longGain, ...r });
+    carryShort = r.carryShortOut; carryLong = r.carryLongOut;
+  }
+  return out;
+}
+
 export function yearOf(iso) {
   return Number(iso.slice(0, 4));
 }
 
 export function analyze(text, options = {}) {
-  const { method = "FIFO", year = null, perWallet = false, shortRate = 0.24, longRate = 0.15 } = options;
+  const { method = "FIFO", year = null, perWallet = false, shortRate = 0.24, longRate = 0.15, carryShort = 0, carryLong = 0, lossLimit = 3000 } = options;
   const parsed = parseTransactions(text);
   const result = {
     errors: parsed.errors, skipped: parsed.skipped, warnings: [], years: [], year: null,
-    rows: [], summary: null, tax: null, comparison: [], holdings: [], openLots: [], income: 0, method, count: parsed.transactions.length,
+    rows: [], summary: null, tax: null, netting: null, carryChain: [], comparison: [], holdings: [], openLots: [], income: 0, method, count: parsed.transactions.length,
   };
   if (parsed.errors.length && parsed.transactions.length === 0) return result;
   const txs = parsed.transactions;
@@ -392,6 +431,19 @@ export function analyze(text, options = {}) {
       method: m, label: METHOD_LABELS[m], shortGain: r.summary.shortGain, longGain: r.summary.longGain,
       totalGain: r.summary.totalGain, tax: r.tax,
     });
+  }
+  {
+    const { pieces } = matchLots(txs, { method, perWallet, shortRate, longRate });
+    const byYear = new Map();
+    for (const p of pieces) {
+      const row = toRow(p), y = yearOf(row.sold);
+      const a = byYear.get(y) || [];
+      a.push(row);
+      byYear.set(y, a);
+    }
+    const sums = [...byYear].map(([y, rs]) => { const sm = summarize(rs); return { year: y, shortGain: sm.shortGain, longGain: sm.longGain }; });
+    result.carryChain = carryoverChain(sums, { carryShort, carryLong, limit: lossLimit, shortRate, longRate });
+    result.netting = result.carryChain.find((c) => c.year === chosen) || null;
   }
   const best = result.comparison.reduce((a, b) => (b.tax < a.tax || (b.tax === a.tax && b.totalGain < a.totalGain) ? b : a));
   result.bestMethod = best.method;
