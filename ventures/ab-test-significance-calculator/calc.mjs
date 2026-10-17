@@ -101,6 +101,22 @@ export function sampleSize({ baseline, mde, mode = "relative", alpha = 0.05, pow
   return { perArm, total: perArm * 2, p1, p2, absoluteEffect: p2 - p1 };
 }
 
+// Inverse of sampleSize: the smallest increase over the baseline a test with
+// `perArm` visitors per group can detect at the given power (bisection on the
+// variant rate, since the required sample size falls monotonically with it).
+export function detectableEffect({ baseline, perArm, alpha = 0.05, power = 0.8 }) {
+  if (!(baseline > 0 && baseline < 1)) return { error: "Baseline conversion rate must be between 0% and 100%." };
+  if (!(perArm >= 2)) return { error: "Enter how many visitors each group will get." };
+  const need = (p2) => sampleSize({ baseline, mde: p2 - baseline, mode: "absolute", alpha, power }).perArm;
+  let lo = baseline, hi = 1 - 1e-9;
+  if (need(hi) > perArm) return { error: "Even a jump to nearly 100% needs more visitors than that." };
+  for (let i = 0; i < 80; i++) {
+    const mid = (lo + hi) / 2;
+    if (mid - baseline < 1e-12 || need(mid) > perArm) lo = mid; else hi = mid;
+  }
+  return { p1: baseline, p2: hi, absoluteEffect: hi - baseline, relativeEffect: (hi - baseline) / baseline };
+}
+
 export function daysToRun(total, dailyVisitors) {
   if (!(dailyVisitors > 0)) return null;
   const days = Math.ceil(total / dailyVisitors);
