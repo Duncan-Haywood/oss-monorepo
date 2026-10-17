@@ -912,3 +912,25 @@ test("absencePlan: a shift nobody can take stays open with the reasons", () => {
   assert.equal(plan.open[0].blocked[0].name, "Ben");
   assert.equal(plan.owner[0], -1);
 });
+
+test("pay differential adds a premium for hours inside its windows, per hour and as a percent of wage", () => {
+  const ana = staffOf("Ana, 20, 40");
+  const shifts = slotsOf("Fri,22,6,1,close\nMon,9,17,1,day");
+  const base = buildRoster(ana, shifts, { minRestHours: 0 });
+  // Fri 22:00-24:00 is 2 h and the Saturday tail 0-6 is 6 h inside "Fri 22-24; Sat 0-6"; Monday is outside.
+  const per = buildRoster(ana, shifts, { minRestHours: 0, diffWhen: "Fri 22-24; Sat 0-6", diffPerHour: 3 });
+  assert.equal(per.unfilledSlots, 0);
+  assert.equal(per.cost - base.cost, 8 * 3);
+  const pct = buildRoster(ana, shifts, { minRestHours: 0, diffWhen: "Fri 22-24; Sat 0-6", diffPct: 10 });
+  assert.equal(pct.cost - base.cost, 8 * 20 * 0.1);
+  const burdened = buildRoster(ana, shifts, { minRestHours: 0, burdenPct: 10, diffWhen: "Fri 22-24; Sat 0-6", diffPerHour: 3 });
+  assert.ok(Math.abs(burdened.cost - (base.cost + 24) * 1.1) < 1e-9);
+  assert.equal(buildRoster(ana, shifts, { minRestHours: 0, diffWhen: "Fri 22-24", diffPerHour: 0 }).cost, base.cost, "no premium set: unchanged");
+});
+
+test("a percent differential steers a night shift to the lower-paid person", () => {
+  const two = staffOf("Hi, 30, 40\nLo, 15, 40");
+  const r = buildRoster(two, slotsOf("Sat,9,17,1,sat"), { diffWhen: "Sat-Sun", diffPct: 50 });
+  assert.equal(r.owner[0], 1);
+  assert.equal(r.cost, 15 * 8 * 1.5);
+});

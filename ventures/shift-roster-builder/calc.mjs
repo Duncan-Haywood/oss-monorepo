@@ -321,6 +321,7 @@ function mulberry32(seed) {
 const DEFAULTS = {
   mealAfter: 0, mealMin: 30, // unpaid meal break: shifts longer than mealAfter hours lose mealMin minutes of pay (0 = off)
   splitPremium: 0, splitGap: 1, // split-shift premium: dollars owed on each day a person's shifts have a gap over splitGap hours (0 = off)
+  diffWhen: "", diffPerHour: 0, diffPct: 0, // pay differential: extra $/hour and/or % of wage for hours inside the diffWhen windows ("Sat-Sun; 10pm-6am"; none = off)
   burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
   balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0,
 };
@@ -352,7 +353,18 @@ export function buildContext(staff, slots, options = {}) {
   const capSum = caps.reduce((a, b) => a + b, 0) || 1;
   const target = staff.map((_, i) => (totalHours * caps[i]) / capSum);
   const avgWage = staff.length ? staff.reduce((t, p) => t + p.wage, 0) / staff.length : 0;
-  return { o, staff, slots, P, S, elig, target, avgWage, totalHours, restMin: Math.max(0, o.minRestHours) * 60 };
+  return { o, staff, slots, P, S, elig, target, avgWage, totalHours, restMin: Math.max(0, o.minRestHours) * 60, diffMin: differentialMinutes(o, slots) };
+}
+
+// Minutes of each shift inside the differential windows, written like availability: "Sat-Sun; Mon-Fri 22-24; Tue-Sat 0-6".
+// An overnight tail counts on the next day, so a Friday 10pm-6am shift gets its Saturday hours from Saturday's window.
+// Returns [] when no premium is set, so the default path costs nothing.
+export function differentialMinutes(o, slots) {
+  if (!(o.diffPerHour > 0 || o.diffPct > 0) || !String(o.diffWhen || "").trim()) return [];
+  const win = parseAvailability(o.diffWhen);
+  if (win.errors.length) return [];
+  const hit = (d, a, b) => win.days[d % 7].reduce((t, [x, y]) => t + Math.max(0, Math.min(b, y) - Math.max(a, x)), 0);
+  return slots.map((s) => hit(s.day, s.startMin, Math.min(s.endMin, 1440)) + (s.endMin > 1440 ? hit(s.day + 1, 0, s.endMin - 1440) : 0));
 }
 
 // Most minutes this person may work on one day: the tighter of their own `daily:` cell and the roster-wide limit (0 = none).
@@ -440,7 +452,12 @@ function splitDays(ctx, list) {
 function payroll(ctx, p, list) {
   const { o, staff } = ctx;
   const q = payParts(ctx, list);
-  const extra = o.splitPremium > 0 ? splitDays(ctx, list) * o.splitPremium : 0;
+  let extra = o.splitPremium > 0 ? splitDays(ctx, list) * o.splitPremium : 0;
+  if (ctx.diffMin.length) {
+    let m = 0;
+    for (const i of list) m += ctx.diffMin[i];
+    extra += (m / 60) * (o.diffPerHour + (staff[p].wage * o.diffPct) / 100);
+  }
   return (1 + o.burdenPct / 100) * (staff[p].wage * (q.straight + q.ot * o.otMult + q.dt * o.dtMult) + extra);
 }
 function softPenalty(ctx, p, h, list) {
