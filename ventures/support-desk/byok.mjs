@@ -135,25 +135,52 @@ function parse(provider, data) {
 /**
  * One prompt in, text out, from whichever provider the person configured.
  * Resolves to { text, provider, model, usage: { input, output } }.
+ *
+ * `guard` is optional: anything with LLM Spend Guard's check/settle/cancel
+ * (ventures/llm-spend-guard/guard.mjs). With one, the call is refused before
+ * it is sent when it would cross a budget, its output cap may be lowered to
+ * the policy ceiling, and its real usage is charged afterwards. `scope`
+ * ({ user, feature, run }) says which budgets it counts against.
  */
-export async function complete(config, { system = '', prompt, maxTokens = 2048, fetch: fetchImpl = globalThis.fetch, signal } = {}) {
+export async function complete(config, { system = '', prompt, maxTokens = 2048, fetch: fetchImpl = globalThis.fetch, signal, guard = null, scope } = {}) {
   const cfg = normalise(config);
   if (typeof prompt !== 'string' || !prompt.trim()) throw new ByokError('prompt is empty', { provider: cfg.provider });
+  let hold = null;
+  if (guard) {
+    const d = guard.check({ model: cfg.model, maxOutputTokens: maxTokens, input: { system, prompt }, scope });
+    if (!d.allowed) {
+      const err = new ByokError(`spend guard refused the call: ${d.reasons.map(r => r.message).join('; ')}`, { provider: cfg.provider });
+      err.reasons = d.reasons;
+      throw err;
+    }
+    hold = d.id;
+    if (d.maxOutputTokens) maxTokens = d.maxOutputTokens;
+  }
   const req = request(cfg, { system, prompt, maxTokens });
   let res;
   try {
     res = await fetchImpl(req.url, { method: 'POST', headers: req.headers, body: JSON.stringify(req.body), signal });
   } catch (err) {
+    if (hold) guard.cancel(hold);
     throw new ByokError(`could not reach ${cfg.provider}: ${err.message}`, { provider: cfg.provider, retryable: true });
   }
   if (!res.ok) {
+    if (hold) guard.cancel(hold);
     // Never echo the response body: some providers reflect the request, key included.
     throw new ByokError(`${cfg.provider} returned HTTP ${res.status}`, {
       provider: cfg.provider, status: res.status, retryable: res.status === 429 || res.status >= 500,
     });
   }
-  const { text, usage } = parse(cfg.provider, await res.json());
-  return { text, provider: cfg.provider, model: cfg.model, usage };
+  let parsed;
+  try {
+    parsed = parse(cfg.provider, await res.json());
+  } catch (err) {
+    // The provider answered, so it may have billed: charge the hold.
+    if (hold) guard.settle(hold, null);
+    throw err;
+  }
+  if (hold) guard.settle(hold, parsed.usage);
+  return { text: parsed.text, provider: cfg.provider, model: cfg.model, usage: parsed.usage };
 }
 
 /**
