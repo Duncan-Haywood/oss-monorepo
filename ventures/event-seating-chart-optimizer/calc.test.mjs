@@ -14,7 +14,7 @@ function specFrom(guestText, ruleText, extra = {}) {
 
 test("parseGuests reads names and parties, skips blanks and comments, flags duplicates", () => {
   const r = parseGuests("Ann Lee | Lee family\n\n# note\nBob  Ray\nann lee\n");
-  assert.deepEqual(r.guests, [{ name: "Ann Lee", party: "Lee family" }, { name: "Bob Ray", party: "" }]);
+  assert.deepEqual(r.guests, [{ name: "Ann Lee", party: "Lee family", group: "" }, { name: "Bob Ray", party: "", group: "" }]);
   assert.equal(r.errors.length, 1);
   assert.match(r.errors[0], /listed twice/);
 });
@@ -241,4 +241,24 @@ test("escort board: every guest once, sorted by last name, right table, names es
   assert.deepEqual(order, ["Zed Adams", "Cy Baker", "Bob &lt;i&gt; Lee", "Ann Zhu"]);
   for (const t of res.tables) for (const g of t.guests) assert.ok(html.includes(`<span>${g.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span><b>${t.number}</b>`), g);
   assert.ok(html.includes("<title>Find &lt;us&gt;</title>") && !/<script|<i>/i.test(html));
+});
+
+test("group column: spread mixes a group across tables, cluster seats it together", () => {
+  const names = ["A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4"];
+  const text = names.map((n) => `${n} | | ${n[0] === "A" ? "Bride side" : "Groom side"}`).join("\n");
+  const base = (mix) => ({ ...sampleSpec(), guests: parseGuests(text).guests, rules: [], seatsPerTable: 4, tableCount: 2, mix });
+  const spread = optimize(base("spread"));
+  assert.deepEqual(verifyPlan(base("spread"), spread), []);
+  for (const m of spread.groupMix) assert.deepEqual(m.perTable, [2, 2]);
+  const cluster = optimize(base("cluster"));
+  assert.deepEqual(verifyPlan(base("cluster"), cluster), []);
+  for (const m of cluster.groupMix) assert.ok(m.perTable.includes(4));
+  assert.deepEqual(optimize(base("off")).groupMix.map((m) => m.group), ["Bride side", "Groom side"]);
+});
+
+test("group is parsed from the third column and exported", () => {
+  const { guests } = parseGuests("Ann | Lee family | Bride side\nBob | | Groom side\nCy");
+  assert.deepEqual(guests.map((g) => g.group), ["Bride side", "Groom side", ""]);
+  const spec = { ...sampleSpec(), guests, rules: [], seatsPerTable: 3, tableCount: 1 };
+  assert.match(planCsv(spec, optimize(spec)), /Table,Guest,Party,Group\n.*Ann,Lee family,Bride side/s);
 });
