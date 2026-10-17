@@ -2724,6 +2724,11 @@
      "slug": "house-schedule",
      "title": "How much do fewer handoffs, parallel trades, early ordering and a factory shell cut the time to build a house?",
      "summary": "A Monte Carlo discrete-event model of one house build (20 tasks, a crew per trade, failing inspections, weather, material lead times; 4,000 builds per scenario with common random numbers). The zero-noise critical path is 100 working days but the baseline takes 214: the schedule is driven by waiting. Ordering long-lead materials at day 0 saves 63 days, fewer handoffs 21, parallel rough-in 12.5, faster inspections 11. A factory wall-and-roof shell saves only 6 days if ordered when the foundation starts and 78 if ordered at day 0. All levers together: 96 days, about 1.7% of the price in interest at 8%. <em>Stylised</em>: every duration and rate is my assumption and nothing is calibrated; the 63-day figure rests on a late-ordering baseline."
+    },
+    {
+     "slug": "house-schedule-check",
+     "title": "Does an independent second schedule model agree with house-schedule on what shortens a house build?",
+     "summary": "A second, separately built Monte Carlo schedule (13 tasks, one crew per trade, weather, inspections, long-lead items; 4,000 builds per scenario). It agrees on the ranking: ordering long-lead items on day 0 is the biggest lever (205 to 181 calendar days, &minus;11%, against &minus;29% in <code>house-schedule</code>), prefabricated panels alone save 1.5%, and the handoff gap moves the baseline by 35%. Merging crews does nothing. The disagreement in size shows the magnitudes are set by assumed baselines and lead times. Stylised; every input is an assumption."
     }
    ]
   }
