@@ -1290,6 +1290,16 @@
      "slug": "free-kfmismatch",
      "title": "How much does a wrong process-noise guess cost a Kalman filter?",
      "summary": "Exact steady-state MSE of a scalar Kalman filter run at the wrong process noise <em>q</em><sub>a</sub> = &lambda;<em>q</em>, matched to simulation within 1%. Underestimating costs far more than overestimating: at &lambda; = 1/100 the excess is &times;7.4 against &times;1.6 at &lambda; = 100; the over-estimate is bounded (MSE &rarr; <em>r</em>) and the under-estimate is not. The filter&rsquo;s claimed variance is 5&times; too small at &lambda; = 1/10. The gap closes at high signal-to-noise. Textbook-level and stylised: scalar, steady state, Gaussian."
+    },
+    {
+     "slug": "free-qmcdr",
+     "title": "Do low-discrepancy scenarios make a twin evaluate a policy more accurately than iid domain randomisation?",
+     "summary": "Averaging a policy&rsquo;s return over <em>n</em> randomised scenarios, compared across iid, Latin hypercube, randomly shifted Halton and shifted <em>R<sub>d</sub></em> lattice samplers, against exact means. Latin hypercubes keep the <em>n</em><sup>&minus;0.5</sup> rate (MSE cut 1.6&ndash;12&times;). Shifted Halton improves the rate for smooth returns (slope &minus;0.92 at <em>d</em>&nbsp;=&nbsp;2, MSE 149&times; lower at <em>n</em>&nbsp;=&nbsp;1024) and keeps a 4&ndash;24&times; gain on a discontinuous success-rate return, shrinking as the number of randomised parameters grows. The <em>R<sub>d</sub></em> lattice is erratic (no better than iid at <em>d</em>&nbsp;=&nbsp;5). 95% intervals from 8 independent randomisations cover 94&ndash;97%. Stylised: analytic returns on a uniform cube, no simulator."
+    },
+    {
+     "slug": "free-rdseeds",
+     "title": "Why does the R<sub>d</sub> low-discrepancy lattice lose its advantage at d = 5 when evaluating a twin policy?",
+     "summary": "Follow-up to <code>free-qmcdr</code>. The shifted <em>R<sub>d</sub></em> lattice&rsquo;s error exponent at <em>d</em> = 5 is &minus;0.45 &plusmn; 0.01 over six seed strings, no better than iid, so it is not a seed fluke; across <em>d</em> = 2&hellip;8 it dips at 5 between &minus;0.72 and &minus;0.61 neighbours, so it is not a smooth dimension effect; a generator built from &radic;<em>p</em><sub>j</sub> reaches &minus;0.66 at <em>d</em> = 5. A resonance score against small integer relations scores both generators alike, so the mechanism is not identified. Stylised analytic returns, not a simulator."
     }
    ]
   },

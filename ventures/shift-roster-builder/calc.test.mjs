@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { laborPercent, scheduleFlags,
-  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
+import { laborPercent, dailyLabor, scheduleFlags,
+  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
@@ -548,4 +548,70 @@ test("avoid: is still worked when nobody else is available, and says so", () => 
 test("avoid: bad days are reported", () => {
   const r = parseStaff("Ana, 15, 40, 0, any, avoid: Funday");
   assert.ok(r.errors.some((e) => /avoid/.test(e)));
+});
+
+test("swapOptions: offers one-for-one trades that keep both weeks valid, even when nobody can simply take the shift", () => {
+  const staff = staffOf("Ana, 10, 8, 0, Mon 8-16; Tue 8-16\nBen, 12, 8, 0, Mon 8-16; Tue 8-16\nCy, 11, 8, 0, Wed 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open\nTue, 8, 16, 1, close");
+  const r = buildRoster(staff, slots);
+  const [first, second] = r.assignments.map((a) => a.person);
+  assert.deepEqual([first, second].sort(), ["Ana", "Ben"]); // one 8-hour shift each, both at their weekly limit
+  assert.deepEqual(coverOptions(staff, slots, r, 0).fits, []);
+  const s = swapOptions(staff, slots, r, 0);
+  assert.equal(s.from, first);
+  assert.equal(s.trades.length, 1);
+  assert.equal(s.trades[0].with, second);
+  assert.equal(s.trades[0].direct, false);
+  assert.equal(s.trades[0].gives.day, 1);
+  assert.ok(Math.abs(s.trades[0].extraCost) < 1e-6); // each still works 8 hours at their own wage
+});
+
+test("swapOptions: open shifts and a missing roster are reported, not guessed", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon 8-16");
+  const slots = slotsOf("Mon, 8, 16, 2, open");
+  const r = buildRoster(staff, slots);
+  const open = r.assignments.findIndex((a) => a.person === null);
+  assert.ok(swapOptions(staff, slots, r, open).error);
+  assert.ok(swapOptions(staff, slots, null, 0).error);
+});
+
+test("dailyLabor: hours and base-wage cost per day, labor share where sales are given", () => {
+  const staff = staffOf("Ann,10,40,0,any");
+  const slots = slotsOf("Mon,8,12,1\nMon,13,17,1\nWed,9,13,1");
+  const r = buildRoster(staff, slots, { minRestHours: 0 });
+  const d = dailyLabor(r, staff, "$400, 0, 100");
+  assert.equal(d.days.length, 7);
+  assert.equal(d.days[0].hours, 8);
+  assert.equal(d.days[0].cost, 80);
+  assert.ok(Math.abs(d.days[0].pct - 20) < 1e-9);
+  assert.equal(d.days[1].pct, null);
+  assert.ok(Math.abs(d.days[2].pct - 40) < 1e-9);
+  assert.equal(d.worst.day, "Wed");
+  assert.equal(dailyLabor(r, staff, "").hasSales, false);
+  const b = buildRoster(staff, slots, { minRestHours: 0, burdenPct: 10 });
+  assert.ok(Math.abs(dailyLabor(b, staff, "").days[0].cost - 88) < 1e-9);
+});
+
+test("an unpaid meal break lowers pay on long shifts only, never the hours a person is scheduled", () => {
+  const staff = staffOf("Ana, $20, 40");
+  const slots = slotsOf("Mon, 9am, 5pm, 1, Open\nTue, 9am, 1pm, 1, Short");
+  const plain = buildRoster(staff, slots, {});
+  const meal = buildRoster(staff, slots, { mealAfter: 6, mealMin: 30 });
+  assert.equal(meal.unfilledSlots, 0);
+  assert.equal(meal.hours, plain.hours);
+  // 8h shift loses 30 min of pay, the 4h shift does not: 20 * (12 - 0.5)
+  assert.ok(Math.abs(plain.cost - 240) < 1e-6);
+  assert.ok(Math.abs(meal.cost - 230) < 1e-6);
+});
+
+test("prefer: gives the hours to the person who asked, but never leaves a shift open", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any\nBen, 15, 40, 0, any, prefer: Sat");
+  const r = buildRoster(staff, slotsOf("Sat, 9, 17, 1"), { balance: 0 });
+  assert.equal(r.assignments[0].person, "Ben");
+  const only = buildRoster(staffOf("Ana, 15, 40, 0, any\nBen, 15, 40, 0, Mon-Fri 9-17, prefer: Sat"), slotsOf("Sat, 9, 17, 1"));
+  assert.equal(only.assignments[0].person, "Ana");
+});
+
+test("prefer: bad days are reported", () => {
+  assert.ok(parseStaff("Ana, 15, 40, 0, any, prefer: Funday").errors.some((e) => /prefer/.test(e)));
 });

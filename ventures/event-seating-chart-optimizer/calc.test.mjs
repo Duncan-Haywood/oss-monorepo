@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  baselinePlan, sampleSpec, planCsv, reseat, parsePlanCsv, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, WEIGHTS,
+  baselinePlan, sampleSpec, planCsv, tableSignsHtml, reseat, parsePlanCsv, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, WEIGHTS,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -219,4 +219,15 @@ test("reseat is deterministic and honours pins", () => {
   const res = reseat(s2, prev);
   assert.ok(res.tables[0].guests.includes("Maya Okafor"));
   assert.ok(res.tables[0].guests.includes("Priest Anselm"));
+});
+
+test("table signs: one page per table, every guest once, names escaped, no script", () => {
+  const spec = specFrom("Lee <b>Ann</b> | Lee & Co\nBob\nCy\nDee", "", { seatsPerTable: 2 });
+  const res = optimize(spec);
+  const html = tableSignsHtml(spec, res, "Gala <x>");
+  assert.equal((html.match(/<section>/g) || []).length, res.tables.length);
+  assert.equal((html.match(/<li>/g) || []).length, spec.guests.length);
+  assert.ok(html.includes("Lee &lt;b&gt;Ann&lt;/b&gt;") && html.includes("Lee &amp; Co"));
+  assert.ok(html.includes("<title>Gala &lt;x&gt;</title>"));
+  assert.ok(!/<script|<b>/i.test(html));
 });
