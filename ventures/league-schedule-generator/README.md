@@ -28,6 +28,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Shared grounds (`Net Ninjas, Dink Dynasty`): teams that share one pitch or court are moved so they are not both at home the same night where that can be avoided. Only venues flip (a double round robin flips both meetings), the validator must still pass, and clashes that cannot be avoided are listed (`parseGrounds`, `groundClashes`, `applyGroundSharing`).
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `round-robin-schedule-by-number-of-teams.html` - rounds, games, byes and home/away breaks for 3 to 16 teams; the test suite recomputes the table from `roundRobin`.
+- `how-to-run-a-swiss-tournament.html` - guide to Swiss pairings with a worked 6-player example that the test suite recomputes from `swissPairings`.
 - `how-to-make-a-round-robin-schedule.html` - guide with a worked 5-team example
   that the test suite recomputes.
 
