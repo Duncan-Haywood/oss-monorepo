@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01Vg5UvVteuoGDuRbnNPD43f",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T15:01:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "swe-audit",
+  "projects": [
+    "swe-audit"
+  ],
+  "pr": 7773,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Track 4 milestones are all done, and the track-pick draw sent me to it; I had to pick another track by hand."
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Re-ran 3 MuJoCo projects for swe-audit; sliprate 'differs' is only a MuJoCo version banner. Cost not measured.",
+  "corrections": [],
+  "redteam": null
+}

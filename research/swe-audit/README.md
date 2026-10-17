@@ -52,6 +52,19 @@ The five projects that timed out in the two samples were re-run one at a time, n
 - A first attempt at `simdesign-llm` in this pass failed with `No module named 'cma'`: the package was missing from the auditing container, not from the project (its README lists `cma`). `results4.txt` is the re-run after installing it; `results3.txt` still shows that first, failed line.
 - Wall times are from one container and shift with load; `ambient-drvalid` ran in 324 s here against a README estimate of about 50 minutes.
 
+## MuJoCo projects re-run (2026-10-17)
+
+The three projects that could not run in the samples because `mujoco` was missing were re-run serially with `mujoco` 3.16.0 installed (`python3 experiments/rerun_timeouts.py 1200 robofab-insert robofab-slipcrit robofab-sliprate`; output in `experiments/results5.txt`).
+
+| project | outcome | wall time |
+|---|---|---|
+| `robofab-slipcrit` | byte-identical | 56 s |
+| `robofab-sliprate` | differs in one line: the committed file records `MuJoCo 3.15.0`, the re-run `MuJoCo 3.16.0`. Every number is identical (checked with `diff`). | 10 s |
+| `robofab-insert` | timed out at 1,200 s, inconclusive | 1,200 s |
+
+- **No MuJoCo project gave different numbers.** The one `differs` is a version banner, which the harness's timing heuristic does not recognise; it is the first non-timing diff the audit has seen, and it is a tool-version stamp, not a changed result. Treat a version line as benign when classifying.
+- The same 92 distinct projects now stand at 88 reproduced numerically (96%, Wilson 89% to 99%); `robofab-insert` (timeout), the two Yosys projects and `ambient-pipeline` remain unresolved. Still no project has finished and given different numbers.
+
 ## Method
 
 `src/swe_audit/audit.py`. Candidates are projects with both files. For each sampled project, the harness copies it to a temporary directory next to symlinks to its siblings, sets `PYTHONPATH` to its own `src` then every sibling's `src`, runs `python3 experiments/run.py` and compares the rewritten `results.txt` with the committed one. Classes: `identical`; `timing-only` (every differing line mentions time or seconds); `differs`; `timeout`; `tool-missing` (import or file error); `crashed`. Rates use Wilson (1927) intervals, as in `swe-ledger`. Nothing in the repository is written.
@@ -74,7 +87,7 @@ Wall times in `results.txt` depend on load, and the timeouts in particular may d
 - The timing heuristic can hide a real change on a line that mentions time.
 
 ## Next steps
-Re-run the three MuJoCo projects now that `mujoco` is installable here. Add a citation check (does the paper exist, are authors, venue and year right) on a smaller random sample, which needs web access this container lacks. Report defect rates by track and model once the sample reaches about 100 and the model per project is recoverable from `Co-Authored-By` trailers. Fix the READMEs that omit a needed package.
+Re-run `robofab-insert` alone with a limit above 1,200 s, and make the harness ignore tool-version banner lines. Add a citation check (does the paper exist, are authors, venue and year right) on a smaller random sample, which needs web access this container lacks. Report defect rates by track and model once the sample reaches about 100 and the model per project is recoverable from `Co-Authored-By` trailers. Fix the READMEs that omit a needed package.
 
 ## Builds on
 Wilson (1927), "Probable inference, the law of succession, and statistical inference", *JASA* 22(158): 209&ndash;212, for the interval. No lab's work is built on, and no lab is affiliated with or endorses this project.
