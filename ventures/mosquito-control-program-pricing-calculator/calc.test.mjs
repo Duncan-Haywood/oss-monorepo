@@ -100,3 +100,12 @@ test("csv carries the headline lines", () => {
   assert.match(csv, /min_visit_price_for_target_margin/);
   assert.equal(toCsv({ result: null }), "");
 });
+
+test("lifetime: a huge seasons cap returns at once and matches the loop for small caps", () => {
+  const loop = (r, cap) => { let t = 0; for (let n = 1; n <= cap; n++) t += Math.pow(r, n - 1); return t; };
+  for (const [renew, cap] of [[60, 8], [100, 5], [0, 4], [85, 0], [70, 3.7]]) {
+    const got = lifetime({ ...DEFAULTS, renewPct: renew, seasonsCap: cap }).expectedSeasons;
+    assert.ok(Math.abs(got - loop(renew / 100, cap)) < 1e-9, `${renew}/${cap}`);
+  }
+  assert.ok(Number.isFinite(lifetime({ ...DEFAULTS, seasonsCap: 1e12 }).expectedSeasons));
+});

@@ -79,8 +79,9 @@ export function season(o, price = o.visitPrice) {
 export function lifetime(o, price = o.visitPrice) {
   const s = season(o, price);
   const r = Math.min(Math.max(o.renewPct / 100, 0), 1);
-  let expectedSeasons = 0;
-  for (let n = 1; n <= o.seasonsCap; n++) expectedSeasons += Math.pow(r, n - 1);
+  // Closed form of sum_{n=1..cap} r^(n-1). A loop to a typed 1e12 froze the tab.
+  const cap = Math.max(0, Math.floor(o.seasonsCap));
+  const expectedSeasons = r === 1 ? cap : (1 - Math.pow(r, cap)) / (1 - r);
   return { expectedSeasons, perSeason: s.profit, value: s.profit * expectedSeasons, revenue: s.paid * expectedSeasons };
 }
 
