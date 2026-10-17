@@ -1,0 +1,13 @@
+[project]
+name = "house-offsite"
+version = "0.1.0"
+description = "Factory against site: wall-panel layout, sheathing nesting, transport and a Monte Carlo of framing a house shell on site or in a factory"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-framing/src"]
