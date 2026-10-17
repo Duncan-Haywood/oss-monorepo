@@ -26,6 +26,13 @@ The month section then answers the question one sale's profit can't: given your 
 
 This tool deliberately does not verify authenticity, track inventory, or read StockX's live fee schedule — those are StockX's own systems and your own seller dashboard. It only prices the payout and profit arithmetic of a sale you already made or are considering, from numbers you supply.
 
+## What you use today, and what this does differently
+
+- **StockX's own seller screen:** shows the payout for a live listing, but only after you have set it up, and it cannot show what a level change or Fast Shipping enrollment would do to a sale you are still pricing.
+- **A spreadsheet:** flexible, but the fee rate, discount and processing percentage are typed by hand and go stale when your seller level moves.
+- **Generic resale or marketplace fee calculators:** cover eBay and similar fees, rarely StockX's level-based fee with the Fast Shipping discount and your own cost basis.
+- **What this adds:** net payout and net profit per sale with level, discount, processing, shipping and other costs, a monthly profit-goal check, and a one-click handoff to the cross-channel calculator. No account, no upload.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your sale figures and month list are never uploaded and there is no account. The sale inputs and the target monthly profit are saved on this device only, so you do not retype them — "Reset to defaults" clears them. The month table is a different promise: it is never saved anywhere and clears on refresh by design. We count anonymous local feature events only (`sale-priced`, `month-check`, `link-copied`, `reset`, `handoff_where_to_sell`, `sponsor_link_clicked`), with a visible opt-out. Do Not Track and Global Privacy Control disable counting automatically. No sale prices, items, or profit figures are recorded. The counter is not sent to the maintainers.
