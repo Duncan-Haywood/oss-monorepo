@@ -669,6 +669,15 @@ test('both favicons draw the same mark', () => {
   assert.match(svg, /x="11" y="3" width="2" height="10"/, 'the tall bar');
 });
 
+test('the hub\'s top navigation links the blog', async () => {
+  // The Writing section (`writing.mjs`) is the site's blog; the footer link alone
+  // left it a screen of tools away from anyone who came to read.
+  const html = await read('index.html');
+  const nav = html.match(/<nav class="topnav"[\s\S]*?<\/nav>/);
+  assert.ok(nav, 'the hub has a top navigation');
+  assert.match(nav[0], /<a href="writing\/">Blog<\/a>/);
+});
+
 test('the hub links both favicons', async () => {
   const hub = await read('index.html');
   assert.match(hub, /rel="icon" href="favicon\.svg" type="image\/svg\+xml"/);
