@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_018tL33P4qoNgPsLDm6dQUa9",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T22:07:11Z",
+  "ended": "2026-10-17T22:14:18Z",
+  "wall_minutes": 7.36,
+  "tokens_in": 2455137,
+  "tokens_out": 9448,
+  "cost_usd": 0.8667,
+  "tool_calls": 32,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7855",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/test_adopt_stranded.py",
+      "issue": "test expected a skip reason for a branch that unlanded_work.sweep now filters out first; stale after landed_by_content was added"
+    },
+    {
+      "file": "platform/ci/publish-surface.yaml",
+      "issue": "snapshot not regenerated when two workflows were added; test failed on main"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Explore: ran platform/ci unit tests, fixed two stale-test failures on main. SEO/link/metadata audits found the repo saturated (no gaps). agent_review/test_review import error under discovery left alone.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6bd4d992-324c-5fe4-9800-bb447176134e",
+    "transcripts": 1,
+    "first": "2026-10-17T22:07:11Z",
+    "last": "2026-10-17T22:14:32Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 29,
+        "input": 58,
+        "output": 9448,
+        "thinking": 2533,
+        "cache_read": 2381112,
+        "cache_write_5m": 0,
+        "cache_write_1h": 73967,
+        "api_equivalent_usd": 0.8667,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 29,
+      "input": 58,
+      "output": 9448,
+      "thinking": 2533,
+      "cache_read": 2381112,
+      "cache_write_5m": 0,
+      "cache_write_1h": 73967,
+      "api_equivalent_usd": 0.8667,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 25,
+      "Read": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.36,
+      "active_minutes": 7.36,
+      "model_minutes": 1.35,
+      "tool_minutes": 6.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "diagnose two stale CI tests and regenerate snapshot",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 115.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
