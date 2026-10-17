@@ -282,6 +282,35 @@ export function summarize(rows) {
   return s;
 }
 
+// Column totals for each part of Form 8949 (Part I short-term, Part II
+// long-term) and the combined figure, the numbers that carry to Schedule D.
+// Sums the already-rounded rows, so the totals equal what the rows add up to on
+// paper. `noBasis` counts rows with no purchase on record, whose zero basis
+// overstates the gain until the missing buy is added.
+export function form8949Totals(rows) {
+  const blank = () => ({ rows: 0, proceeds: 0, basis: 0, gain: 0, noBasis: 0 });
+  const t = { short: blank(), long: blank() };
+  for (const r of rows) {
+    const part = t[r.term === "Long" ? "long" : "short"];
+    part.rows += 1;
+    part.proceeds += r.proceeds;
+    part.basis += r.basis;
+    part.gain += r.gain;
+    if (r.missingBasis) part.noBasis += 1;
+  }
+  for (const part of [t.short, t.long]) {
+    for (const k of ["proceeds", "basis", "gain"]) part[k] = cents(part[k]);
+  }
+  t.total = {
+    rows: t.short.rows + t.long.rows,
+    proceeds: cents(t.short.proceeds + t.long.proceeds),
+    basis: cents(t.short.basis + t.long.basis),
+    gain: cents(t.short.gain + t.long.gain),
+    noBasis: t.short.noBasis + t.long.noBasis,
+  };
+  return t;
+}
+
 // Federal-style netting of short and long results, ignoring NIIT, the $3,000
 // ordinary-income loss deduction and carryforwards. A net loss costs nothing here.
 export function estimateTax(summary, { shortRate, longRate }) {

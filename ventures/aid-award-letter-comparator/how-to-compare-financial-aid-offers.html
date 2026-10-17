@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Compare Financial Aid Offers: A Worked Example</title>
+  <meta name="description" content="Compare financial aid award letters by total cost, not sticker price. A worked example of three college offers where equal first-year net prices hide a $52,000 difference over four years.">
+  <meta property="og:title" content="How To Compare Financial Aid Offers: A Worked Example">
+  <meta property="og:description" content="Two offers with the same year-1 net price can differ by tens of thousands over four years. Grants, loans, work-study and first-year-only scholarships explained with numbers.">
+  <link rel="canonical" href="./how-to-compare-financial-aid-offers.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the difference between net price and total cost?", "acceptedAnswer": {"@type": "Answer", "text": "Net price is the cost of attendance minus grants and scholarships: what the college bills you after gift aid. Total cost also counts what the loans will cost you to repay, so a college that fills the gap with loans looks the same as one that fills it with grants on net price alone, and is much dearer in total."}}, {"@type": "Question", "name": "Which of the three example colleges is cheapest?", "acceptedAnswer": {"@type": "Answer", "text": "With the made-up numbers on this page, State University costs $99,099 in total, Regional University $127,211 and Private College A $179,870. Private College A and Regional University both show a $27,500 net price in year 1, but Private College A's net price rises to about $40,448 a year from year 2 because $9,000 of its aid is first-year only, and it comes with $54,000 of loans."}}, {"@type": "Question", "name": "How much more grant would Private College A need to match State University?", "acceptedAnswer": {"@type": "Answer", "text": "About $18,950 more in grants each year in the example. That figure is what to bring to a financial aid appeal: a competing offer and the exact gap, rather than a request for 'more aid'."}}, {"@type": "Question", "name": "Do I have to accept every loan on the letter?", "acceptedAnswer": {"@type": "Answer", "text": "No. Loans on an award letter are offers. You can accept part of a loan or decline it. Borrowing more than the bill, or more than the net price after work-study, is borrowing money you do not need, and the tool flags it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2a3a; background: #f3f6fa; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #1d5fa8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #123a66; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #123a66; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d3deea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #123a6612; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #62748a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 300px; font-family: ui-monospace, monospace; font-size: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5fa8; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dfe9f4; color: #123a66; }
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 10px 0; }
+    .big div { background: #eaf1f9; border-radius: 10px; padding: 10px 12px; font-size: .86rem; }
+    .big strong { display: block; font-size: 1.35rem; color: #123a66; }
+    table.t { border-collapse: collapse; width: 100%; font-size: .93rem; }
+    table.t th, table.t td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d3deea; }
+    table.t th { color: #123a66; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .best { border: 2px solid #2f8f5b; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 8px 12px; margin: 8px 0; color: #5c4508; }
+    .bad { background: #f8d9d6; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1a12; }
+    details { margin-top: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d3deea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="./index.html">Financial Aid Award Letter Comparator</a> · guide</p>
+    <h1>How to compare financial aid offers</h1>
+    <p>An award letter mixes four different things under one heading: money you never repay, money you repay with interest, a job, and the bill itself. To compare two letters, sort every line into one of those, then price the loans. This guide does it on three made-up offers, the same ones the <a href="./index.html">comparator</a> loads as its example.</p>
+  </header>
+  <main>
+  <section class="card">
+    <h2>1. Sort the lines</h2>
+    <ul>
+      <li><strong>Grants and scholarships</strong> reduce the price. Check whether each one renews, and on what condition (usually a minimum grade point average).</li>
+      <li><strong>Loans</strong> (subsidized, unsubsidized, Parent PLUS, private) do not reduce the price. They move it into the future and add interest.</li>
+      <li><strong>Work-study</strong> is the most you can earn, if you find and work the hours.</li>
+      <li><strong>Cost of attendance</strong> is the bill plus an estimate of books and living costs. Compare it across colleges on the same lines.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <h2>2. The worked example</h2>
+    <table class="t">
+      <thead><tr><th>Offer</th><th class="n">Sticker, 4 yrs</th><th class="n">Net price, year 1</th><th class="n">Net price, years 2-4 (avg)</th><th class="n">Borrowed</th><th class="n">Total cost to family</th></tr></thead>
+      <tbody>
+        <tr><td>State University</td><td class="n">$112,958</td><td class="n">$23,000</td><td class="n">$24,653</td><td class="n">$22,000</td><td class="n">$99,099</td></tr>
+        <tr><td>Regional University</td><td class="n">$161,070</td><td class="n">$27,500</td><td class="n">$29,857</td><td class="n">$22,000</td><td class="n">$127,211</td></tr>
+        <tr><td>Private College A</td><td class="n">$269,844</td><td class="n">$27,500</td><td class="n">$40,448</td><td class="n">$54,000</td><td class="n">$179,870</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Assumptions: costs rise 3% a year, loans and work-study repeat each year, 2025-26 federal rates, 10-year repayment. All figures are made up.</p>
+    <p>Regional University and Private College A show the same $27,500 net price in year 1. That is the number most families compare. But Private College A's letter includes $9,000 of first-year-only aid, so from year 2 the net price climbs to about $40,448 a year, and it fills the gap with $54,000 of loans against $22,000. Over four years the family pays about <strong>$52,659 more</strong> than at Regional University once loan interest is counted.</p>
+  </section>
+  <section class="card">
+    <h2>3. Use the gap in an appeal</h2>
+    <p>If the cheapest offer is not the college you want, the useful question is how far apart the offers really are. In the example Private College A would need about <strong>$18,950 more in grants each year</strong> to match State University. A financial aid appeal that shows a competing offer and an exact gap is easier to act on than a request for more aid. Whether an office agrees is up to it.</p>
+    <p><a href="./index.html">Open the comparator</a>, replace the example with your letters, and change the rates to the ones that apply to you.</p>
+  </section>
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is the difference between net price and total cost?</h3>
+    <p>Net price is the cost of attendance minus grants and scholarships: what the college bills you after gift aid. Total cost also counts what the loans will cost you to repay, so a college that fills the gap with loans looks the same as one that fills it with grants on net price alone, and is much dearer in total.</p>
+    <h3>Which of the three example colleges is cheapest?</h3>
+    <p>With the made-up numbers on this page, State University costs $99,099 in total, Regional University $127,211 and Private College A $179,870. Private College A and Regional University both show a $27,500 net price in year 1, but Private College A's net price rises to about $40,448 a year from year 2 because $9,000 of its aid is first-year only, and it comes with $54,000 of loans.</p>
+    <h3>How much more grant would Private College A need to match State University?</h3>
+    <p>About $18,950 more in grants each year in the example. That figure is what to bring to a financial aid appeal: a competing offer and the exact gap, rather than a request for 'more aid'.</p>
+    <h3>Do I have to accept every loan on the letter?</h3>
+    <p>No. Loans on an award letter are offers. You can accept part of a loan or decline it. Borrowing more than the bill, or more than the net price after work-study, is borrowing money you do not need, and the tool flags it.</p>
+    
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. It is not financial, tax, legal or educational advice. The example colleges and amounts are made up. Verify real terms with each college and your loan servicer.</p>
+    <p><strong>Independent.</strong> Not affiliated with any college, lender, loan servicer or the U.S. Department of Education.</p>
+    <p>Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

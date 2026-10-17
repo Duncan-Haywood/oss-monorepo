@@ -109,20 +109,16 @@ These are the owner-only items in `CLAUDE.md`:
 - a secret only the owner holds
 
 Even then, **open the PR** and leave it open with one comment naming the
-blocker and its `decision_queue.py` row. A PR with a named blocker is visible.
-A branch is not.
+blocker and its `decision_queue.py` row: a named blocker is visible, a branch is not.
 
 These are **not** reasons:
 
 - **CI is starved.** Run the checklist.
-- **Waiting for review.** There is no review gate.
-- **The branch conflicts.** Resolve it.
+- **Waiting for review, or a conflict.** No review gate; resolve it.
 - **Another session may be doing the same thing.** Check open PRs and run
   `python3 platform/ci/slug_dupe.py <slug>` (exit 1: already on `main` or
-  landed in the last 14 days; open PRs cannot show a sibling that just
-  merged), then
-  either land yours or close it with a pointer to the survivor (`CLAUDE.md`,
-  "Duplicate PRs").
+  landed in the last 14 days), then land yours or close it with a pointer to
+  the survivor (`CLAUDE.md`, "Duplicate PRs").
 - **The brief didn't say to open a PR.** This file says so.
 
 ## Other agents' unlanded work is yours too
@@ -141,7 +137,8 @@ Merging is every agent's job, not only the author's:
 - **Stranded branches.** Before claiming new work, run
   `python3 platform/ci/unlanded_work.py --sweep`. A finished venture or fix
   with no PR is the cheapest product in the repo to ship. Read it first.
-  - A tip that says "parked" or "not for merge" was left on purpose.
+  - "Parked" or "not for merge" was left on purpose; a tip whose content is
+    already on `main` (`supersede_check.py`) needs no PR.
   - For a venture, run `portfolio/pipeline/duplicate_check.py`, because
     `main` may have shipped the same niche under another slug.
   - To land one, copy its files onto your own branch

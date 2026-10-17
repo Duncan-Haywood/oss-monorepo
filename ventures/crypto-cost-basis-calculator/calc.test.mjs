@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseCsv, parseDate, parseTransactions, normalizeType, holdingTerm, matchLots, analyze, estimateTax,
-  toForm8949Csv, SAMPLE_CSV, METHODS, parsePrices, harvestPlan,
+  toForm8949Csv, form8949Totals, SAMPLE_CSV, METHODS, parsePrices, harvestPlan,
 } from "./calc.mjs";
 
 const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.005, `${msg ?? ""} ${a} != ${b}`);
@@ -296,4 +296,27 @@ test("analyze exposes open lots that add up to the holdings", () => {
   const basis = r.openLots.reduce((a, l) => a + l.basis, 0);
   const held = r.holdings.reduce((a, h) => a + h.basis, 0);
   assert.ok(Math.abs(basis - held) < 0.05);
+});
+
+test("Form 8949 totals: parts add up to the rows and to the summary", () => {
+  const r = analyze(SAMPLE_CSV, { method: "FIFO" });
+  const t = form8949Totals(r.rows);
+  const sum = (k) => Math.round(r.rows.reduce((a, x) => a + x[k], 0) * 100) / 100;
+  assert.equal(t.total.rows, r.rows.length);
+  assert.equal(t.total.proceeds, sum("proceeds"));
+  assert.equal(t.total.basis, sum("basis"));
+  assert.equal(t.total.gain, Math.round((t.total.proceeds - t.total.basis) * 100) / 100);
+  assert.equal(t.short.gain, r.summary.shortGain);
+  assert.equal(t.long.gain, r.summary.longGain);
+  assert.deepEqual(form8949Totals([]).total, { rows: 0, proceeds: 0, basis: 0, gain: 0, noBasis: 0 });
+});
+
+test("Form 8949 totals: rows with no basis on record are counted", () => {
+  const t = form8949Totals([
+    { proceeds: 100, basis: 0, gain: 100, term: "Short", missingBasis: true },
+    { proceeds: 50, basis: 20, gain: 30, term: "Long", missingBasis: false },
+  ]);
+  assert.equal(t.short.noBasis, 1);
+  assert.equal(t.total.noBasis, 1);
+  assert.equal(t.total.gain, 130);
 });
