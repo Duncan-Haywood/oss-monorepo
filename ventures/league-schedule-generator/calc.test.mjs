@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
-  scheduleText, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
+  scheduleText, teamMessages, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
@@ -1110,4 +1110,14 @@ test("points adjustments: unknown team is reported, a score line is never read a
   assert.equal(pr.results.length, 1);
   assert.equal(pr.errors.length, 1);
   assert.deepEqual(pr.adjustments, {});
+});
+
+test("team messages give each team only its own fixtures, with byes", () => {
+  const s = buildSchedule(baseSpec(5));
+  const msgs = teamMessages(s);
+  assert.equal(msgs.length, 5);
+  assert.match(msgs[0].text, /^Hi Team 1, your fixtures:/);
+  assert.match(msgs[0].text, /bye \(no game\)/);
+  assert.equal((msgs[0].text.match(/ vs /g) || []).length, 4);
+  assert.ok(!msgs[0].text.includes("Team 1 vs"));
 });
