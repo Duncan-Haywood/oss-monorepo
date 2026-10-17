@@ -88,6 +88,10 @@ export const NOT_AFFILIATED = /not\s+affiliated\s+with/i;
 // -- and deriving that class a second time from filenames would let a page be
 // one kind for the disclaimer check and the other kind for the budget.
 export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
+  // Compares against "eyeballing the decoded payload" -- a manual review habit
+  // any developer already has, not a company or product this could be
+  // mistaken for.
+  'jwt-security-check/vs-eyeballing-the-payload.html',
   // Compares against "writing llms.txt by hand" -- a generic authoring
   // practice every site owner can do without any tool, not a company or
   // product this could be mistaken for.
