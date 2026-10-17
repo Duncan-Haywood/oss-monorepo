@@ -22,6 +22,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `escortBoardHtml` in `calc.mjs` - a print-ready "find your table" list, every guest by last name with their table number, for the welcome sign or escort cards.
 - Group column and mixing: a third column (`Name | party | group`, e.g. "Bride side", "Singles", "Kids") plus a spread / cluster setting. Spread nudges each group to different tables so sides of the family mingle; cluster seats a group together. Pairs, parties and pins still win; the report shows each group's head-count per table (`groupMix`).
 - Meal column and caterer sheet: a fourth column (`Name | party | group | meal`, e.g. "vegetarian") is tallied per table (`mealTally`) and shown in the report; "Print meal counts for the caterer" (`catererSheetHtml`) gives one total per meal plus a per-table grid, and the CSV gains a Meal column. Meals never appear on table signs or the find-your-table list.
+- Save and return: guests, wishes, settings and the last plan CSV are remembered on this device and can be saved to or loaded from a setup file, so a planner can come back as RSVPs arrive.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-make-a-wedding-seating-chart.html` - guide whose worked example is
   recomputed by the test suite.
@@ -40,8 +41,8 @@ table, and does not model room layout or access needs, and the meal column only 
 heuristic search: tested against exhaustive search on hundreds of small random
 lists, not proven optimal on large ones.
 
-**Privacy.** Everything runs in your browser; your guest list is never uploaded
-and is not saved. Anonymous feature counts stay in local storage and can be
+**Privacy.** Everything runs in your browser; your guest list is never uploaded.
+It is remembered in this browser's local storage so you can return as RSVPs arrive ("Forget saved data" removes it), and can be saved to or loaded from a `seating-setup.json` file (`setupJson`, `parseSetup` in `calc.mjs`). Anonymous feature counts stay in local storage and can be
 switched off.
 
 MIT licence, see `LICENSE`.
