@@ -622,6 +622,18 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 
 ## E31: review 2026-10-17 (third review that day)
 
+- Change: `research/PROJECTS.md` milestone-9 progress entry cut from ~10.5k
+  characters to ~400 (the per-project "followed" changelog is in git history).
+  Cause: 68 friction reports, the latest two naming that one line as
+  unscannable and hard to edit.
+- Metric: friction reports per run naming `research/PROJECTS.md`. Compare the
+  next 40 research runs.
+- Candidates: unchanged. ventures 2 / research 1 overlap their champions;
+  review/2 has 5 runs. process/1 (72%) is low only because its "partial"
+  runs are backlog/verify-only; no candidate written.
+- Data: `derive.py fetch` got 32 of 470 PRs; the rest stay null. Audit not
+  run (mirrored or doc-only recent outputs).
+- Drift: `prompts/drift/2026-10-17c.md`.
 - Change: `land-your-work.md` trimmed to its 160-line budget (it was over by
   3) and says a swept branch whose content is on `main` needs no PR (4
   reports); backlog README/validate message say `pr: "this"` is accepted for
