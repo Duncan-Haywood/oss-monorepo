@@ -8,7 +8,7 @@
   <meta property="og:title" content="Stripe Churn and Cohort Analyzer — free, private, CSV in your browser">
   <meta property="og:description" content="MRR waterfall, churn, cohort retention and findings from a Stripe subscriptions export. Nothing leaves your device.">
   <link rel="canonical" href="./index.html">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Stripe Churn & Cohort Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Stripe subscriptions CSV export into an MRR waterfall, monthly churn, cohort retention table and plain-language findings. Runs entirely in your browser; the file is never uploaded.", "featureList": "price-rise simulator with break-even cancellation share, MRR waterfall, logo and revenue churn, cohort retention heatmap, tenure at cancellation, concentration and plan-gap findings"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Stripe Churn & Cohort Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Stripe subscriptions CSV export into an MRR waterfall, monthly churn, cohort retention table and plain-language findings. Runs entirely in your browser; the file is never uploaded.", "featureList": "churn-reduction value calculator, price-rise simulator with break-even cancellation share, MRR waterfall, logo and revenue churn, cohort retention heatmap, tenure at cancellation, concentration and plan-gap findings"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I get churn and cohort retention out of Stripe without a paid analytics tool?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Export your subscriptions from the Stripe Dashboard (Billing, Subscriptions, Export) as CSV and drop it here. The tool computes MRR, new and churned MRR, monthly churn and a cohort retention table from the start and cancel dates in the file. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "How is MRR calculated from the export?", "acceptedAnswer": {"@type": "Answer", "text": "Each subscription's amount is normalised to a monthly figure (yearly divided by 12, weekly times 52/12) and multiplied by quantity if the file has a quantity column. Each subscription's MRR is held constant at that value, because a subscription export has no history of upgrades, downgrades or discounts."}}, {"@type": "Question", "name": "What does the tool not see?", "acceptedAnswer": {"@type": "Answer", "text": "Expansion and contraction between plans, coupons, tax, refunds, failed payments and usage billing. A customer who cancels and resubscribes appears as one churn and one new subscription. Treat the numbers as an estimate from the dates and amounts in your file."}}, {"@type": "Question", "name": "What is the difference between logo churn and revenue churn?", "acceptedAnswer": {"@type": "Answer", "text": "Logo churn is the share of customers who left in a month; revenue churn is the share of MRR they represented. If small plans leave more than large ones, revenue churn is the lower of the two."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your own records or a qualified adviser."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
@@ -98,6 +98,14 @@
     <p class="stats" id="sim-out"></p>
   </section>
 
+  <section class="card" id="retention" hidden>
+    <h2>What is lower churn worth?</h2>
+    <p class="note">Projects MRR 12 months out at your recent churn and recent new MRR, then again with churn lower. The slider is your assumption, not a prediction.</p>
+    <label for="ret-pts">Cut monthly logo churn by (points)</label>
+    <input type="number" id="ret-pts" value="1" min="0" max="20" step="0.1">
+    <p class="stats" id="ret-out"></p>
+  </section>
+
   <section class="card">
     <h2>The model, and what it leaves out</h2>
     <ul>
@@ -136,7 +144,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, normalizeRows, analyze, sampleCsv, money, pct, simulatePriceIncrease } from "./calc.mjs";
+    import { parseCsv, normalizeRows, analyze, sampleCsv, money, pct, simulatePriceIncrease, simulateChurnReduction } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -147,6 +155,11 @@
       const r = simulatePriceIncrease(lastSubs, { plan: $("#sim-plan").value, increasePct: Number($("#sim-pct").value), extraLossPct: Number($("#sim-loss").value), churnLiftPts: Number($("#sim-lift").value) });
       $("#sim-out").innerHTML = r.invalid ? esc(r.invalid) : `${r.subscriptions} active subscriptions, ${money(r.currentMrr)} MRR, plan churn ${pct(r.baselineChurn)}/month. Over ${r.months} months: <strong>${money(r.withRevenue)}</strong> with the rise against ${money(r.withoutRevenue)} without, a ${r.delta >= 0 ? "gain" : "loss"} of <strong>${money(Math.abs(r.delta))}</strong>. The rise stops paying if more than <strong>${r.breakevenLossPct.toFixed(1)}%</strong> of these customers cancel because of it.`;
     }
+    function retention() {
+      const r = simulateChurnReduction(lastSubs, { reductionPts: Number($("#ret-pts").value) });
+      $("#ret-out").innerHTML = r.invalid ? esc(r.invalid) : `Churn ${pct(r.baselineChurn)} to ${pct(r.reducedChurn)} a month, with ${money(r.newMrrPerMonth)} of new MRR a month. In ${r.months} months MRR is <strong>${money(r.reducedMrr)}</strong> against ${money(r.baselineMrr)}: <strong>${money(r.mrrGain)}</strong> more a month (${money(r.arrGain)} a year), ${money(r.cumulativeGain)} kept in total.`;
+    }
+    $("#ret-pts").addEventListener("input", retention);
     for (const id of ["#sim-plan", "#sim-pct", "#sim-loss", "#sim-lift"]) $(id).addEventListener("input", simulate);
 
     function run(text) {
@@ -158,7 +171,7 @@
       lastMonths = r.months; lastSubs = n.subs;
       const plans = [...new Set(n.subs.map((x) => x.plan))].sort();
       $("#sim-plan").innerHTML = ["all", ...plans].map((p) => `<option value="${esc(p)}">${p === "all" ? "All plans" : esc(p)}</option>`).join("");
-      $("#simulator").hidden = false; simulate();
+      $("#simulator").hidden = false; simulate(); $("#retention").hidden = false; retention();
       $("#report-stats").innerHTML = `${s.firstMonth} to ${s.lastMonth}: <strong>${money(s.currentMrr)} MRR</strong> across ${s.currentCustomers} active subscriptions (average ${money(s.arpa)}). Last 3 complete months (${esc(s.windowLabel)}): logo churn <strong>${pct(s.logoChurn)}</strong>/month, revenue churn ${pct(s.revenueChurn)}/month`
         + (s.lifetimeMonths ? `, implied lifetime ${s.lifetimeMonths.toFixed(1)} months, revenue LTV ${money(s.revenueLtv)}` : "")
         + (s.quickRatio ? `, quick ratio ${s.quickRatio.toFixed(1)}` : "") + ".";
@@ -186,7 +199,7 @@
       $("#file").value = "";
       if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic data for a small SaaS with three plans. Not real customers."; }
     });
-    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; $("#simulator").hidden = true; lastMonths = []; lastSubs = []; status.textContent = "Choose a file or paste CSV text, then click Analyze."; });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; $("#simulator").hidden = true; $("#retention").hidden = true; lastMonths = []; lastSubs = []; status.textContent = "Choose a file or paste CSV text, then click Analyze."; });
     $("#download").addEventListener("click", () => {
       const rows = ["month,start_mrr,new_mrr,churned_mrr,end_mrr,customers,churned_customers"].concat(lastMonths.map((m) => [m.key, m.startMrr, m.newMrr, m.churnedMrr, m.endMrr, m.endCustomers, m.churnedCustomers].map((v) => typeof v === "number" ? Math.round(v * 100) / 100 : v).join(",")));
       const a = document.createElement("a");

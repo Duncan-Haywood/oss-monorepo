@@ -45,3 +45,12 @@ test("stdin works with -", () => {
   assert.equal(r.status, 0);
   assert.match(r.stdout, /Revenue LTV/);
 });
+
+test("--what-if prints the churn-reduction projection and parses its value", async () => {
+  const { parseArgs, run, render } = await import("./cli.mjs");
+  const { sampleCsv } = await import("./calc.mjs");
+  const opts = parseArgs(["--what-if", "1.5", "--example"]);
+  assert.equal(opts.whatIf, 1.5);
+  const { result, skipped, subs } = run(sampleCsv(), opts);
+  assert.match(render(result, skipped, { ...opts, subs }), /What if monthly churn fell 1.5 point/);
+});
