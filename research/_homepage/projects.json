@@ -2714,6 +2714,11 @@
      "slug": "house-costsens",
      "title": "Does the house-cost lever ranking survive its assumed driver splits?",
      "summary": "A Monte Carlo over <code>house-cost</code>'s assumed splits of each construction stage over floor area, footprint and wall area (Dirichlet, concentration 5, 20 and 80; 2,000 draws each). Floor area stays the largest lever in 96&ndash;100% of draws. Storeys is the soft claim: one versus three storeys swings the price index 9.0&ndash;19.9 points at concentration 20 (baseline 14.0), 5.1&ndash;24.1 at 5. The framing-lumber result does not move. Seven of ten levers cannot move under this test by construction. Stylised: tests only the splits, not the lever ranges or the NAHB shares."
+    },
+    {
+     "slug": "house-sobol",
+     "title": "Which uncertain input of the house-cost model drives the uncertainty in a house's price?",
+     "summary": "A variance-based (Sobol) global sensitivity analysis of <code>house-cost</code>, treating the ten lever ranges, the framing materials share and the assumed driver splits as random at once (4,096 base samples, bootstrap intervals). Floor area explains 53% of the price-index variance and storeys 19%; finish level, lot price and foundation type 6&ndash;9% each. The three framing inputs together explain under 1%, so the lumber saving optimised in <code>house-plan</code> barely moves the price of a whole house, and the assumed splits explain none alone and 1.7% through interactions. Per square foot, storeys matters more (25&ndash;27%). Stylised: the answer is relative to the assumed uniform ranges and ignores correlations."
     }
    ]
   }
