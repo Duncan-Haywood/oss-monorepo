@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normCdf, normInv, sampleSize, daysToRun, srmCheck, mixtureSequential, peekingInflation, bayes, analyze, sampleText, reportCsv, pct, signedPct } from "./calc.mjs";
+import { normCdf, normInv, sampleSize, detectableEffect, daysToRun, srmCheck, mixtureSequential, peekingInflation, bayes, analyze, sampleText, reportCsv, pct, signedPct } from "./calc.mjs";
 
 const near = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg || ""} ${a} vs ${b}`);
 
@@ -236,4 +236,18 @@ test("A/B/n: rejects bad input and parses lines", () => {
   assert.ok(multiTest({ arms: [{ name: "A", n: 10, c: 1 }, { name: "B", n: 10, c: 11 }, { name: "C", n: 10, c: 1 }] }).error);
   assert.ok(parseArms("A, 100").error);
   assert.deepEqual(parseArms("Big, red, 100, 5\n\nB,200,9\n").arms, [{ name: "Big, red", n: 100, c: 5 }, { name: "B", n: 200, c: 9 }]);
+});
+
+test("detectableEffect inverts sampleSize", () => {
+  const s = sampleSize({ baseline: 0.05, mde: 0.1 });
+  const d = detectableEffect({ baseline: 0.05, perArm: s.perArm });
+  assert.ok(Math.abs(d.relativeEffect - 0.1) < 0.002, String(d.relativeEffect));
+  assert.ok(sampleSize({ baseline: 0.05, mde: d.absoluteEffect, mode: "absolute" }).perArm <= s.perArm);
+});
+
+test("detectableEffect shrinks with traffic and rejects bad input", () => {
+  const a = detectableEffect({ baseline: 0.1, perArm: 2000 }), b = detectableEffect({ baseline: 0.1, perArm: 20000 });
+  assert.ok(b.absoluteEffect < a.absoluteEffect);
+  assert.ok(detectableEffect({ baseline: 0, perArm: 1000 }).error);
+  assert.ok(detectableEffect({ baseline: 0.5, perArm: 1 }).error);
 });

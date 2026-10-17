@@ -138,6 +138,12 @@
     <button type="button" id="plan">Calculate sample size</button>
     <p id="plan-status" role="status" class="note">Uses the significance level chosen above. Two-sided test.</p>
     <div class="big" id="plan-big"></div>
+    <h3>Or: what lift can your traffic detect?</h3>
+    <div class="grid">
+      <div><label for="avail">Visitors per group you can get</label><input id="avail" inputmode="numeric" placeholder="10000"></div>
+    </div>
+    <button type="button" class="secondary" id="detect">Find the smallest detectable lift</button>
+    <div class="big" id="detect-big"></div>
   </section>
 
   <section class="card">
@@ -178,7 +184,7 @@
   </footer>
 
   <script type="module">
-    import { analyze, sampleSize, daysToRun, reportCsv, sampleText, pct, signedPct, priceTest, priceSampleText, money, multiTest, parseArms, multiSampleText } from "./calc.mjs";
+    import { analyze, sampleSize, detectableEffect, daysToRun, reportCsv, sampleText, pct, signedPct, priceTest, priceSampleText, money, multiTest, parseArms, multiSampleText } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -239,6 +245,18 @@
       ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
       ps.textContent = "Decide this sample size and your stopping rule before you start, then do not stop early on a good-looking result.";
       record("plan_run");
+    });
+
+    $("#detect").addEventListener("click", () => {
+      const r = detectableEffect({ baseline: num("base") / 100, perArm: num("avail"), alpha: Number($("#alpha").value), power: Number($("#power").value) });
+      const ps = $("#plan-status");
+      if (r.error) { ps.textContent = r.error; $("#detect-big").innerHTML = ""; return; }
+      $("#detect-big").innerHTML = [
+        [signedPct(r.relativeEffect), "Smallest relative lift you can reliably detect"],
+        [`${pct(r.p1)} → ${pct(r.p2)}`, "Rates the test can tell apart"],
+      ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      ps.textContent = "Smaller true lifts will usually look like noise at this traffic. Uses the baseline, significance level and power above.";
+      record("detect_run");
     });
 
     function runPrice() {

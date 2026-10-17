@@ -89,7 +89,9 @@ deleted; its pull requests, review threads and old Pages site stay there.
 2. **Take the track's next free milestone.** That is the first one that is not on `main` (check
    `research/` for the slug), not claimed by an open pull request, and not on a branch pushed
    in the last three hours. When the listed milestones are done, take the next step from the
-   latest project's "Next steps" section in that track.
+   latest project's "Next steps" section in that track. If that chain has gone to micro-variants
+   of one result (a new seed, a bigger N, the same test on a neighbouring dataset), skip it:
+   ask a new question of the track's theme instead, and say so in the README's first lines.
 3. **Use the track's slug prefix and theme.** The prefix starts the slug (`selfrep-closure`).
    The theme id goes in `_homepage/projects.json`. The first project in a track adds that theme,
    with a `--t-<id>` colour in both the light and dark blocks of `_homepage/template.html`.

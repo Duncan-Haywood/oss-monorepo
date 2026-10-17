@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chip-systolic-abcrobust"
+version = "0.1.0"
+description = "Does the systolic-array vs MAC-engine ranking survive five ABC scripts (generic-gate counts)"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
