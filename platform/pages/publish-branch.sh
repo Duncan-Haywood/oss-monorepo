@@ -420,6 +420,14 @@ if [ "${PUSH:-}" = '1' ]; then
        && [ "$(git -C "$repo_root" rev-parse --is-shallow-repository 2>/dev/null)" = 'true' ]; then
       git -C "$repo_root" fetch --quiet --unshallow origin 2>/dev/null || true
     fi
+    if [ "$source_sha" != "$main_tip" ] \
+       && git -C "$repo_root" merge-base --is-ancestor "$source_sha" "$main_tip" 2>/dev/null; then
+      # On main, but main has moved on: a stale local checkout publishes an
+      # older site than the one a visitor should get (seen in friction reports).
+      say "WARNING: $source_sha is behind origin/main ($main_tip); this publishes"
+      say "         an older site. To publish current main: git fetch origin main &&"
+      say "         git reset --hard origin/main, then re-run."
+    fi
     if ! git -C "$repo_root" merge-base --is-ancestor "$source_sha" "$main_tip" 2>/dev/null; then
       die "refusing to publish a commit that is not on origin/main: $source_sha
   is not an ancestor of origin/main ($main_tip), so this would put unreviewed
@@ -507,7 +515,7 @@ if [ "${PUSH:-}" = '1' ]; then
       fi
     fi
   fi
-  echo "Pushing $BRANCH to origin..."
+  echo "Pushing $BRANCH to origin (can take minutes on a large snapshot; no output until it ends)..."
   # Force, because each run is a fresh orphan commit with no ancestry in
   # common with the last one. Safe against losing authored work -- everything
   # on the branch is regenerated from `main` by this script -- with the
