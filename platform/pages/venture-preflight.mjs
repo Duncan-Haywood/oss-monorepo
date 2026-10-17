@@ -44,6 +44,30 @@ export async function launchedProblems(slug, file = LAUNCHED_FILE) {
   return problems;
 }
 
+export function mirrorProblem(status) {
+  if (status === 0) return null;
+  if (status === 1) return 'front-door mirror is stale: run `node platform/marketing/regen.mjs` and commit what it rewrites';
+  return `regen.mjs --verify could not answer (exit ${status})`;
+}
+
+export function buildProblem(built) {
+  if (built.status === 0) return null;
+  return `build.mjs failed:\n${(built.stderr || built.stdout).slice(-2000)}`;
+}
+
+// Split check.mjs output into problems that name this slug (whole path
+// segment, so `tax` does not claim `tax-calc/`) and problems on other slugs.
+export function checkProblems(checked, slug) {
+  const output = checked.stdout + checked.stderr;
+  const lines = output.split('\n').filter((l) => /^\s+\S/.test(l));
+  const named = new RegExp(`(^|[^A-Za-z0-9_-])${slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z0-9_-])`);
+  const mine = lines.filter((l) => named.test(l));
+  const other = lines.filter((l) => !mine.includes(l));
+  const failures = mine.map((l) => l.trim());
+  if (!lines.length) failures.push(`check.mjs failed:\n${output.slice(-2000)}`);
+  return { failures, other };
+}
+
 async function main(argv) {
   const slug = argv.find((a) => !a.startsWith('--'));
   if (!slug) {
@@ -64,8 +88,8 @@ async function main(argv) {
   // it with regen.mjs, then rerun for the build.
   console.log('1b/3 marketing mirror (regen.mjs --verify)');
   const verify = run(['platform/marketing/regen.mjs', '--verify']);
-  if (verify.status === 1) failures.push('front-door mirror is stale: run `node platform/marketing/regen.mjs` and commit what it rewrites');
-  else if (verify.status !== 0) failures.push(`regen.mjs --verify could not answer (exit ${verify.status})`);
+  const mirror = mirrorProblem(verify.status);
+  if (mirror) failures.push(mirror);
   if (failures.length) {
     console.log(`\nPREFLIGHT FAILED for ${slug} (stopped before the build; fix, then rerun):`);
     for (const f of failures) console.log(`  - ${f}`);
@@ -77,17 +101,15 @@ async function main(argv) {
     const out = fs.mkdtempSync(path.join(os.tmpdir(), 'preflight-'));
     try {
       const built = run(['platform/pages/build.mjs', `--out=${out}`]);
-      if (built.status !== 0) {
-        failures.push(`build.mjs failed:\n${(built.stderr || built.stdout).slice(-2000)}`);
+      const buildFailure = buildProblem(built);
+      if (buildFailure) {
+        failures.push(buildFailure);
       } else {
         const checked = run(['platform/pages/check.mjs', out]);
         if (checked.status !== 0) {
-          const lines = (checked.stdout + checked.stderr).split('\n').filter((l) => /^\s+\S/.test(l));
-          const mine = lines.filter((l) => l.includes(`${slug}/`) || l.includes(slug));
-          const other = lines.filter((l) => !mine.includes(l));
-          failures.push(...mine.map((l) => l.trim()));
+          const { failures: mine, other } = checkProblems(checked, slug);
+          failures.push(...mine);
           if (other.length) console.log(`   note: ${other.length} problem(s) on other slugs (not yours):\n${other.join('\n')}`);
-          if (!lines.length) failures.push(`check.mjs failed:\n${(checked.stdout + checked.stderr).slice(-2000)}`);
         }
       }
     } finally {
