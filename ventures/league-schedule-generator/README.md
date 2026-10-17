@@ -19,6 +19,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   rainout rescheduling (cancel a night or one team's match; it moves to the
   earliest later night both teams are free and a court is open, nothing else
   changes), and an independent validator that re-checks a finished schedule.
+- A team drops out mid-season (`Lob Squad` or `2026-11-03 Lob Squad`): its remaining matches are removed, matches already played stay, nothing else moves, and the page lists how many fixtures each opponent loses so the league can decide how earlier results count (`applyWithdrawals`).
 - Per-team time limits (`Team: 17:00`): a youth team that can only play early is only given those slots, rainout moves respect them, and the validator flags any breach; an unsatisfiable limit is reported, never hidden.
 - Standings rank by points, goal difference, goals for; tick head-to-head to split teams level on points by the matches among them first (`standings(..., { headToHead: true })`).
 - `usage.mjs` - local-only feature counters with an opt-out.
