@@ -26,7 +26,7 @@
   "baseline": "ventures ~41k tokens; research ~17k tokens; median api_equivalent_usd over the 8 measured runs on 2026-10-16: $0.53",
   "opened": "2026-10-16",
   "source": "Owner review of repo standards in a Claude Code session, 2026-10-16 (cost share is an estimate from 8 runs with usage recorded; see problem)",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7664",
   "result": "helped (chars/4 at ba0c6702e5): CLAUDE.md 6.5k -> 4.4k tokens (checklist moved to verify-and-merge.md, P030; product rules to ventures/CLAUDE.md, P031); DIRECTION.md is read by section (873 lines, was 1,015) instead of whole. Ventures run before-start reading ~41k -> ~26k worst case (CLAUDE 4.4k, AGENTS 2.5k, PLAYBOOK 6.9k, goals 6.9k, prompt 1.2k, sub-prompt 1.7k, land 2.1k) with DIRECTION by section. Cost median not re-measured (too few runs since).",
   "history": [
     {
