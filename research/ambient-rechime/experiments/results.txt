@@ -1,0 +1,43 @@
+48 contexts x 3 urgency classes; tones every 3.0 s, cancelled on look
+
+1. Best number of tones by urgency (share of contexts; 0 = plain glance)
+  low     {0: 0.69, 1: 0.27, 2: 0.04, 3: 0.0, 4: 0.0}
+  normal  {0: 0.19, 1: 0.35, 2: 0.08, 3: 0.1, 4: 0.27}
+  high    {0: 0.0, 1: 0.38, 2: 0.62, 3: 0.0, 4: 0.0}
+
+2. Mean utility per message (urgency mix) by allowed tones
+  fixed n=0: 0.2257
+  fixed n=1: 0.3680
+  fixed n=2: 0.3712
+  fixed n=3: 0.3648
+  fixed n=4: 0.3594
+  best of 0..1: 0.3866
+  best of 0..2: 0.4058
+  best of 0..4: 0.4090
+
+3. Repeat gain by urgency (best of 0..4 minus best of 0..1)
+  low    : 0.0002
+  normal : 0.0371
+  high   : 0.0618
+
+4. Monte Carlo check (|closed form - simulation|, 200000 draws)
+  worst abs difference over 54 cases: 0.0016
+
+5. Gain of repeating (best of 0..4 minus best of 0..1, per message) vs gap and cancelling
+  gap  stop  gain
+   1.0 True  0.0258
+   3.0 True  0.0224
+   6.0 True  0.0141
+  12.0 True  0.0106
+   1.0 False 0.0216
+   3.0 False 0.0157
+   6.0 False 0.0077
+  12.0 False 0.0046
+
+6. Mean utility vs chime_mask (high urgency, tones n=1 vs best of 0..4, all contexts)
+  mask  one_tone  best_0to4
+  0.00  1.0042   1.0042
+  0.25  0.9029   0.9417
+  0.50  0.8016   0.8634
+  0.75  0.7004   0.7559
+  1.00  0.6191   0.6547

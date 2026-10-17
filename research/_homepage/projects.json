@@ -1688,6 +1688,11 @@
      "summary": "A stylised expected-utility model adds three urgency classes (deadlines of 120, 20 and 6 s) and a chime-plus-glance mode to the speech, glance and silence choice. Chime-plus-glance is the best mode in 62% of normal and high-urgency contexts and raises mean utility per message from 0.351 to 0.417 (partly by construction, since high-urgency messages carry twice the weight); a Monte Carlo check agrees with the closed form to 0.002. The look and reaction rates drive the twin gap (up to 0.018 utility per message). Every parameter is a round figure of mine: nothing is fitted or measured."
     },
     {
+     "slug": "ambient-rechime",
+     "title": "When is a second or third earbud tone worth it before a glance?",
+     "summary": "A stylised extension of the urgency model lets the assistant repeat a tone up to four times, 3 s apart, each noticed independently and cancelled once the wearer looks. Choosing the number of tones per context raises mean utility per message from 0.387 (plain glance or one tone) to 0.409; two tones give most of it, and the gain is nil for low urgency and 0.062 for high urgency (partly built in by the weights). Always repeating is barely better than one tone. A Monte Carlo check agrees with the closed form to 0.002. Tones are assumed independent and annoyance flat per tone, and every parameter is a round figure of mine: nothing is fitted or measured."
+    },
+    {
      "slug": "ambient-misread",
      "title": "How accurate must an always-on assistant's urgency label be before acting on it beats ignoring it?",
      "summary": "In the stylised urgency model, perfect urgency knowledge is worth 0.034 utility per message. Acting naively on a noisy label stops being worse than ignoring it at about 70% accuracy with uniform errors (about 53% if errors only hit neighbouring classes), and at 70% it loses in 18 of 48 contexts. A Bayesian reading of the label never loses to ignoring it when the prior and confusion matrix are known, but a prior that over-weights high urgency drops it below ignoring the label. Every parameter is a round figure of mine: nothing is fitted or measured."
