@@ -6,5 +6,6 @@ Pure Python, no dependencies. Companion to `twin-transfer`, `randomized-twin`, `
 cd research/twin-multifidelity
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests, ~10 s
 PYTHONPATH=src python3 experiments/run.py                 # ~2 min; output in experiments/results.txt
+python3 experiments/figure.py                               # redraws experiments/correlation.svg from results.txt
 ```
 Builds on multifidelity Monte Carlo (Peherstorfer–Willcox–Gunzburger) and sim-to-real predictivity work (Kadian et al.); relates to digital-twin and sim-to-real evaluation for manipulation and field robotics (HIRO, RECUV, ARPG themes) without any affiliation. Stylised scalar LQ, Gaussian disturbances, idealised disturbance replay; MIT.

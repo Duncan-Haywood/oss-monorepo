@@ -6,5 +6,6 @@ Pure Python, no dependencies. Scalar linear-quadratic plant `x' = a x + b u + w`
 cd research/twin-transfer
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 12 tests, ~10 s
 PYTHONPATH=src python3 experiments/run.py                 # output in experiments/results.txt (~35 s)
+python3 experiments/figure.py                               # redraws experiments/regret.svg from results.txt
 ```
 Stylised scalar LQ, Gaussian noise, `a` known when identifying `b`; MIT.
