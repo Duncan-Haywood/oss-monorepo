@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 330" role="img" aria-label="Total clear width lost by a two-span joist as the beam moves off the middle">
+<style>text{font:12px sans-serif;fill:#333}</style>
+<text x="320.0" y="20" text-anchor="middle" font-weight="bold">Total width lost as the beam leaves the middle (%)</text>
+<line x1="70" x2="590" y1="280.0" y2="280.0" stroke="#ddd"/><text x="62" y="284.0" text-anchor="end">0</text>
+<line x1="70" x2="590" y1="234.0" y2="234.0" stroke="#ddd"/><text x="62" y="238.0" text-anchor="end">-5</text>
+<line x1="70" x2="590" y1="188.0" y2="188.0" stroke="#ddd"/><text x="62" y="192.0" text-anchor="end">-10</text>
+<line x1="70" x2="590" y1="142.0" y2="142.0" stroke="#ddd"/><text x="62" y="146.0" text-anchor="end">-15</text>
+<line x1="70" x2="590" y1="96.0" y2="96.0" stroke="#ddd"/><text x="62" y="100.0" text-anchor="end">-20</text>
+<line x1="70" x2="590" y1="50.0" y2="50.0" stroke="#ddd"/><text x="62" y="54.0" text-anchor="end">-25</text>
+<text x="90.0" y="298" text-anchor="middle">1.0</text>
+<text x="186.0" y="298" text-anchor="middle">0.9</text>
+<text x="282.0" y="298" text-anchor="middle">0.8</text>
+<text x="378.0" y="298" text-anchor="middle">0.7</text>
+<text x="474.0" y="298" text-anchor="middle">0.6</text>
+<text x="570.0" y="298" text-anchor="middle">0.5</text>
+<text x="330.0" y="316" text-anchor="middle">short span / long span</text>
+<polyline fill="none" stroke="#7a4a1d" stroke-width="2.5" points="90.0,280.0 186.0,276.3 282.0,263.4 378.0,240.4 474.0,204.6 570.0,157.6"/>
+<circle cx="90.0" cy="280.0" r="3.5" fill="#7a4a1d"/>
+<circle cx="186.0" cy="276.3" r="3.5" fill="#7a4a1d"/>
+<circle cx="282.0" cy="263.4" r="3.5" fill="#7a4a1d"/>
+<circle cx="378.0" cy="240.4" r="3.5" fill="#7a4a1d"/>
+<circle cx="474.0" cy="204.6" r="3.5" fill="#7a4a1d"/>
+<circle cx="570.0" cy="157.6" r="3.5" fill="#7a4a1d"/>
+<text x="564.0" y="149.6" text-anchor="end" fill="#7a4a1d">-13.3%</text>
+<rect x="90" y="308" width="12" height="12" fill="#7a4a1d"/><text x="108" y="318">floor 2x10 (bending)</text>
+<polyline fill="none" stroke="#3b7ea1" stroke-width="2.5" points="90.0,280.0 186.0,233.1 282.0,186.2 378.0,141.1 474.0,98.8 570.0,58.3"/>
+<circle cx="90.0" cy="280.0" r="3.5" fill="#3b7ea1"/>
+<circle cx="186.0" cy="233.1" r="3.5" fill="#3b7ea1"/>
+<circle cx="282.0" cy="186.2" r="3.5" fill="#3b7ea1"/>
+<circle cx="378.0" cy="141.1" r="3.5" fill="#3b7ea1"/>
+<circle cx="474.0" cy="98.8" r="3.5" fill="#3b7ea1"/>
+<circle cx="570.0" cy="58.3" r="3.5" fill="#3b7ea1"/>
+<text x="564.0" y="50.3" text-anchor="end" fill="#3b7ea1">-24.1%</text>
+<rect x="310" y="308" width="12" height="12" fill="#3b7ea1"/><text x="328" y="318">ceiling 2x8 (deflection)</text>
+</svg>
