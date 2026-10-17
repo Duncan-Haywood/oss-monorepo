@@ -127,6 +127,16 @@
     <div id="critical"></div>
     <div id="daily-box"></div>
     <div id="fair-box"></div>
+    <h3>Changes since you posted it</h3>
+    <p class="note">Posted a schedule, then changed it? Choose the roster CSV you posted, say when you made the change, and see every shift that was added, cancelled or moved, how much notice each got, and the premium pay <em>your own</em> rule would owe. Fair-workweek laws differ by city and change: enter your window and premium from the rule that applies to you; nothing here is a statement of what a law requires.</p>
+    <div class="grid">
+      <div><label for="posted-file">Roster you posted (CSV)</label><input id="posted-file" type="file" accept=".csv,text/csv"></div>
+      <div><label for="changed-at">Changed on (date and time)</label><input id="changed-at" type="datetime-local"></div>
+      <div><label for="notice-h">Notice window (hours)</label><input id="notice-h" inputmode="decimal" value="336"></div>
+      <div><label for="premium-h">Premium per late change (hours of pay)</label><input id="premium-h" inputmode="decimal" value="1"></div>
+      <div><label for="exempt-names">Employee-requested, no premium (names, comma separated)</label><input id="exempt-names" placeholder="e.g. Ben, Cleo"></div>
+    </div>
+    <div id="changes-out" aria-live="polite"></div>
     <h3>Someone called in sick? Who can take the shift</h3>
     <p class="note">Pick a shift. It lists everyone who could take it without touching anyone else's week, cheapest first, and why the rest cannot.</p>
     <label for="cover-shift">Shift to cover</label> <select id="cover-shift"></select>
@@ -184,7 +194,7 @@
   </footer>
 
   <script type="module">
-    import { carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, fairnessReport, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { scheduleChanges, carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, fairnessReport, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -263,6 +273,7 @@
         .map(([n, u, o, c]) => `<tr><td>${n}</td><td class="n">${u}</td><td class="n">${num(o)}</td><td class="n">${money(c)}</td></tr>`).join("");
       $("#icsperson").innerHTML = '<option value="">Everyone</option>' + r.people.map((p) => `<option>${esc(p.name)}</option>`).join("");
       if (!$("#weekstart").value) { const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); $("#weekstart").value = d.toISOString().slice(0, 10); }
+      showChanges();
       report.hidden = false;
       status.textContent = "Done. Scroll down for the roster.";
       report.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -335,6 +346,29 @@
     for (const f of FIELDS) $("#" + f).addEventListener("input", persist);
     $("#forget").addEventListener("click", () => { try { localStorage.removeItem(KEY); } catch (e) {} status.textContent = "Saved data removed from this device."; });
     $("#save-setup").addEventListener("click", () => download("roster-setup.json", JSON.stringify(snapshot(), null, 2), "application/json"));
+
+    let postedCsv = "";
+    function showChanges() {
+      const out = $("#changes-out");
+      if (!last || !postedCsv) { out.innerHTML = ""; return; }
+      const ws = $("#weekstart").value, ca = $("#changed-at").value;
+      let changedAt = null;
+      if (ws && ca) { const m = (new Date(ca) - new Date(ws + "T00:00")) / 60000; if (Number.isFinite(m)) changedAt = m; }
+      const wages = {}; for (const p of lastIn.staff) wages[p.name] = p.wage;
+      const r = scheduleChanges(postedCsv, rosterCsv(last), { changedAt, noticeHours: val("notice-h", 336), premiumHours: val("premium-h", 1), wages, exempt: $("#exempt-names").value.split(",") });
+      if (!r.changes.length) { out.innerHTML = '<p class="ok">The roster matches the one you posted: nothing changed.</p>'; return; }
+      const what = (c) => c.kind === "moved" ? `moved ${esc(fmtClock(c.from.start % 1440))}–${esc(fmtClock(c.from.end % 1440))} to ${esc(fmtClock(c.to.start % 1440))}–${esc(fmtClock(c.to.end % 1440))}` : c.kind === "cancelled" ? `cancelled ${esc(fmtClock(c.from.start % 1440))}–${esc(fmtClock(c.from.end % 1440))}` : `added ${esc(fmtClock(c.to.start % 1440))}–${esc(fmtClock(c.to.end % 1440))}`;
+      const day = (c) => DAYS[Math.floor(c.touchesFrom / 1440)];
+      const head = r.noticeKnown ? `<p><strong>${r.changes.length} change${r.changes.length === 1 ? "" : "s"}, ${r.shortNotice} on short notice. Premium on your numbers: ${money2(r.owed)}.</strong></p>` : `<p><strong>${r.changes.length} change${r.changes.length === 1 ? "" : "s"}.</strong> Give the Monday of this week above and a change time to see notice and premium.</p>`;
+      out.innerHTML = head + `<div class="scroll"><table><thead><tr><th>Person</th><th>Day</th><th>Change</th><th class="n">Hours</th><th class="n">Notice (h)</th><th class="n">Premium</th></tr></thead><tbody>${r.changes.map((c) => `<tr><td>${esc(c.person)}</td><td>${day(c)}</td><td>${what(c)}</td><td class="n">${c.hoursDelta > 0 ? "+" : ""}${num(c.hoursDelta)}</td><td class="n">${c.noticeHours === null ? "—" : num(c.noticeHours)}</td><td class="n">${c.exempt ? "requested" : c.premiumUnpriced ? "no wage" : c.shortNotice ? money2(c.premium) : "—"}</td></tr>`).join("")}</tbody></table></div><p class="note">Notice is counted from the change time to the earliest start the change touches. A person who is swapped out and another swapped in show as two changes; list employee-requested ones above to take them out.</p>`;
+    }
+    $("#posted-file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { postedCsv = String(rd.result); showChanges(); };
+      rd.readAsText(f);
+    });
+    for (const id of ["changed-at", "notice-h", "premium-h", "exempt-names", "weekstart"]) $("#" + id).addEventListener("input", showChanges);
     $("#lastweek-file").addEventListener("change", (e) => {
       const f = e.target.files[0]; if (!f) return;
       const rd = new FileReader();

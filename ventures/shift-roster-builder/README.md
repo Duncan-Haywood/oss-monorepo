@@ -41,7 +41,7 @@ shuffling on Sunday night.
 
 ## Limits
 
-Not modelled: predictive-scheduling and fair-workweek notice rules, meal and rest breaks, minor-labor limits, split-shift
+Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), meal and rest breaks, minor-labor limits, split-shift
 premiums, tips, union rules, seniority, time-off across weeks. A
 heuristic search, not a proof of optimality on large problems. Verified only against exhaustive search and invented data.
 Not legal, tax, or financial advice.
@@ -65,3 +65,5 @@ Provided free and as-is, without warranty of any kind. Not legal, tax, or financ
 **Each day against sales.** Optionally give sales for Monday to Sunday and the report adds a per-day table of scheduled hours, base-wage payroll (plus extras) and labor share of that day's sales, with the highest-share day marked, so a slow Tuesday stacked with staff stands out (`dailyLabor` in `calc.mjs`). Overtime premiums are priced weekly and are not spread over days.
 
 **Who gets the tough shifts.** The report counts each person's weekend, closing (10pm or later, or past midnight) and opening (6am or earlier) shifts and says so when the spread is 3 or more, so one person is not quietly handed every close. A report only; the search does not balance it (`fairnessReport` in `calc.mjs`).
+
+**Changes since you posted it.** Choose the roster CSV you posted, give the Monday and when you made the change, and the report lists every shift that was added, cancelled or moved, the notice each got, and the premium pay under a rule you enter yourself (notice window in hours, premium in hours of pay, names of employee-requested changes left out). Fair-workweek laws differ by city and change, so the tool ships no jurisdiction presets and states no legal requirement; it does the arithmetic on your numbers (`parseRosterCsv`, `scheduleChanges` in `calc.mjs`).
