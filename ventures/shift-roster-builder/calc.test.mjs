@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { laborPercent, dailyLabor, fairnessReport, hoursThresholds, trimOptions, scheduleFlags,
+import { laborPercent, dailyLabor, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -775,4 +775,15 @@ test("off: a dated entry without a week start is reported, not silently dropped"
   assert.equal(r.notes.length, 1);
   assert.deepEqual(r.staff[0].days[2], [[0, 1440]]);
   assert.equal(parseStaff("Ana, 20, 40, 0, any, off: 2026-13-99x", { weekStart: "2026-11-02" }).errors.length, 1);
+});
+
+test("tipPool splits by hours in whole cents and always adds back to the pot", () => {
+  const r = { people: [{ name: "A", hours: 30 }, { name: "B", hours: 20 }, { name: "C", hours: 10 }, { name: "D", hours: 0 }] };
+  const t = tipPool(r, 600);
+  assert.deepEqual(t.rows.map((x) => [x.name, x.share]), [["A", 300], ["B", 200], ["C", 100]]);
+  const odd = tipPool({ people: [{ name: "A", hours: 1 }, { name: "B", hours: 1 }, { name: "C", hours: 1 }] }, 100);
+  assert.equal(Math.round(odd.rows.reduce((a, x) => a + x.share, 0) * 100), 10000);
+  assert.deepEqual(odd.rows.map((x) => x.share), [33.34, 33.33, 33.33]);
+  assert.equal(tipPool(r, 0).rows.length, 0);
+  assert.equal(tipPool({}, 50).rows.length, 0);
 });
