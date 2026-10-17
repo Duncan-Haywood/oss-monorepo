@@ -170,3 +170,21 @@ test("clopening page's rest-gap table is what the engine returns for the sample 
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("overtime page's table is what the engine returns for the sample cafe", async () => {
+  const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts } = await import("./calc.mjs");
+  const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
+  const html = page("how-to-reduce-overtime-in-a-schedule.html");
+  for (const [line, ot, covered, pay] of [[30, 30, 216, 3890], [35, 13, 216, 3739], [40, 0, 216, 3622]]) {
+    const r = buildRoster(staff, slots, { otAfter: line });
+    assert.equal(r.otHours, ot, `${line}h overtime hours`);
+    assert.equal(r.hours, covered, `${line}h covered`);
+    assert.equal(Math.round(r.cost), pay, `${line}h payroll`);
+    assert.ok(html.includes("$" + pay.toLocaleString("en-US")), `${line}h row on page`);
+  }
+  assert.match(page("sitemap.xml"), /how-to-reduce-overtime-in-a-schedule\.html/);
+  assert.match(page("index.html"), /how-to-reduce-overtime-in-a-schedule\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
