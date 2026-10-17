@@ -23,6 +23,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Group column and mixing: a third column (`Name | party | group`, e.g. "Bride side", "Singles", "Kids") plus a spread / cluster setting. Spread nudges each group to different tables so sides of the family mingle; cluster seats a group together. Pairs, parties and pins still win; the report shows each group's head-count per table (`groupMix`).
 - Meal column and caterer sheet: a fourth column (`Name | party | group | meal`, e.g. "vegetarian") is tallied per table (`mealTally`) and shown in the report; "Print meal counts for the caterer" (`catererSheetHtml`) gives one total per meal plus a per-table grid, and the CSV gains a Meal column. Meals never appear on table signs or the find-your-table list.
 - Save and return: guests, wishes, settings and the last plan CSV are remembered on this device and can be saved to or loaded from a setup file, so a planner can come back as RSVPs arrive.
+- `importGuestSheet` in `calc.mjs` - paste rows from a spreadsheet or RSVP export (or choose a .csv): tab, comma or semicolon separated, header columns for name (or first and last), household/party, side/group, meal, RSVP and plus-one are recognised, declined RSVPs are dropped, and a named plus-one is seated in their host's party.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-make-a-wedding-seating-chart.html` - guide whose worked example is
   recomputed by the test suite.
