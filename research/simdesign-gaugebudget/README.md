@@ -15,6 +15,7 @@ pip install numpy scipy scikit-fem matplotlib shapely pytest
 cd research/simdesign-gaugebudget
 python -m pytest -q tests            # 8 tests
 python experiments/run.py            # writes experiments/results.txt and results.json (about 15 minutes on 4 cores)
+python experiments/figure.py         # redraws experiments/mass_vs_gauge.svg from results.txt (stdlib only)
 ```
 
 ## Results (from `experiments/results.txt`; 5 seeds)

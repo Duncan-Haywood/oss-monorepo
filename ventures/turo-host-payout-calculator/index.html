@@ -126,7 +126,9 @@
       <button type="button" id="calculate">Calculate my payout</button>
       <button type="button" class="secondary" id="load-example">Load an example</button>
       <button type="button" class="secondary" id="clear">Clear</button>
+      <button type="button" class="secondary" id="copy-link">Copy shareable link</button>
     </p>
+    <p class="note" id="draft-status" role="status">Your trip details are saved locally in this browser so you don't retype them. A shareable link puts the same numbers in the URL fragment &mdash; nothing is uploaded.</p>
     <p class="note" id="status">Enter a trip price above and click Calculate my payout.</p>
   </section>
 
@@ -193,7 +195,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including against your own Turo Host Hub numbers. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
     <p>Not affiliated with, endorsed by, or sponsored by Turo. Turo is a trademark of its owner, named here only to describe the host-earnings structure this tool computes against — Turo has changed that structure more than once within 2026, so verify current numbers in your own Turo Host Hub before relying on this.</p>
-    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>payout-calculated</code>, <code>example-loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>payout-calculated</code>, <code>example-loaded</code>, <code>link-copied</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured. Your trip details are also saved in this browser so you don't retype them (<strong>Clear</strong> removes them), and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Renting out an RV instead of a car? The <a href="../rv-rental-host-profit-calculator/">RV rental host profit calculator</a> nets a booking after platform fees, cleaning, depreciation and wear.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -202,6 +204,7 @@
   <script type="module">
     import { computeTripPayout, comparePlans, compareBookingWindows, estimateMonthly, PLAN_LABELS, BOOKING_WINDOW_LABELS } from "./calc.mjs";
     import { recordEvent, usageAllowed, toggleUsage } from "./usage.mjs";
+    import { encodeInputs, decodeInputs, formValues, FIELD_IDS } from "./share.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const els = {
@@ -261,7 +264,7 @@
       };
     }
 
-    function runCalculate() {
+    function runCalculate(restoring = false) {
       const input = currentInput();
       const result = computeTripPayout(input);
 
@@ -308,6 +311,8 @@
       }
 
       els.status.textContent = "";
+      saveDraft();
+      if (restoring) return;
       recordEvent("payout-calculated");
       els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -346,7 +351,62 @@
       els.windowsCard.hidden = true;
       els.monthlyCard.hidden = true;
       els.status.textContent = "Enter a trip price above and click Calculate my payout.";
+      safe(() => localStorage.removeItem(DRAFT_KEY));
+      history.replaceState(null, "", location.pathname);
     });
+
+    // Save and share. The form is kept in this browser's localStorage and can
+    // be carried in a URL fragment (never sent to a server). A shared link wins
+    // over a saved draft, applied through formValues so a field the link
+    // omitted is cleared instead of showing the recipient's own saved value.
+    const DRAFT_KEY = "turo-host-payout-calculator:draft";
+    const safe = (fn) => { try { return fn(); } catch { return null; } };
+    const fieldEls = {
+      tripPrice: els.tripPrice, days: els.days, plan: els.plan, bookingWindow: els.bookingWindow,
+      extraMileageFee: els.extraMileageFee, lateReturnFee: els.lateReturnFee,
+      additionalUsageFee: els.additionalUsageFee, tripsPerMonth: els.tripsPerMonth,
+    };
+    function readFields() {
+      return Object.fromEntries(FIELD_IDS.map((id) => [id, fieldEls[id].value]));
+    }
+    function applyFields(values) {
+      for (const id of FIELD_IDS) {
+        if (!Object.prototype.hasOwnProperty.call(values, id)) continue;
+        fieldEls[id].value = values[id];
+        // A select cleared to "" has no option; fall back to its default one.
+        if (fieldEls[id].tagName === "SELECT" && fieldEls[id].selectedIndex < 0) {
+          fieldEls[id].selectedIndex = Math.max(0, [...fieldEls[id].options].findIndex((o) => o.defaultSelected));
+        }
+      }
+    }
+    function saveDraft() {
+      safe(() => localStorage.setItem(DRAFT_KEY, JSON.stringify(decodeInputs(encodeInputs(readFields())))));
+    }
+    $("#copy-link").addEventListener("click", async () => {
+      const url = `${location.origin}${location.pathname}#${encodeInputs(readFields())}`;
+      const note = $("#draft-status");
+      try {
+        await navigator.clipboard.writeText(url);
+        note.textContent = "Link copied. The numbers travel in the URL fragment; nothing is uploaded.";
+      } catch {
+        history.replaceState(null, "", url);
+        note.textContent = "Copy the address bar: the link now carries your numbers in its fragment.";
+      }
+      recordEvent("link-copied");
+    });
+    (() => {
+      const saved = safe(() => JSON.parse(localStorage.getItem(DRAFT_KEY) || "{}")) || {};
+      const fromLink = decodeInputs(location.hash || location.search);
+      const hasLink = Object.keys(fromLink).length > 0;
+      if (Object.keys(saved).length) applyFields(formValues(saved));
+      if (hasLink) applyFields(formValues(fromLink));
+      if (hasLink || Object.keys(saved).length) {
+        $("#draft-status").textContent = hasLink
+          ? "Opened a shared trip. Review the numbers before you use it."
+          : "Restored your last trip from this browser.";
+        if (els.tripPrice.value) runCalculate(true);
+      }
+    })();
 
     $("#optout").addEventListener("click", (event) => {
       toggleUsage(false);

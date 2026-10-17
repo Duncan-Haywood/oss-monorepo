@@ -16,6 +16,7 @@ Follow-up to `selfrep-terminal` and `selfrep-satmarket` in the self-replicating 
 cd research/selfrep-terminalmarket
 python3 -m unittest discover -s tests -v     # 5 tests, standard library only
 python3 experiments/run.py                   # about 25 s; writes experiments/results.txt
+python3 experiments/figure.py                # redraws experiments/bangbang_vs_resale.svg from results.txt
 ```
 
 ## Results (from `experiments/results.txt`; T = 600 h, a = 1, W = 50 h, failure 0; all assumed; `s*` = a/k = 50)
