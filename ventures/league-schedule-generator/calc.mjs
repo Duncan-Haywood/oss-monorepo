@@ -543,6 +543,33 @@ export function restReport(schedule) {
   return { rows, shortest, longest, back_to_back: backToBack };
 }
 
+/**
+ * Rematch spacing for a double round-robin: days between the two meetings of each pair, so
+ * a league can see whether any pair replays the same fixture back to back. Returns
+ * { pairs: [{ a, b, gap }] sorted shortest first, shortest, longest }. A single round-robin
+ * has no rematches: pairs is empty and shortest/longest are null. A pair that meets more
+ * than twice (after rainouts) is measured between its two closest meetings.
+ */
+export function rematchReport(schedule) {
+  const meets = new Map();
+  for (const r of schedule.rounds) for (const m of r.matches) {
+    const key = Math.min(m.home, m.away) + "-" + Math.max(m.home, m.away);
+    if (!meets.has(key)) meets.set(key, []);
+    meets.get(key).push(r.day);
+  }
+  const pairs = [];
+  for (const [key, days] of meets) {
+    if (days.length < 2) continue;
+    const d = days.slice().sort((x, y) => x - y);
+    let gap = Infinity;
+    for (let k = 1; k < d.length; k++) gap = Math.min(gap, d[k] - d[k - 1]);
+    const [a, b] = key.split("-").map(Number);
+    pairs.push({ a: schedule.teams[a], b: schedule.teams[b], gap });
+  }
+  pairs.sort((x, y) => x.gap - y.gap || (x.a < y.a ? -1 : x.a > y.a ? 1 : 0) || (x.b < y.b ? -1 : 1));
+  return { pairs, shortest: pairs.length ? pairs[0].gap : null, longest: pairs.length ? pairs[pairs.length - 1].gap : null };
+}
+
 // ---------------------------------------------------------------- independent validator
 
 /**

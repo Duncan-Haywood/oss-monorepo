@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs,
   scheduleText, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport,
+  splitPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -872,4 +872,22 @@ test("restReport: a single round gives null gaps", () => {
   const r = restReport(buildSchedule(baseSpec(2)));
   assert.equal(r.shortest, null);
   assert.equal(r.longest, null);
+});
+
+test("rematchReport: double round-robin gap between each pair's meetings, recounted independently", () => {
+  const sch = buildSchedule(baseSpec(4, { double: true }));
+  const r = rematchReport(sch);
+  assert.equal(r.pairs.length, 6);
+  const days = {};
+  for (const rd of sch.rounds) for (const m of rd.matches) (days[[m.home, m.away].sort().join("-")] ||= []).push(rd.day);
+  const gaps = Object.values(days).map((d) => { assert.equal(d.length, 2); return Math.abs(d[1] - d[0]); });
+  assert.equal(r.shortest, Math.min(...gaps));
+  assert.equal(r.longest, Math.max(...gaps));
+  assert.ok(r.pairs.every((p, i) => i === 0 || r.pairs[i - 1].gap <= p.gap));
+  assert.ok(r.shortest >= 7);
+});
+
+test("rematchReport: single round-robin has no rematches", () => {
+  const r = rematchReport(buildSchedule(baseSpec(4)));
+  assert.deepEqual(r, { pairs: [], shortest: null, longest: null });
 });
