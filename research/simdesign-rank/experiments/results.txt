@@ -1,0 +1,19 @@
+# 80 random designs per seed (L 20-160, h 4-30, b 5-60 mm, log-uniform, L/h >= 2), F = 100 N; merit = stiffness per mass; seeds (1, 2, 3)
+seed 1: stubby (L/h<6) 38, wide (b/h>2) 33, 3D-best design L,h,b = [20.2, 6.8, 14.2]
+  euler: merit/3D median 0.994, min 0.909, max 1.145
+  timoshenko: merit/3D median 0.964, min 0.891, max 0.993
+  fe2d: merit/3D median 0.971, min 0.895, max 0.994
+seed 2: stubby (L/h<6) 40, wide (b/h>2) 32, 3D-best design L,h,b = [22.1, 8.8, 12.4]
+  euler: merit/3D median 0.994, min 0.911, max 1.145
+  timoshenko: merit/3D median 0.962, min 0.891, max 0.993
+  fe2d: merit/3D median 0.969, min 0.896, max 0.994
+seed 3: stubby (L/h<6) 34, wide (b/h>2) 37, 3D-best design L,h,b = [20.0, 7.9, 33.8]
+  euler: merit/3D median 0.992, min 0.938, max 1.127
+  timoshenko: merit/3D median 0.971, min 0.891, max 0.994
+  fe2d: merit/3D median 0.976, min 0.900, max 0.995
+
+model | Kendall tau vs 3D (all) | top-8 overlap | rank of 3D winner (of 80) | tau stubby | tau wide
+euler | 0.992, 0.987, 0.994 | 0.875, 0.875, 1.000 | 1, 1, 1 | 0.977, 0.962, 0.986 | 1.000, 0.992, 0.997
+timoshenko | 0.994, 0.994, 0.996 | 1.000, 0.875, 1.000 | 1, 1, 1 | 0.986, 0.985, 0.989 | 1.000, 0.988, 1.000
+fe2d | 0.994, 0.993, 0.996 | 1.000, 0.875, 1.000 | 1, 1, 1 | 0.986, 0.982, 0.989 | 1.000, 0.988, 1.000
+# elapsed 462 s
