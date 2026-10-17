@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01VT4pQfgcL33QB3fwqDWPng",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T21:06:56Z",
+  "ended": "2026-10-17T21:08:21Z",
+  "wall_minutes": 1.54,
+  "tokens_in": 1793703,
+  "tokens_out": 7358,
+  "cost_usd": 0.7254,
+  "tool_calls": 22,
+  "task": "figure-gap (milestone 9)",
+  "projects": [
+    "selfrep-satmarket"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "first scan for figure-less projects used a failing ls glob and wrongly listed projects that have a png; overwrote accel-lut/experiments/figure.py, caught by git status and reverted before commit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "'84 projects have none' count did not match a recount (39 with results.txt and no image); corrected in this PR"
+    }
+  ],
+  "deviations": [],
+  "goal": null,
+  "notes": "Added a figure drawn from results.txt for selfrep-satmarket; no results changed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c7771eb5-ebf9-59c3-9db1-03960ea9e3ad",
+    "transcripts": 1,
+    "first": "2026-10-17T21:06:56Z",
+    "last": "2026-10-17T21:08:29Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 20,
+        "input": 40,
+        "output": 7358,
+        "thinking": 1724,
+        "cache_read": 1716549,
+        "cache_write_5m": 0,
+        "cache_write_1h": 77114,
+        "api_equivalent_usd": 0.7254,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 20,
+      "input": 40,
+      "output": 7358,
+      "thinking": 1724,
+      "cache_read": 1716549,
+      "cache_write_5m": 0,
+      "cache_write_1h": 77114,
+      "api_equivalent_usd": 0.7254,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.957,
+    "tool_calls": 22,
+    "tools": {
+      "Bash": 19,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.54,
+      "active_minutes": 1.54,
+      "model_minutes": 1.04,
+      "tool_minutes": 0.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "small figure script plus README edit",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 68.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -60,7 +60,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
      image under the project's `experiments/`), the homepage card links to it, and the build
      fails if a page cannot be built. Most projects ship no image yet (five were added 2026-10-15
      via `experiments/figure.py`, which parses the committed `results.txt`); `robofab-cell`, `robofab-cell-cv` and `robofab-cell-mva` followed, redrawn from their `results.json`, so most pages have no
-     figure yet. Every later figure follows the same pattern, drawn by an `experiments/figure.py` that parses the committed `results.txt` (the per-project changelog that sat here was dropped 2026-10-17 as unscannable; `git log -- research/*/experiments/figure.py` has it). Still open: have each project's experiment code write a figure (84 projects have none, counted 2026-10-17; `selfrep-redesign` and `twin-pilot` gained figures the same day by images under `experiments/`), and the
+     figure yet. Every later figure follows the same pattern, drawn by an `experiments/figure.py` that parses the committed `results.txt` (the per-project changelog that sat here was dropped 2026-10-17 as unscannable; `git log -- research/*/experiments/figure.py` has it). Still open: have each project's experiment code write a figure (about 39 projects with a `results.txt` have none, recounted 2026-10-17, the earlier 84 included projects whose figure is a .png; `selfrep-redesign` and `twin-pilot` gained figures the same day by images under `experiments/`), and the
      `oss-monorepo` products half.
    - **Products (*oss-monorepo*).** Every venture gets a home or marketing page from the Pages
      build, including the CLIs, servers and apps the mirror excludes today: what it does and for
