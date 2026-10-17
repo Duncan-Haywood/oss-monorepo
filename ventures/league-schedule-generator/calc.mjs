@@ -1102,13 +1102,23 @@ ${brk}
  * Lines like "Hawks 3 - 2 Owls". Names are matched against the team list.
  * A forfeit is written "Hawks w/o Owls" (also "wo" or "walkover"): Hawks are awarded the win and
  * the score `walkover` (default 3-0, so goal difference reflects it); the result carries `walkover: true`.
+ * A points adjustment is "Hawks -3 pts" (also "+1", "-2 points", an optional "(reason)" after it): the
+ * signed number is added to that team's table points and returned in `adjustments` as { teamIndex: delta }.
  */
 export function parseResults(text, teams, { walkover = [3, 0] } = {}) {
   const results = [];
   const errors = [];
+  const adjustments = {};
   for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
     const line = raw.trim();
     if (!line) continue;
+    const adj = line.match(/^(.*?)\s+([+-]\d+)\s*(?:pts?|points?)?\s*(?:\(.*\))?$/i);
+    if (adj) {
+      const t = teamIndex(teams, adj[1]);
+      if (t < 0) { errors.push(`Result line ${i + 1}: "${adj[1]}" is not one of the teams.`); continue; }
+      adjustments[t] = (adjustments[t] ?? 0) + Number(adj[2]);
+      continue;
+    }
     const w = line.match(/^(.*?)\s+(?:w\/o|wo|walkover)\s+(.*)$/i);
     if (w) {
       const a = teamIndex(teams, w[1]);
@@ -1126,15 +1136,17 @@ export function parseResults(text, teams, { walkover = [3, 0] } = {}) {
     if (a === b) { errors.push(`Result line ${i + 1}: a team cannot play itself.`); continue; }
     results.push({ a, b, ga: Number(m[2]), gb: Number(m[3]) });
   }
-  return { results, errors };
+  return { results, errors, adjustments };
 }
 
 /**
  * Points, then goal difference, then goals for, then the order the teams were entered.
  * With `headToHead: true`, teams level on points are first split by a mini-table of only the
  * matches among them (points, goal difference, goals for), then by the overall tiebreaks.
+ * `adjustments` ({ teamIndex: points }, from `parseResults`) adds or deducts table points, e.g. a
+ * league penalty; the row shows it as `adj` and it counts before every tiebreak.
  */
-export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToHead = false } = {}) {
+export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToHead = false, adjustments = {} } = {}) {
   const rows = teams.map((name, i) => ({ index: i, name, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, points: 0 }));
   for (const r of results) {
     const A = rows[r.a];
@@ -1145,7 +1157,7 @@ export function standings(teams, results, { win = 3, draw = 1, loss = 0, headToH
     else if (r.ga < r.gb) { B.won++; A.lost++; B.points += win; A.points += loss; }
     else { A.drawn++; B.drawn++; A.points += draw; B.points += draw; }
   }
-  for (const r of rows) r.gd = r.gf - r.ga;
+  for (const r of rows) { r.gd = r.gf - r.ga; r.adj = adjustments[r.index] ?? 0; r.points += r.adj; }
   if (headToHead) {
     const level = new Map();
     for (const r of rows) level.set(r.points, [...(level.get(r.points) ?? []), r.index]);
@@ -1189,10 +1201,10 @@ export const RACE_EXACT_LIMIT = 12;
  * place whatever the others do (null when out of reach or already clinched). `exact` says whether
  * every outcome was worked through or the safe bounds were used.
  */
-export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 1, loss = 0, exactLimit = RACE_EXACT_LIMIT } = {}) {
+export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 1, loss = 0, exactLimit = RACE_EXACT_LIMIT, adjustments = {} } = {}) {
   const n = teams.length;
   const k = Math.max(1, Math.min(spots, n));
-  const pts = Array(n).fill(0);
+  const pts = Array.from({ length: n }, (_, i) => adjustments[i] ?? 0);
   for (const r of results) {
     if (r.ga > r.gb) { pts[r.a] += win; pts[r.b] += loss; }
     else if (r.ga < r.gb) { pts[r.b] += win; pts[r.a] += loss; }
