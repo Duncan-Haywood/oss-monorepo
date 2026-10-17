@@ -1,22 +1,22 @@
-A. scenarios, 4000 builds each (seed 1). Calendar days = 1.4 x working days. Interest at 8%/yr on the drawn balance.
-   scenario                              mean cal days   p90 cal days   interest % of cost
-   baseline                                  205 (+0.0%)      228     1.89 (+0.00 pts)
-   order long-lead items day 0               181 (-11.4%)      202     1.76 (-0.13 pts)
-   prefab wall/roof panels                   202 (-1.5%)      225     1.91 (+0.02 pts)
-   one framing crew (fewer handoffs)         205 (+0.3%)      229     1.90 (+0.02 pts)
-   all three                                 171 (-16.7%)      190     1.72 (-0.17 pts)
+N = 4000 builds per scenario, common random numbers; working days (260 per year)
+zero-noise critical path, baseline: 100.0 d
 
-B. baseline mean calendar days against each assumption (others at baseline)
-   rain_p=0.0    baseline    202   all-three    166   saving  17.5%
-   rain_p=0.05   baseline    203   all-three    167   saving  17.4%
-   rain_p=0.15   baseline    205   all-three    171   saving  16.7%
-   rain_p=0.3    baseline    210   all-three    177   saving  15.6%
-   inspect_fail=0.0    baseline    200   all-three    165   saving  17.7%
-   inspect_fail=0.15   baseline    205   all-three    171   saving  16.7%
-   inspect_fail=0.3    baseline    211   all-three    179   saving  15.3%
-   handoff_gap=0.5    baseline    184   all-three    154   saving  16.3%
-   handoff_gap=2.0    baseline    205   all-three    171   saving  16.7%
-   handoff_gap=5.0    baseline    248   all-three    207   saving  16.4%
-   sd_frac=0.1    baseline    204   all-three    170   saving  16.8%
-   sd_frac=0.25   baseline    205   all-three    171   saving  16.7%
-   sd_frac=0.4    baseline    206   all-three    172   saving  16.5%
+scenario                                               mean    p10    p90  d mean  interest %price  saved
+baseline                                              213.6  189.6  239.4    +0.0             3.02   0.00   (se of d 0.00)
+fewer handoffs (gap 2.0 -> 0.5 d)                     192.6  170.5  216.5   -21.0             2.72   0.30   (se of d 0.09)
+faster inspections (wait 3 -> 1 d, fail 15 -> 5%)     202.4  180.5  225.5   -11.1             2.86   0.16   (se of d 0.10)
+rough-in trades in parallel                           201.1  177.2  226.7   -12.5             2.84   0.18   (se of d 0.05)
+order all materials at day 0                          150.7  135.0  167.5   -62.9             2.13   0.89   (se of d 0.24)
+factory shell (wall+roof panels)                      207.1  183.1  233.2    -6.4             2.93   0.09   (se of d 0.11)
+factory shell, ordered at day 0                       135.2  120.4  151.3   -78.3             1.91   1.11   (se of d 0.23)
+all of the above                                       95.9   86.4  106.4  -117.6             1.35   1.66   (se of d 0.26)
+
+Weather sensitivity (baseline vs factory shell), mean days
+  weather_loss 0.00: site-built  208.3  shell  132.4  shell saves  75.8
+  weather_loss 0.15: site-built  213.6  shell  135.2  shell saves  78.3
+  weather_loss 0.30: site-built  221.3  shell  139.7  shell saves  81.7
+
+Interest rate sensitivity of the all-levers saving, % of price
+  rate 0.04: baseline  1.51  all levers  0.68  saved  0.83
+  rate 0.08: baseline  3.02  all levers  1.35  saved  1.66
+  rate 0.12: baseline  4.52  all levers  2.03  saved  2.49

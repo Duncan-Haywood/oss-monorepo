@@ -248,6 +248,21 @@ class TestSweep(Fixture):
         self.assertEqual(found[0][3], [21])
         self.assertEqual([c.subject for c in found[0][2]], ["b"])
 
+    def test_work_already_on_main_under_another_commit_is_not_reported(self):
+        self.branch("claude/squashed")
+        self.commit("ventures/q/index.html", "q\n", "q: new venture", day="2026-10-01")
+        self.push("claude/squashed")
+        self.squash_merge("ventures/q/index.html", "q\n", "q: new venture (#1)")
+        self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
+
+    def test_work_main_has_not_got_is_still_reported(self):
+        self.branch("claude/missing")
+        self.commit("ventures/r/index.html", "mine\n", "r: new venture", day="2026-10-01")
+        self.push("claude/missing")
+        self.squash_merge("ventures/other/index.html", "x\n", "other (#2)")
+        self.assertEqual([r[1] for r in uw.sweep(str(self.clone), since=None, probe=self.probe)],
+                         ["claude/missing"])
+
     def test_gh_pages_is_never_reported(self):
         run(self.clone, "checkout", "-q", "--orphan", "gh-pages")
         run(self.clone, "rm", "-rq", "--cached", ".")

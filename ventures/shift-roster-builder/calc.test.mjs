@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { laborPercent, dailyLabor, fairnessReport, trimOptions, scheduleFlags,
+import { laborPercent, dailyLabor, fairnessReport, hoursThresholds, trimOptions, scheduleFlags,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -623,6 +623,18 @@ test("prefer: gives the hours to the person who asked, but never leaves a shift 
 
 test("prefer: bad days are reported", () => {
   assert.ok(parseStaff("Ana, 15, 40, 0, any, prefer: Funday").errors.some((e) => /prefer/.test(e)));
+});
+
+test("hoursThresholds lists people at or just under a weekly-hours line", () => {
+  const r = { people: [{ name: "A", hours: 32 }, { name: "B", hours: 30 }, { name: "C", hours: 28.5 }, { name: "D", hours: 20 }, { name: "E", hours: 0 }] };
+  const t = hoursThresholds(r);
+  assert.deepEqual(t.over.map((x) => x.name), ["A", "B"]);
+  assert.equal(t.over[0].by, 2);
+  assert.deepEqual(t.near.map((x) => x.name), ["C"]);
+  assert.equal(t.near[0].short, 1.5);
+  assert.equal(hoursThresholds(r, { threshold: 40 }).near.length, 0);
+  assert.equal(hoursThresholds(r, { threshold: 0 }).over.length, 0);
+  assert.equal(hoursThresholds({}).over.length, 0);
 });
 
 test("fairnessReport counts weekend, closing and opening shifts per person and flags a lopsided week", () => {

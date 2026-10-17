@@ -1,7 +1,7 @@
 [project]
 name = "house-schedule"
 version = "0.1.0"
-description = "How much do sequencing, early ordering, prefabrication and fewer handoffs cut a house build's duration and construction-loan interest? A Monte Carlo schedule model of trades, weather, inspections and lead times"
+description = "How much do sequencing, prefabrication and fewer handoffs cut the time to build a house, and the interest paid while it runs? A Monte Carlo discrete-event model of the trades, inspections, weather and material lead times"
 requires-python = ">=3.9"
 dependencies = []
 license = { text = "MIT" }

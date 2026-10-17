@@ -2722,8 +2722,8 @@
     },
     {
      "slug": "house-schedule",
-     "title": "How much do early ordering, prefabricated panels and fewer handoffs shorten a house build?",
-     "summary": "A Monte Carlo schedule of a stylised 13-task house build with one crew per trade, weather loss, inspections that can fail and long-lead trusses and windows (4,000 builds per scenario). Ordering the long-lead items on day 0 cuts the mean from 205 to 181 calendar days (&minus;11%); prefabricated panels alone cut 1.5%; merging the roofing and siding crews changed nothing. All three: 171 days (&minus;17%), but construction-loan interest is only 1.7&ndash;1.9% of cost. The assumed handoff gap moves the baseline by 35%, more than any lever. Stylised: every input is an assumption and the prefab saving ignores the factory."
+     "title": "How much do fewer handoffs, parallel trades, early ordering and a factory shell cut the time to build a house?",
+     "summary": "A Monte Carlo discrete-event model of one house build (20 tasks, a crew per trade, failing inspections, weather, material lead times; 4,000 builds per scenario with common random numbers). The zero-noise critical path is 100 working days but the baseline takes 214: the schedule is driven by waiting. Ordering long-lead materials at day 0 saves 63 days, fewer handoffs 21, parallel rough-in 12.5, faster inspections 11. A factory wall-and-roof shell saves only 6 days if ordered when the foundation starts and 78 if ordered at day 0. All levers together: 96 days, about 1.7% of the price in interest at 8%. <em>Stylised</em>: every duration and rate is my assumption and nothing is calibrated; the 63-day figure rests on a late-ordering baseline."
     }
    ]
   }

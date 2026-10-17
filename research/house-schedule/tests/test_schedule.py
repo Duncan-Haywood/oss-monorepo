@@ -1,37 +1,38 @@
-import random
 from dataclasses import replace
-from house_schedule import TASKS, Scenario, simulate, run, interest_share
+
+from house_schedule import Params, critical_path, run_many, simulate
+
+QUIET = Params(gap_mean=0, weather_loss=0, dur_sigma=0, lead_sigma=0, insp_wait=0,
+               insp_fail=0, order_early=True)
 
 
-def test_graph_is_topologically_ordered():
-    seen = set()
-    for name, _, _, preds, *_ in TASKS:
-        assert set(preds) <= seen
-        seen.add(name)
+def test_deterministic_run_equals_critical_path():
+    T, _ = simulate(QUIET, 1)
+    assert abs(T - critical_path(QUIET)) < 1e-9
 
 
-def test_deterministic():
-    assert run(Scenario("a"), 200, seed=3) == run(Scenario("a"), 200, seed=3)
+def test_same_seed_same_result():
+    assert simulate(Params(), 7) == simulate(Params(), 7)
 
 
-def test_without_noise_duration_is_at_least_critical_path():
-    sc = Scenario("q", rain_p=0.0, inspect_fail=0.0, handoff_gap=1e-9, sd_frac=0.0, order_early=True)
-    total, _ = simulate(sc, random.Random(0))
-    finish = {}
-    for name, _, mean, preds, *_ in TASKS:
-        finish[name] = max([finish[p] for p in preds], default=0) + mean
-    assert total >= max(finish.values())
+def test_more_handoff_gap_never_faster():
+    for s in range(30):
+        a = simulate(replace(Params(), gap_mean=0.5), s)[0]
+        b = simulate(replace(Params(), gap_mean=3.0), s)[0]
+        assert b >= a - 1e-9
 
 
-def test_more_rain_and_failures_never_shorten_on_average():
-    base = run(Scenario("b"), 1500)["mean"]
-    assert run(Scenario("b", rain_p=0.3), 1500)["mean"] > base
-    assert run(Scenario("b", inspect_fail=0.4), 1500)["mean"] > base
+def test_weather_and_failures_only_slow():
+    base = run_many(replace(Params(), weather_loss=0, insp_fail=0), 200)[0]
+    worse = run_many(Params(), 200)[0]
+    assert sum(worse) > sum(base)
 
 
-def test_ordering_early_helps():
-    assert run(Scenario("e", order_early=True), 1500)["mean"] < run(Scenario("b"), 1500)["mean"]
+def test_parallel_rough_shortens_critical_path():
+    assert critical_path(replace(QUIET, parallel_rough=True)) < critical_path(QUIET)
 
 
-def test_interest_share_scales_with_rate_and_carry():
-    assert interest_share(100, 0.08) == 2 * interest_share(100, 0.04) == 2 * interest_share(50, 0.08)
+def test_interest_scales_with_time_and_rate():
+    T, i = simulate(Params(), 3)
+    T2, i2 = simulate(replace(Params(), rate=0.16), 3)
+    assert T == T2 and abs(i2 - 2 * i) < 1e-9

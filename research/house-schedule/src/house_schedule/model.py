@@ -1,107 +1,138 @@
-"""Monte Carlo schedule of a stylised single-family house build.
+"""Discrete-event model of building one house, in working days.
 
-Tasks form a precedence graph. Each trade has one crew, so tasks of the same trade run one at a time. A crew
-that has been away (it worked elsewhere in between) pays a re-mobilisation gap and may be late. Weather-exposed
-tasks lose working days at random. Inspections wait for an inspector and can fail, forcing rework. Long-lead
-items arrive a lead time after they are ordered. All numbers are assumptions, not data (see the README).
-Durations are working days; one working day = 1.4 calendar days.
+Every duration, probability and lead time here is an assumption of mine, not a
+measurement. The model is for comparing levers against each other, not for
+predicting how long a real house takes.
+
+A task has: a trade (one crew per trade), predecessors, a nominal duration,
+whether weather can stop it, and optionally a material with a lead time. A task
+starts at max(predecessors done, crew free, material arrived) plus a random
+handoff gap (the crew arriving late). Inspections are tasks with a wait and a
+chance of failure that costs rework and a second wait.
 """
+import math
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 
-CAL = 1.4  # calendar days per working day (5-day week)
-
-# name, trade, mean working days, predecessors, weather-exposed, inspection after, long-lead item needed
-TASKS = [
-    ("site",       "civil",   5, [],                       True,  False, None),
-    ("foundation", "concrete", 10, ["site"],                True,  True,  None),
-    ("framing",    "framer",  15, ["foundation"],          True,  True,  "trusses"),
-    ("roof",       "roofer",   5, ["framing"],             True,  False, None),
-    ("windows",    "framer",   3, ["framing"],             True,  False, "windows"),
-    ("mep_rough",  "mep",     12, ["roof", "windows"],     False, True,  None),
-    ("insulation", "insulator", 4, ["mep_rough"],           False, True,  None),
-    ("drywall",    "drywall", 12, ["insulation"],          False, False, None),
-    ("siding",     "siding",   8, ["windows", "roof"],     True,  False, None),
-    ("finishes",   "finish",  15, ["drywall"],             False, False, None),
-    ("mep_final",  "mep",      5, ["finishes"],            False, True,  None),
-    ("exterior",   "civil",    5, ["siding"],              True,  False, None),
-    ("final",      "gc",       2, ["mep_final", "exterior"], False, True,  None),
-]
-LEADS = {"trusses": (15, 30), "windows": (20, 45)}  # working days from order, uniform (assumption)
+# name: (trade, preds, days, weather_exposed, material, lead_days)
+TASKS = {
+    "site_prep":       ("site",     [],                                  5, True,  None,       0),
+    "foundation":      ("concrete", ["site_prep"],                       8, True,  "concrete", 3),
+    "cure":            (None,       ["foundation"],                      7, False, None,       0),
+    "insp_found":      ("INSP",     ["cure"],                            0, False, None,       0),
+    "framing":         ("framer",   ["insp_found"],                     15, True,  "lumber",   10),
+    "roof":            ("roofer",   ["framing"],                         5, True,  "roofing",  10),
+    "windows":         ("framer",   ["roof"],                            3, True,  "windows",  30),
+    "rough_plumb":     ("plumber",  ["windows"],                         5, False, None,       0),
+    "rough_elec":      ("electric", ["rough_plumb"],                     5, False, None,       0),
+    "rough_hvac":      ("hvac",     ["rough_elec"],                      5, False, "hvac",     15),
+    "insp_rough":      ("INSP",     ["rough_hvac"],                      0, False, None,       0),
+    "insulation":      ("insul",    ["insp_rough"],                      3, False, None,       0),
+    "insp_insul":      ("INSP",     ["insulation"],                      0, False, None,       0),
+    "drywall":         ("drywall",  ["insp_insul"],                     10, False, None,       0),
+    "paint":           ("painter",  ["drywall"],                         6, False, None,       0),
+    "cabinets":        ("finish",   ["paint"],                           8, False, "cabinets", 35),
+    "flooring":        ("floor",    ["cabinets"],                        5, False, None,       0),
+    "siding":          ("siding",   ["windows"],                         8, True,  "siding",   10),
+    "finish_mep":      ("plumber",  ["flooring"],                        6, False, None,       0),
+    "insp_final":      ("INSP",     ["finish_mep", "siding"],            0, False, None,       0),
+}
 
 
 @dataclass(frozen=True)
-class Scenario:
-    name: str
-    order_early: bool = False      # order long-lead items at day 0 instead of when the predecessor starts
-    panel_share: float = 0.0       # share of framing/roof/window work moved to a factory (off the weather, in parallel)
-    panel_cut: float = 0.5         # onsite time saved on the moved share (panels are made in parallel with the foundation)
-    merge_trades: bool = False     # one multi-skilled crew does framer+roofer+siding (fewer handoffs)
-    rain_p: float = 0.15           # chance a weather-exposed working day is lost
-    inspect_fail: float = 0.15
-    handoff_gap: float = 2.0       # mean working days to re-mobilise a returning crew
-    sd_frac: float = 0.25          # sd of task duration as a share of mean
+class Params:
+    gap_mean: float = 2.0         # mean days a crew arrives late (exponential)
+    weather_loss: float = 0.15    # chance an exposed working day is lost
+    dur_sigma: float = 0.20       # lognormal sigma on task durations
+    lead_sigma: float = 0.30      # lognormal sigma on lead times
+    insp_wait: float = 3.0        # mean days to get an inspector (1 + exponential)
+    insp_fail: float = 0.15       # chance an inspection fails
+    rework_days: float = 3.0      # days to fix, then wait for reinspection
+    parallel_rough: bool = False  # run plumbing, electrical, hvac rough-in together
+    order_early: bool = False     # order every material at day 0
+    prefab_shell: bool = False    # factory wall and roof panels, craned in
+    prefab_lead: float = 25.0     # factory lead time for the shell, days
+    prefab_frame_days: float = 5.0   # on-site days to set the shell (was framing 15 + roof 5)
+    rate: float = 0.08            # annual interest rate on the money drawn
+    land_share: float = 0.137     # NAHB 2024 lot share of price
+    build_share: float = 0.644    # NAHB 2024 construction share of price
+    notes: str = field(default="", compare=False)
 
 
-SCENARIOS = [
-    Scenario("baseline"),
-    Scenario("order long-lead items day 0", order_early=True),
-    Scenario("prefab wall/roof panels", panel_share=0.6),
-    Scenario("one framing crew (fewer handoffs)", merge_trades=True),
-    Scenario("all three", order_early=True, panel_share=0.6, merge_trades=True),
-]
+def _tasks(p):
+    t = {k: list(v) for k, v in TASKS.items()}
+    if p.parallel_rough:
+        t["rough_elec"][1] = ["windows"]
+        t["rough_hvac"][1] = ["windows"]
+        t["insp_rough"][1] = ["rough_plumb", "rough_elec", "rough_hvac"]
+    if p.prefab_shell:
+        # roof folds into the shell; framing becomes the set of the panels
+        t["framing"][2] = p.prefab_frame_days
+        t["framing"][4:6] = ["shell", p.prefab_lead]
+        t["roof"][2] = 0
+        t["roof"][4:6] = [None, 0]
+    return t
 
 
-def _trade(trade, sc):
-    return "framer" if sc.merge_trades and trade in ("roofer", "siding") else trade
+def critical_path(p=Params()):
+    """Longest path with no randomness, no gaps, no weather, no failures,
+    inspections after the 1-day minimum wait, materials ordered at day 0."""
+    t = _tasks(p)
+    done = {}
+    for name in t:  # TASKS is in topological order
+        trade, preds, d, _, mat, lead = t[name]
+        wait = 1.0 if trade == "INSP" else 0.0
+        ready = max([done[x] for x in preds], default=0.0)
+        done[name] = max(ready, lead if mat else 0.0) + d + wait
+    return max(done.values())
 
 
-def simulate(sc, rng):
-    """One build. Returns (working days to finish, balance-weighted working days the drawn loan is outstanding)."""
-    lead = {k: rng.uniform(*v) for k, v in LEADS.items()}
-    finish, start, crew_free, spend = {}, {}, {}, []
-    for name, trade, mean, preds, wx, insp, item in TASKS:
-        trade = _trade(trade, sc)
-        ready = max([finish[p] for p in preds], default=0.0)
-        if item:  # long-lead item
-            ordered = 0.0 if sc.order_early else max(start[q] for q in preds)  # baseline: when the last predecessor starts
-            ready = max(ready, ordered + lead[item])
-        dur = max(1.0, rng.gauss(mean, sc.sd_frac * mean))
-        prefab = name in ("framing", "roof", "windows")
-        if prefab:
-            dur *= 1 - sc.panel_share * sc.panel_cut
-        free = crew_free.get(trade)
-        t = ready
-        if free is not None and free > ready:
-            t = free                                  # crew still busy: wait
-        elif free is None or ready - free > 1:
-            t = ready + rng.expovariate(1 / sc.handoff_gap)  # crew is not on site: pay to bring it in (first call or after leaving)
-        if wx:
-            p = sc.rain_p * (1 - sc.panel_share * 0.6 if prefab else 1)
-            for _ in range(int(round(dur))):
-                while rng.random() < p:
-                    dur += 1
-        end = t + dur
-        if insp:
-            end += rng.uniform(1, 3)                  # wait for the inspector
-            while rng.random() < sc.inspect_fail:
-                end += 2 + rng.uniform(1, 3)          # rework, then wait for the reinspection
-        crew_free[trade] = end
-        start[name] = t
-        finish[name] = end
-        spend.append((end, mean))
-    total = max(finish.values())
-    wsum = sum(w for _, w in spend)
-    return total, sum(w / wsum * (total - e) for e, w in spend)  # cost drawn as each task finishes
-
-
-def run(sc, n=4000, seed=1):
+def simulate(p, seed):
+    """One build. Returns (working days to finish, interest as % of price)."""
     rng = random.Random(seed)
-    out = [simulate(sc, rng) for _ in range(n)]
-    d = sorted(x[0] for x in out)
-    return {"mean": sum(d) / n, "p90": d[int(0.9 * n)], "carry": sum(x[1] for x in out) / n}
+    t = _tasks(p)
+    # draw all random numbers per task up front so levers share noise (common random numbers)
+    draws = {k: (rng.gauss(0, 1), rng.gauss(0, 1), rng.expovariate(1.0),
+                 rng.random(), rng.expovariate(1.0), rng.expovariate(1.0), rng.random())
+             for k in t}
+    done, begin, crew_free = {}, {}, {}
+    for name, (trade, preds, d, exposed, mat, lead) in t.items():
+        zd, zl, eg, uf, ew, er, uw = draws[name]
+        ready = max([done[x] for x in preds], default=0.0)
+        if trade == "INSP":
+            wait = 1.0 + p.insp_wait * ew
+            fin = ready + wait
+            if uf < p.insp_fail:
+                fin += p.rework_days + 1.0 + p.insp_wait * er
+            done[name] = fin
+            begin[name] = ready
+            continue
+        mat_at = 0.0
+        if mat:
+            # an order goes in when the trigger task starts: day 0 if ordering early,
+            # else when the task's first predecessor starts (lumber and the shell:
+            # when the foundation starts)
+            trig = "foundation" if mat in ("lumber", "shell") else preds[0]
+            placed = 0.0 if p.order_early else begin[trig]
+            mat_at = placed + lead * math.exp(p.lead_sigma * zl - p.lead_sigma ** 2 / 2)
+        free = crew_free.get(trade, 0.0) if trade else 0.0
+        start = max(ready, free, mat_at) + (p.gap_mean * eg if trade else 0.0)
+        dur = d * math.exp(p.dur_sigma * zd - p.dur_sigma ** 2 / 2)
+        if exposed and p.weather_loss > 0:
+            # expected stretch d/(1-w), spread uniformly from none to twice the mean extra
+            dur *= 1 + p.weather_loss / (1 - p.weather_loss) * 2 * uw
+        fin = start + dur
+        done[name] = fin
+        begin[name] = start
+        if trade:
+            crew_free[trade] = fin
+    T = max(done.values())
+    # money: land from day 0, construction drawn roughly linearly over the build
+    years = T / 260.0
+    interest = 100 * p.rate * years * (p.land_share + 0.5 * p.build_share)
+    return T, interest
 
 
-def interest_share(carry_days, rate=0.08):
-    """Interest on the drawn balance as a share of construction cost, at an annual rate (assumed 8%)."""
-    return rate * carry_days * CAL / 365
+def run_many(p, n=2000, seed0=0):
+    out = [simulate(p, seed0 + i) for i in range(n)]
+    return [o[0] for o in out], [o[1] for o in out]
