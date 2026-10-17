@@ -116,3 +116,9 @@ test("the orders import is wired, local-only, and explains what it skips and ass
 test("the tracker's own results table is selected by id so the import table cannot capture it", () => {
   assert.match(html, /querySelector\('#table tbody'\)/);
 });
+
+test("the results table shows how far toward each state's line the seller is", () => {
+  assert.match(html, /import \{ percentUsed \} from '\.\/orders\.mjs'/);
+  assert.match(html, /<th>Of threshold<\/th><th>Status<\/th>/);
+  assert.match(html, /\$\{pctCell\(r\)\}/);
+});
