@@ -812,3 +812,14 @@ test("carry over: a row with an unreadable start or end time is skipped, not rea
   ].join("\n"));
   assert.deepEqual([...e.keys()], ["pat"]);
 });
+
+test("toughBalance spreads weekend, closing and opening shifts without leaving shifts open", () => {
+  const staff = staffOf("Ann,10,40,0,any\nBo,10,40,0,any\nCy,10,40,0,any");
+  const slots = slotsOf("Sat,9,17,1\nSun,9,17,1\nMon,9,17,1\nTue,9,17,1\nWed,9,17,1\nThu,9,17,1");
+  const spread = (r) => fairnessReport(r).spread;
+  const off = buildRoster(staff, slots, { balance: 0, toughBalance: 0 });
+  const on = buildRoster(staff, slots, { balance: 0, toughBalance: 100 });
+  assert.equal(on.unfilled.length, 0);
+  assert.ok(spread(on) <= spread(off));
+  assert.ok(spread(on) <= 1);
+});

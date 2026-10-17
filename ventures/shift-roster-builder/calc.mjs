@@ -322,7 +322,7 @@ const DEFAULTS = {
   mealAfter: 0, mealMin: 30, // unpaid meal break: shifts longer than mealAfter hours lose mealMin minutes of pay (0 = off)
   splitPremium: 0, splitGap: 1, // split-shift premium: dollars owed on each day a person's shifts have a gap over splitGap hours (0 = off)
   burdenPct: 0, otAfter: 40, otMult: 1.5, dailyOtAfter: 0, dailyDtAfter: 0, dtMult: 2, minRestHours: 10, maxConsecDays: 6, maxDailyHours: 0,
-  balance: 25, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0,
+  balance: 25, toughBalance: 0, shortfallValue: 8, avoidValue: 0.5, preferValue: 0.25, seed: 1, restarts: 4, iterations: 0,
 };
 
 function qualified(person, slot) {
@@ -447,7 +447,17 @@ function softPenalty(ctx, p, h, list) {
   const { o, staff, target, avgWage } = ctx;
   const short = Math.max(0, staff[p].minHours - h) * o.shortfallValue;
   const fair = (o.balance / 100) * avgWage * 0.1 * (h - target[p]) ** 2;
-  return short + fair + avoidPenalty(ctx, p, list) - preferBonus(ctx, p, list);
+  return short + fair + toughPenalty(ctx, list) + avoidPenalty(ctx, p, list) - preferBonus(ctx, p, list);
+}
+// A weekend, closing (10pm or later, past midnight) or opening (6am or earlier) shift is "tough", as fairnessReport counts them.
+// With toughBalance > 0 the squared count per person is penalised, which spreads a fixed number of tough shifts evenly.
+const toughSlot = (s) => s.day >= 5 || s.endMin >= 22 * 60 || s.endMin <= s.startMin || s.startMin <= 6 * 60;
+function toughPenalty(ctx, list) {
+  const w = ctx.o.toughBalance;
+  if (!(w > 0) || !list) return 0;
+  let n = 0;
+  for (const i of list) if (toughSlot(ctx.slots[i])) n++;
+  return (w / 100) * ctx.avgWage * n * n;
 }
 // Each hour inside a person's avoid: window costs avoidValue x their wage, so a real saving or an otherwise-open shift outweighs it.
 function avoidPenalty(ctx, p, list) {
