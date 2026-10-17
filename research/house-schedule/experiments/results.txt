@@ -1,0 +1,22 @@
+N = 4000 builds per scenario, common random numbers; working days (260 per year)
+zero-noise critical path, baseline: 100.0 d
+
+scenario                                               mean    p10    p90  d mean  interest %price  saved
+baseline                                              213.6  189.6  239.4    +0.0             3.02   0.00   (se of d 0.00)
+fewer handoffs (gap 2.0 -> 0.5 d)                     192.6  170.5  216.5   -21.0             2.72   0.30   (se of d 0.09)
+faster inspections (wait 3 -> 1 d, fail 15 -> 5%)     202.4  180.5  225.5   -11.1             2.86   0.16   (se of d 0.10)
+rough-in trades in parallel                           201.1  177.2  226.7   -12.5             2.84   0.18   (se of d 0.05)
+order all materials at day 0                          150.7  135.0  167.5   -62.9             2.13   0.89   (se of d 0.24)
+factory shell (wall+roof panels)                      207.1  183.1  233.2    -6.4             2.93   0.09   (se of d 0.11)
+factory shell, ordered at day 0                       135.2  120.4  151.3   -78.3             1.91   1.11   (se of d 0.23)
+all of the above                                       95.9   86.4  106.4  -117.6             1.35   1.66   (se of d 0.26)
+
+Weather sensitivity (baseline vs factory shell), mean days
+  weather_loss 0.00: site-built  208.3  shell  132.4  shell saves  75.8
+  weather_loss 0.15: site-built  213.6  shell  135.2  shell saves  78.3
+  weather_loss 0.30: site-built  221.3  shell  139.7  shell saves  81.7
+
+Interest rate sensitivity of the all-levers saving, % of price
+  rate 0.04: baseline  1.51  all levers  0.68  saved  0.83
+  rate 0.08: baseline  3.02  all levers  1.35  saved  1.66
+  rate 0.12: baseline  4.52  all levers  2.03  saved  2.49
