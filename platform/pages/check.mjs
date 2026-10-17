@@ -597,6 +597,12 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // link with nothing behind it is a 404 a visitor sees. A product with no hub
   // link is worse and quieter: it built, deployed, passed every other check,
   // and no visitor can reach it.
+  //
+  // The hub is a front door now, not the whole catalogue: it links a few tools
+  // directly and every category page, and each category page links all of its
+  // tools. So "the hub links it" means "the hub, or a category page the hub
+  // links, links it" — two clicks at most, which is the promise this check
+  // keeps. A product reachable by neither is still the defect it always was.
   let hubCategoryLinks = new Set();
   const hubHtml = await fs.readFile(path.join(site, 'index.html'), 'utf8').catch(() => null);
   if (hubHtml !== null) {
@@ -606,16 +612,24 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     // to a product called `' + slug + '` and fails the check on a healthy site.
     const markupOnly = hubHtml.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
     const linked = new Set([...markupOnly.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
-    if (linked.size > 0) {
-      for (const slug of linked) {
-        if (!productDirs.includes(slug)) problems.push(`index.html: hub links "${slug}" but no such product shipped`);
-      }
+    hubCategoryLinks = new Set([...markupOnly.matchAll(/data-category="([^"]+)"/g)].map((m) => m[1]));
+    for (const slug of linked) {
+      if (!productDirs.includes(slug)) problems.push(`index.html: hub links "${slug}" but no such product shipped`);
+    }
+    const reachable = new Set(linked);
+    for (const id of hubCategoryLinks) {
+      const page = await fs.readFile(path.join(site, CATEGORY_DIR, id, 'index.html'), 'utf8').catch(() => '');
+      const markup = page.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+      for (const m of markup.matchAll(/data-tool="([^"]+)"/g)) reachable.add(m[1]);
+    }
+    if (reachable.size > 0) {
       for (const product of productDirs) {
-        if (!linked.has(product)) problems.push(`${product}/: shipped but the hub does not link it, so nobody can reach it`);
+        if (!reachable.has(product)) {
+          problems.push(`${product}/: shipped but the hub does not link it, directly or through a category page it links, so nobody can reach it`);
+        }
       }
     }
     if (!DISCLAIMER_MARKER.test(hubHtml)) problems.push('index.html: carries no disclaimer');
-    hubCategoryLinks = new Set([...markupOnly.matchAll(/data-category="([^"]+)"/g)].map((m) => m[1]));
   }
 
   // ---- Category landing pages ---------------------------------------------

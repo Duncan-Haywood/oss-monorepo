@@ -34,12 +34,13 @@ import { promises as fs, existsSync, readFileSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { REPO_URL, withSiteHeader } from './site-nav.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
 
 export const ENGINEERING_PATH = 'engineering/';
-export const REPO_URL = 'https://github.com/Duncan-Haywood/oss-monorepo';
+export { REPO_URL };
 
 // Fixed order so a track keeps its colour from build to build. Anything a
 // future run record calls itself lands in "other" rather than breaking the key.
@@ -584,7 +585,7 @@ export function renderEngineeringPage(model, { baseUrl = '' } = {}) {
     ? `The ${model.recentMerges.length} most recent commits on <code>main</code>'s first-parent line (merge commits and squash merges)${model.historyFrom ? `; this build's history reaches back to ${esc(model.historyFrom)}` : ''}.`
     : 'This build had no merge history to read (a depth-1 checkout), so merges are not shown rather than shown as zero.';
 
-  return `<!doctype html>
+  return withSiteHeader(`<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -657,7 +658,7 @@ footer{color:var(--muted);font-size:13px;padding:8px 0 40px}
 <body>
 <div class="wrap">
 <header>
-  <div class="crumbs"><a href="../" data-pf-to="hub">Catalogue</a> · <a href="../research/">Research</a> · <a href="${REPO_URL}">Repository</a></div>
+  <div class="crumbs"><a href="${REPO_URL}">Repository</a> · <a href="../dev/">Development dashboard</a></div>
   <h1>Engineering status</h1>
   <p class="lede">The monorepo as an engineering manager would read it: what shipped, what each agent session worked on, where the effort and compute went, and what is blocked on the owner. Rebuilt from <code>main</code> at ${head} on ${esc(model.today)} every time the site is published.</p>
 </header>
@@ -768,7 +769,7 @@ ${mergeRows}
 </div>
 </body>
 </html>
-`;
+`, { toRoot: '../', crumbs: [{ label: 'Engineering status' }] });
 }
 
 export async function buildEngineeringPage(outDir, baseUrl = '', { root = DEFAULT_ROOT, today } = {}) {

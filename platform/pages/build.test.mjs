@@ -105,7 +105,11 @@ import {
   SPONSOR_LINK_ATTR,
   markSponsorLinks,
   renderChromeModule,
+  KIND_PAGES,
+  kindPageGroups,
+  SEARCH_INDEX_FILE,
 } from './build.mjs';
+import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER } from './site-nav.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
 import { decodeEntities } from './entities.mjs';
@@ -338,18 +342,18 @@ test('every hub link resolves to a file that exists', async () => {
 
   const hub_ = path.join(outDir, 'index.html');
   for (const href of hrefs) {
-    // platform/deploy/build.mjs writes deploy/ after the site build (publish-branch.sh).
-    if (href === 'deploy/' || href.startsWith('deploy/?app=') || href === 'dev/') continue;
+    // deploy/ and dev/ are written after the site build (publish-branch.sh).
+    if (LATE_NAV_DIRS.some((dir) => href === `${dir}/` || href.startsWith(`${dir}/?`))) continue;
     // A fragment names a section of the target page, not a file.
     await fs.access(hrefTarget(href.split('#')[0], hub_, outDir));
   }
 
-  // The contents index is in-page anchors, which resolve to an element rather
-  // than a file. A stale one is silent — the click just does nothing — so it is
-  // checked here rather than skipped.
+  // In-page anchors resolve to an element rather than a file. A stale one is
+  // silent — the click just does nothing — so it is checked here rather than
+  // skipped.
   const ids = new Set([...hub.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]));
   const fragments = all.filter((h) => h.startsWith('#'));
-  assert.ok(fragments.length > 5, 'the hub should carry a contents index');
+  assert.ok(fragments.length > 0, 'the hub should carry its skip link');
   for (const fragment of fragments) {
     assert.ok(ids.has(fragment.slice(1)), `${fragment} points at no element on the hub`);
   }
@@ -368,6 +372,10 @@ test('relative links inside each tool resolve', async () => {
         .filter((r) => !/^(https?:|mailto:|data:|\/\/|#)/.test(r) && r !== '');
 
       for (const ref of refs) {
+        // The site header links deploy/ and dev/, which publish-branch.sh
+        // writes after this build.
+        const target = path.relative(outDir, hrefTarget(ref, file, outDir)).split(path.sep)[0];
+        if (LATE_NAV_DIRS.includes(target)) continue;
         try {
           await fs.access(hrefTarget(ref, file, outDir));
         } catch {
@@ -470,23 +478,30 @@ test('the sponsor ask is optional and does not gate anything', async () => {
   );
 });
 
-test('the hub declares structured data listing every tool', async () => {
+test('the hub declares structured data listing every section', async () => {
   const { surfaces } = await site();
   const hub = await read('index.html');
   const json = JSON.parse(hub.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
 
   assert.equal(json['@type'], 'CollectionPage');
-  assert.equal(json.mainEntity.numberOfItems, surfaces.length);
-  assert.equal(json.mainEntity.itemListElement.length, surfaces.length);
-  assert.ok(json.mainEntity.itemListElement.every((item) => item.url.startsWith(BASE)));
+  const sections = groupByCategory(surfaces).length + KIND_PAGES.length;
+  assert.equal(json.mainEntity.numberOfItems, sections);
+  assert.equal(json.mainEntity.itemListElement.length, sections);
+  assert.ok(json.mainEntity.itemListElement.every((item) => item.url.startsWith(`${BASE}${CATEGORY_PATH_PREFIX}/`)));
 });
 
-test('the hub renders the full list without JavaScript', async () => {
+test('every tool is reachable from the hub without JavaScript, in at most two clicks', async () => {
   const { surfaces } = await site();
-  const hub = await read('index.html');
-  for (const surface of surfaces) {
-    assert.ok(hub.includes(`href="${surface.slug}/"`), `${surface.slug} missing from the static markup`);
+  const hub = (await read('index.html')).replace(/<script\b[\s\S]*?<\/script>/g, '');
+  const reachable = new Set([...hub.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
+  const categories = [...hub.matchAll(/href="c\/([^"/]+)\/" data-category="\1"/g)].map((m) => m[1]);
+  assert.ok(categories.length >= groupByCategory(surfaces).length, 'the hub links every category page');
+  for (const id of categories) {
+    const page = (await read(CATEGORY_PATH_PREFIX, id, 'index.html')).replace(/<script\b[\s\S]*?<\/script>/g, '');
+    for (const [, slug] of page.matchAll(/data-tool="([^"]+)" data-pf-to/g)) reachable.add(slug);
   }
+  const missing = surfaces.map((s) => s.slug).filter((slug) => !reachable.has(slug));
+  assert.deepEqual(missing, [], 'tools no visitor can click through to');
 });
 
 test('usage counting is local, opt-out, and honours browser signals', async () => {
@@ -494,7 +509,11 @@ test('usage counting is local, opt-out, and honours browser signals', async () =
   assert.match(hub, /localStorage/);
   assert.match(hub, /doNotTrack/);
   assert.match(hub, /globalPrivacyControl/);
-  assert.ok(!/fetch\(|XMLHttpRequest|sendBeacon/.test(hub), 'nothing about a visit leaves the device');
+  assert.ok(!/XMLHttpRequest|sendBeacon/.test(hub), 'nothing about a visit leaves the device');
+  // One request, to this site's own search index, and it carries nothing.
+  const fetches = [...hub.matchAll(/fetch\(([^)]*)\)/g)].map((m) => m[1]);
+  assert.deepEqual(fetches, ['SEARCH_INDEX']);
+  assert.match(hub, new RegExp(`const SEARCH_INDEX = '${SEARCH_INDEX_FILE}';`));
 });
 
 test('the hub makes no off-origin request', async () => {
@@ -1044,43 +1063,60 @@ test('search ranks the tool a query names above one that merely mentions it', ()
   assert.ok(score(ebay, 'roof') < score(chimney, 'roof'));
 });
 
-test('the hub carries a name index and the ranking function it is scored with', async () => {
+/** The search index the hub fetches, parsed once. */
+let parsedIndex;
+const searchIndexJson = async () => (parsedIndex ??= JSON.parse(await read(SEARCH_INDEX_FILE)));
+const toolItems = async () => (await searchIndexJson()).items.filter((item) => item.k !== 'research');
+
+test('the hub carries the ranking function its index is scored with', async () => {
   const html = await read('index.html');
   // Ranking decides what a visitor sees first. A hand-written copy in the page
   // that drifted from the tested export would be a ranking bug with a green
-  // suite -- the same failure the stemmer injection above exists to prevent.
+  // suite -- the same failure the stemmer injection exists to prevent.
   assert.ok(
     html.includes(searchScore.toString()),
     'hub page does not carry the exact searchScore source that build.mjs exports',
   );
   // Scoring needs the tool's own name apart from its description and aliases;
-  // without the attribute every card scores alike and the order never changes.
-  assert.match(html, /<li class="card" data-name="[^"]*roofing[^"]*" data-strong="[^"]*" data-search=/);
+  // without it every item scores alike and the order never changes.
+  const roofing = (await toolItems()).find((item) => item.s === 'roofing-bid-calculator');
+  assert.ok(roofing.n.includes('roofing'), 'no name index for the roofing calculator');
+  assert.ok(roofing.x.includes('roofing'));
+  assert.match(html, /searchScore\(item\.n, item\.x, forms, boundary\)/);
+});
+
+test('the search index lists every tool and every research project, and the hub does not', async () => {
+  const { surfaces } = await site();
+  const index = await searchIndexJson();
+  const tools = await toolItems();
+  assert.deepEqual(tools.map((t) => t.s).sort(), surfaces.map((s) => s.slug).sort());
+  for (const item of tools) assert.ok(index.cats[item.c], `${item.s} names no category`);
+  const research = index.items.filter((item) => item.k === 'research');
+  assert.ok(research.length > 0, 'research projects are searchable too');
+  for (const item of research) {
+    assert.ok(item.u.startsWith(RESEARCH_PATH), item.u);
+    assert.ok(await exists(path.join((await site()).outDir, item.u, 'index.html')), `${item.u} did not ship`);
+  }
+  // The front door no longer carries the catalogue: a handful of example and
+  // featured links, not one card per tool.
+  const hub = (await read('index.html')).replace(/<script\b[\s\S]*?<\/script>/g, '');
+  const linked = new Set([...hub.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
+  assert.ok(linked.size > 10 && linked.size < surfaces.length / 4, `the hub links ${linked.size} tools directly`);
+  assert.doesNotMatch(hub, /data-search=/);
 });
 
 test('a query that matches every word in nothing is offered the closest tools', async () => {
   const html = await read('index.html');
   // The matcher ANDs across words, which keeps two-word queries precise and
-  // turns a typed sentence into nothing at all: "new roof estimate", "tree
-  // removal quote" and "freight class calculator" each returned zero against
-  // the built site while the tool sat there, because one word of the sentence
-  // is in no index. The dead end is now a ranked shortlist, and the page says
-  // it is approximate rather than presenting near-misses as matches.
+  // turns a typed sentence into nothing at all. The dead end is a ranked
+  // shortlist, and the page says it is approximate.
   assert.match(html, /<p class="closest" id="closest" hidden><\/p>/);
   assert.match(html, /No tool matches every word\. Closest /);
-  // Capped: sixty loosely-related tools under the visitor's exact words would
-  // be its own kind of wrong answer.
   assert.match(html, /const CLOSEST_LIMIT = \d+;/);
-  // Scored at a token boundary. The loose substring pass exists so a
-  // half-typed word still matches; reused for ranking it scores "air" inside
-  // "stair", "chair" and "repair", and the shortlist fills with the wrong
-  // trade. Measured: it put the stair-lift and wheelchair-ramp calculators
-  // above the two cooling tools for "air conditioning".
-  assert.match(html, /searchScore\(card\.dataset\.name \|\| '', card\.dataset\.search, forms, true\)/);
-  // And only when it offers something the strict pass did not, so a one-word
-  // query -- where the two sets are the same by construction -- is never
-  // labelled approximate.
-  assert.match(html, /if \(partial\.some\(\(\{ card \}\) => card\.hidden\)\) \{/);
+  // Scored at a token boundary, so "air" does not score inside "stair".
+  assert.match(html, /searchScore\(item\.n, item\.x, forms, true\)/);
+  // And only when it offers something the strict pass did not.
+  assert.match(html, /if \(partial\.some\(\(\{ item \}\) => !hitSet\.has\(item\)\)\) \{/);
 });
 
 test('a word this catalogue repeats everywhere stops narrowing a search', () => {
@@ -1113,29 +1149,18 @@ test('a word this catalogue repeats everywhere stops narrowing a search', () => 
   assert.equal(withoutStopwords('roofing bid', new Set()), 'roofing bid');
 });
 
-test('the hub drops the catalogue words that narrow nothing, from index and query alike', async () => {
-  const html = await read('index.html');
+test('the index drops the catalogue words that narrow nothing, and ships them for the query', async () => {
   const { surfaces } = await site();
-  // Derived from the built catalogue rather than listed, because the copy
-  // changes every time a tool ships and a hand-written list would be
-  // describing last month's catalogue.
-  const cards = [...html.matchAll(/data-name="([^"]*)" data-strong="[^"]*" data-search="([^"]*)"/g)]
-    .map(([, name, index]) => ({ name, index }));
+  const index = await searchIndexJson();
+  const cards = (await toolItems()).map((item) => ({ name: item.n, index: item.x }));
   assert.equal(cards.length, surfaces.length);
-
-  const stops = catalogueStopwords(
-    cards.map(({ name, index }) => ({ name, index })),
-    CATALOGUE_STOPWORD_SHARE,
-  );
-  // Whatever the catalogue is on the day this runs, the two have to agree: a
-  // word the index never stores can never match, so a query keeping one would
-  // return nothing at all.
-  const shipped = new Set(JSON.parse(html.match(/const STOPWORDS = new Set\((\[[^\]]*\])\)/)[1]));
+  const stops = catalogueStopwords(cards, CATALOGUE_STOPWORD_SHARE);
+  // A word the index never stores can never match, so the query filter the
+  // browser uses has to hold every derived stopword.
+  const shipped = new Set(index.stopwords);
   for (const word of stops) {
-    assert.ok(shipped.has(word), `derived stopword "${word}" is not in the page's query filter`);
-    for (const card of cards) {
-      assert.ok(!card.index.split(' ').includes(word), `"${word}" is still indexed on a card`);
-    }
+    assert.ok(shipped.has(word), `derived stopword "${word}" is not in the shipped query filter`);
+    for (const card of cards) assert.ok(!card.index.split(' ').includes(word), `"${word}" is still indexed`);
   }
   // No tool is ever made unfindable by its own name.
   for (const card of cards) {
@@ -1155,7 +1180,7 @@ test('the hub ships one stemmer, not a second copy that can drift', async () => 
 });
 
 test('the search index carries description text the card is too small to show', async () => {
-  const html = await read('index.html');
+  const tools = await toolItems();
   const surfaces = (await site()).surfaces;
 
   const truncated = surfaces.filter(
@@ -1198,9 +1223,7 @@ test('the search index carries description text the card is too small to show', 
       .split(' ')
       .filter((w) => w.length > 4 && !stops.has(w));
     if (candidates.length === 0) continue;
-    const index = html.match(
-      new RegExp(`data-search="([^"]*)"[^>]*>\\s*<a href="${surface.slug}/`),
-    )?.[1];
+    const index = tools.find((item) => item.s === surface.slug)?.x;
     assert.ok(index, `no card rendered for ${surface.slug}`);
     const padded = ` ${index} `;
     assert.ok(
@@ -1226,10 +1249,7 @@ test("the search index carries a venture's other page titles", async () => {
 });
 
 test('a query whose words are not adjacent still matches', async () => {
-  const html = await read('index.html');
-  const cards = [...html.matchAll(/data-search="([^"]*)"[\s\S]*?data-tool="([^"]*)"/g)].map(
-    (m) => ({ index: m[1], slug: m[2] }),
-  );
+  const cards = (await toolItems()).map((item) => ({ index: item.x, slug: item.s }));
   assert.equal(cards.length, (await site()).surfaces.length);
 
   // The rule the page implements: every query word must hit a token boundary.
@@ -1243,7 +1263,6 @@ test('a query whose words are not adjacent still matches', async () => {
       )
       .map((c) => c.slug);
 
-  // Each of these found nothing when the index was one truncated string.
   assert.ok(search('ebay return').includes('ebay-fee-calculator'));
   assert.ok(search('freight accessorial').includes('freight-accessorial-auditor'));
   assert.deepEqual(search('qqzzxx'), []);
@@ -1253,19 +1272,16 @@ test('the query drops exactly the words the index dropped', async () => {
   // If the two normalisers disagree, a query containing a word the index never
   // stores can never match anything.
   const html = await read('index.html');
-  const rendered = JSON.parse(html.match(/const STOPWORDS = new Set\((\[[\s\S]*?\])\)/)[1]);
-  // Two ways a word leaves the index and both have to hold: the generic list
-  // is dropped by `searchTokens` at the moment tokens are made, and the
-  // catalogue's own repeated words are cut from each card afterwards, once the
-  // whole catalogue is known and the frequency can be counted.
-  const indexes = [...html.matchAll(/ data-search="([^"]*)"/g)].map(([, index]) => index.split(' '));
-  assert.ok(indexes.length > 0, 'expected cards to compare against');
-  for (const word of rendered) {
+  const index = await searchIndexJson();
+  const indexes = (await toolItems()).map((item) => item.x.split(' '));
+  assert.ok(indexes.length > 0);
+  for (const word of index.stopwords) {
     const generic = searchTokens([word]) === '';
     const indexed = indexes.some((tokens) => tokens.includes(word));
     assert.ok(generic || !indexed, `"${word}" is a query stopword but is still indexed`);
   }
   assert.ok(html.includes('word.length >= 2'), 'query must drop single characters as the index does');
+  assert.ok(html.includes('!stop.has(word)'), 'the query is filtered by the stopwords shipped with the index');
 });
 
 test('every published page links the favicon, not just the site root', async () => {
@@ -1507,69 +1523,52 @@ test('grouping by sub-group keeps every tool and drops empty groups', () => {
   assert.deepEqual(flat, [{ subcategory: null, items: [{ slug: 'ebay-fee-calculator' }] }]);
 });
 
-test('every discovered tool lands in exactly one rendered group', async () => {
+test('every discovered tool lands on exactly one category page', async () => {
   const { surfaces } = await site();
-  // The by-kind sections (apps, CLIs) list a product a second time on
-  // purpose; this test is about the category groups, so it counts outside them.
-  const hub = renderHub(surfaces, BASE).replace(/<section class="kind-section"[\s\S]*?<\/section>/g, '');
-  for (const surface of surfaces) {
-    const occurrences = hub.split(`href="${surface.slug}/"`).length - 1;
-    assert.equal(occurrences, 1, `${surface.slug} appears ${occurrences} times`);
+  const counts = new Map(surfaces.map((s) => [s.slug, 0]));
+  for (const { category } of groupByCategory(surfaces)) {
+    const page = (await read(CATEGORY_PATH_PREFIX, category.id, 'index.html')).replace(/<script\b[\s\S]*?<\/script>/g, '');
+    for (const [, slug] of page.matchAll(/data-tool="([^"]+)"/g)) counts.set(slug, (counts.get(slug) ?? 0) + 1);
   }
+  for (const [slug, n] of counts) assert.equal(n, 1, `${slug} is on ${n} category pages`);
 });
 
-// The hub is 43 screens tall on a phone, and the trades section alone spans 28
-// of them. Without an index the only route to a later section is scrolling past
-// all of it, and the only alternative is knowing what the tool is called.
-test('the contents index reaches every section and sub-group', async () => {
+// The catalogue is too long for one page, so the Tools index is its table of
+// contents: every category, and every sub-group inside one.
+test('the Tools index reaches every section and sub-group', async () => {
   const { surfaces } = await site();
-  const hub = renderHub(surfaces, BASE);
-  const nav = hub.split('<nav class="contents"')[1].split('</nav>')[0];
-
+  const index = await read(CATEGORY_PATH_PREFIX, 'index.html');
   for (const { category, items } of groupByCategory(surfaces)) {
-    assert.ok(nav.includes(`href="#${category.id}"`), `no contents link for ${category.id}`);
+    assert.ok(index.includes(`href="${category.id}/" data-category="${category.id}"`), `no link for ${category.id}`);
     for (const { subcategory } of groupBySubcategory(category.id, items)) {
       if (!subcategory) continue;
-      assert.ok(nav.includes(`href="#${subcategory.id}"`), `no contents link for ${subcategory.id}`);
+      assert.ok(index.includes(`href="${category.id}/#${subcategory.id}"`), `no link for ${subcategory.id}`);
+      const page = await read(CATEGORY_PATH_PREFIX, category.id, 'index.html');
+      assert.ok(page.includes(`id="${subcategory.id}"`), `${subcategory.id} has no anchor on its page`);
     }
   }
-
-  // Anchors, not a script hook: the index has to work before the script runs
-  // and for a visitor who blocks it.
-  assert.ok(!nav.includes('onclick'), 'the index is plain anchors');
+  for (const kind of KIND_PAGES) assert.ok(index.includes(`href="${kind.id}/" data-category="${kind.id}"`));
 });
 
-test('the hub sub-divides the trades section and leaves small ones flat', async () => {
-  const { surfaces } = await site();
-  const hub = renderHub(surfaces, BASE);
-
-  const trades = hub.split('data-group="trades"')[1].split('</section>\n      </section>')[0];
-  const rendered = [...trades.matchAll(/data-subgroup="([^"]+)"/g)].map((m) => m[1]);
-  assert.ok(rendered.length > 1, 'the 100+ trade tools are broken into families');
-  assert.ok(rendered.includes('trades-roof'));
-
-  const marketplace = hub.split('data-group="marketplace"')[1].split('</section>')[0];
-  assert.ok(
-    !marketplace.includes('data-subgroup'),
-    'a section that fits on a screen gets no sub-headings',
-  );
+test('a long category page is sub-divided with jump links, and a short one stays flat', async () => {
+  const trades = await read(CATEGORY_PATH_PREFIX, 'trades', 'index.html');
+  const jumps = trades.split('<nav class="jumps"')[1].split('</nav>')[0];
+  assert.ok(jumps.includes('href="#trades-roof"'), 'the 100+ trade tools are broken into families');
+  assert.ok(trades.includes('<section class="subgroup" id="trades-roof">'));
+  // The in-page filter is drawn hidden and shown by the script that runs it.
+  assert.match(trades, /<p class="filter" id="cat-filter-row" hidden>/);
+  const marketplace = await read(CATEGORY_PATH_PREFIX, 'marketplace', 'index.html');
+  assert.ok(!marketplace.includes('class="subgroup"'), 'a section that fits on a screen gets no sub-headings');
 });
 
-// The sub-group heading is an h3, so a card beneath it has to be an h4 or the
-// outline claims the card is a sibling of the heading above it. Heading order is
-// how a screen-reader user browses a directory this long.
-test('card headings sit one level below the section that holds them', async () => {
-  const { surfaces } = await site();
-  const hub = renderHub(surfaces, BASE);
-
-  const levels = [...hub.matchAll(/<h([1-6])[ >]/g)].map((m) => Number(m[1]));
-  const skip = levels.slice(1).find((level, i) => level > levels[i] + 1);
-  assert.equal(skip, undefined, 'no heading level is skipped anywhere on the hub');
-
-  const roof = hub.split('data-subgroup="trades-roof"')[1].split('</section>')[0];
-  assert.ok(roof.includes('<h4>'), 'a card under a sub-group heading is an h4');
-  const marketplace = hub.split('data-group="marketplace"')[1].split('</section>')[0];
-  assert.ok(marketplace.includes('<h3>'), 'a card in a flat category stays an h3');
+// Heading order is how a screen-reader user browses a directory this long.
+test('no heading level is skipped on the hub or a category page', async () => {
+  for (const parts of [['index.html'], [CATEGORY_PATH_PREFIX, 'trades', 'index.html'], [CATEGORY_PATH_PREFIX, 'index.html']]) {
+    const html = (await read(...parts)).replace(/<script\b[\s\S]*?<\/script>/g, '');
+    const levels = [...html.matchAll(/<h([1-6])[ >]/g)].map((m) => Number(m[1]));
+    const skip = levels.slice(1).find((level, i) => level > levels[i] + 1);
+    assert.equal(skip, undefined, `${parts.join('/')} skips a heading level`);
+  }
 });
 
 // A category of 110 makes "same category" almost meaningless as a signal: the
@@ -1659,11 +1658,10 @@ test('repair leaves working in-site links untouched', async () => {
 });
 
 test('JSON-LD cannot break out of its script element', () => {
-  const hub = renderHub(
-    [{ slug: 'x', title: 'Bad</script><img src=x>', description: 'd', pageCount: 1, hasSitemap: false }],
-    BASE,
-  );
-  const block = hub.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1];
+  const items = [{ slug: 'x', title: 'Bad</script><img src=x>', description: 'd', pageCount: 1, hasSitemap: false }];
+  const category = categoryFor('x');
+  const page = renderCategoryPage({ category, items, groups: [{ category, items }], baseUrl: BASE });
+  const block = page.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1];
   assert.ok(!block.includes('</script>'));
   assert.equal(JSON.parse(block).mainEntity.itemListElement[0].name, 'Bad</script><img src=x>');
 });
@@ -1685,6 +1683,44 @@ test('hub markup escapes venture copy', () => {
 // calculator and had no route to the other 32. These tests fail the build if a
 // page ships without that route, or if the route points somewhere that 404s.
 // ---------------------------------------------------------------------------
+
+test('every page type carries the one site header, with every nav item', async () => {
+  const { outDir } = await site();
+  const pages = {
+    hub: ['index.html'],
+    tools: [CATEGORY_PATH_PREFIX, 'index.html'],
+    category: [CATEGORY_PATH_PREFIX, 'trades', 'index.html'],
+    apps: [CATEGORY_PATH_PREFIX, 'apps', 'index.html'],
+    about: ['about', 'index.html'],
+    compare: ['compare', 'index.html'],
+    guides: ['guides', 'index.html'],
+    research: ['research', 'index.html'],
+    researchProject: ['research', 'accel-kws', 'index.html'],
+    engineering: ['engineering', 'index.html'],
+    writing: ['writing', 'index.html'],
+    venture: ['ebay-fee-calculator', 'index.html'],
+    notFound: ['404.html'],
+  };
+  for (const [name, parts] of Object.entries(pages)) {
+    const html = await read(...parts);
+    assert.equal(html.split(HEADER_MARKER).length - 1, 1, `${name}: expected exactly one site header`);
+    const toRoot = name === 'notFound' ? BASE : upToRoot(path.join(...parts));
+    const hrefs = [...html.matchAll(/data-pfs-nav="[^"]+" href="([^"]+)"/g)].map((m) => m[1]);
+    assert.deepEqual(hrefs, SITE_NAV.map((item) => `${toRoot === './' ? '' : toRoot}${item.href}`), name);
+    if (name !== 'notFound' && name !== 'venture') {
+      assert.ok(await exists(path.join(outDir, path.dirname(path.join(...parts)), `${toRoot}pf-site.css`)), `${name}: pf-site.css`);
+    }
+  }
+  // The bars later passes anchor under the header (saved bids, shop rates)
+  // still find it, so they sit below the site navigation, not above it.
+  const roofing = await read('roofing-bid-calculator', 'index.html');
+  assert.ok(roofing.includes('data-pf-jobs-root'), 'the roofing tool carries the saved-bids band');
+  assert.ok(roofing.indexOf(HEADER_MARKER) < roofing.indexOf('data-pf-jobs-root'), 'the saved-bids band sits above the site header');
+  // A deep page inside a tool gets a breadcrumb through its category.
+  const deep = (await listFiles(path.join(outDir, 'ebay-fee-calculator'))).find((f) => f.endsWith('.html') && !f.endsWith('index.html'));
+  const html = await fs.readFile(deep, 'utf8');
+  assert.match(html, /aria-label="Breadcrumb"><a href="\.\.\/" data-pf-to="hub">Home<\/a>.*href="\.\.\/c\/marketplace\/".*href="\.\.\/ebay-fee-calculator\/"/s);
+});
 
 test('every published venture page routes back to the hub', async () => {
   const { outDir, surfaces } = await site();
@@ -1710,6 +1746,8 @@ test('every injected link resolves to a page that exists', async () => {
   for (const file of pages) {
     const html = await fs.readFile(file, 'utf8');
     for (const [, ref] of html.matchAll(/href="([^"]+)"[^>]*data-pf-to=/g)) {
+      // 404.html links absolutely: it is served under whatever path was mistyped.
+      if (/^https?:/.test(ref)) continue;
       const resolved = path.resolve(path.dirname(file), ref);
       const target = ref.endsWith('/') ? path.join(resolved, 'index.html') : resolved;
       assert.ok(
@@ -2634,7 +2672,7 @@ test('the saved-bid list never cuts silently', async () => {
   assert.match(hub, /<p class="bid-more" id="bidsMore" hidden><\/p>/);
   // Counted before the cut is applied, so the number offered is a number of
   // rows the visitor could actually open.
-  assert.match(script, /if \(card\) \{\s*rows\.push\(/);
+  assert.match(script, /if \(tool\) \{\s*rows\.push\(/);
 });
 
 test('following a saved bid counts the act, never the customer', async () => {
@@ -2824,9 +2862,9 @@ test('the hub draws the win rate, and counts it once per change', async () => {
   // that moved when the visitor pressed "Show all" would not be a win rate.
   assert.match(script, /const rated = winRateSentence\(rows\)/);
   assert.match(script, /winRate\.hidden = rated === ''/);
-  // The tool's own heading, read off the card the row was matched to. Without
-  // it the sentence would name "deck-bid-calculator" at a contractor.
-  assert.match(script, /label: card\.querySelector\('h3, h4'\)\?\.textContent\.trim\(\) \|\| row\.slug/);
+  // The tool's own name, from the search-index entry the row was matched to.
+  // Without it the sentence would name "deck-bid-calculator" at a contractor.
+  assert.match(script, /label: tool\.t \|\| row\.slug/);
   // Counted on change, and the event names no tool: which trade someone bids
   // is not something this site needs to know to tell whether the reading is
   // worth its bytes.
@@ -3256,8 +3294,9 @@ test('the offline offer is honest and gates nothing', async () => {
   assert.match(hub, /Save this category for offline/);
   assert.match(hub, /Nothing is uploaded either way/);
   // Still no request about a visit leaving the device: the worker fetches
-  // pages, and pages only.
-  assert.ok(!/fetch\(|XMLHttpRequest|sendBeacon/.test(hub));
+  // pages, and the page fetches only its own search index.
+  assert.ok(!/XMLHttpRequest|sendBeacon/.test(hub));
+  assert.deepEqual([...hub.matchAll(/fetch\(([^)]*)\)/g)].map((m) => m[1]), ['SEARCH_INDEX']);
 });
 
 test('the offline widget is hidden unless the browser can honour it', async () => {
@@ -3715,16 +3754,16 @@ test('the hub names its quietest ink rather than tinting it', async () => {
   const hub = await read('index.html');
   const style = hub.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? '';
 
-  // The counts next to each group and sub-group say how many tools are in it.
-  // They are content, and they used to be --muted at .65 and .7 opacity, which
-  // renders 3.18:1 and 3.32:1 -- both under AA.
+  // The counts beside each research theme and the section label under each
+  // search result are content. The counts used to be --muted at .65 and .7
+  // opacity, which renders 3.18:1 and 3.32:1 -- both under AA.
   assert.match(style, /--soft:\s*#[0-9a-f]{6}/i, 'no named colour for the quietest text');
   assert.match(style, /--soft:\s*#[0-9a-f]{6}[^}]*}[\s\S]*prefers-color-scheme:\s*dark[\s\S]*--soft:\s*#[0-9a-f]{6}/i,
     '--soft is defined for only one theme');
 
   for (const [selector, pattern] of [
-    ['.contents span', /\.contents span\s*\{([^}]*)\}/],
-    ['.subgroup-count', /\.subgroup-count\s*\{([^}]*)\}/],
+    ['.research-themes span', /\.research-themes span\s*\{([^}]*)\}/],
+    ['.results .r-cat', /\.results \.r-cat\s*\{([^}]*)\}/],
   ]) {
     const rule = style.match(pattern);
     assert.ok(rule, `no rule for ${selector}`);
@@ -4446,7 +4485,9 @@ test('every link the About page makes resolves', async () => {
   const html = await fs.readFile(file, 'utf8');
   const hrefs = [...html.matchAll(/href="([^"#]+)"/g)]
     .map((m) => m[1])
-    .filter((href) => !/^(https?:|mailto:|data:)/.test(href));
+    .filter((href) => !/^(https?:|mailto:|data:)/.test(href))
+    // Sections publish-branch.sh writes after this build (see LATE_NAV_DIRS).
+    .filter((href) => !LATE_NAV_DIRS.includes(href.replace(/^\.\.\//, '').split(/[/?]/)[0]));
 
   for (const href of hrefs) {
     assert.ok(await exists(hrefTarget(href, file, outDir)), `About links ${href}, which is not there`);
@@ -4478,7 +4519,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the categories, About, /compare/, /research/ and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the Tools index, the categories, About, /compare/, /research/ and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -4486,6 +4527,7 @@ test('the hub sitemap holds the hub, the categories, About, /compare/, /research
   // any of them.
   assert.deepEqual(locs, [
     BASE,
+    `${BASE}c/`,
     `${BASE}c/marketplace/`,
     `${BASE}c/trades/`,
     `${BASE}about/`,
@@ -5441,19 +5483,38 @@ test('the hub is a home for everything: apps, CLIs, research and self-deploy hav
   ];
   const hub = renderHub(surfaces, 'https://example.test/', { researchCount: 461 });
   assert.match(hub, /<dl class="stats" id="overview">/);
-  assert.match(hub, /<dt>Browser tools<\/dt><dd><a href="#tools">1<\/a>/);
-  assert.match(hub, /<dt>Research projects<\/dt><dd><a href="#research">461<\/a>/);
-  assert.match(hub, /href="research\/"/);
-  // The page opens on what the project is, then apps and research, and only
-  // then the browser-tool catalogue.
+  assert.match(hub, /<dt>Browser tools<\/dt><dd><a href="c\/">1<\/a>/);
+  assert.match(hub, /<dt>Self-hostable apps<\/dt><dd><a href="c\/apps\/">1<\/a>/);
+  assert.match(hub, /<dt>Command-line tools<\/dt><dd><a href="c\/cli\/">1<\/a>/);
+  assert.match(hub, /<dt>Research projects<\/dt><dd><a href="research\/">461<\/a>/);
+  // A front door, in order: what it is and the search over everything, then
+  // the browse grid by job and by type, then research and self-deploy.
   const at = (re) => hub.search(re);
-  assert.ok(at(/class="pillars"/) < at(/id="apps"/), 'the "what we do" section comes before the apps');
-  assert.ok(at(/id="apps"/) < at(/id="research"/), 'apps come before research');
-  assert.ok(at(/id="research"/) < at(/id="tools"/), 'research comes before the browser tools');
-  assert.ok(at(/id="tools"/) < at(/data-tool="ebay-fee-calculator"/), 'the calculators sit in the catalogue, not above it');
-  assert.match(hub, /id="apps"[\s\S]*Dunning engine[\s\S]*deploy\/\?app=dunning-engine/);
-  assert.match(hub, /id="clis"[\s\S]*Pinned actions check/);
+  assert.ok(at(/<h1>/) < at(/id="q"/), 'the search sits in the hero');
+  assert.ok(at(/id="q"/) < at(/id="browse"/));
+  assert.ok(at(/id="browse"/) < at(/id="types"/));
+  assert.ok(at(/id="types"/) < at(/id="research"/));
+  assert.match(hub, /href="c\/apps\/" data-category="apps"[\s\S]*Dunning engine/);
+  assert.match(hub, /href="c\/cli\/" data-category="cli"[\s\S]*Pinned actions check/);
+  assert.match(hub, /href="deploy\/"/);
   assert.ok(!/<h1>[^<]*Calculators/.test(hub), 'the headline names more than calculators');
+  // The site header, with no second top bar.
+  assert.equal(hub.match(/<nav\b[^>]*aria-label="Site"/g).length, 1);
+  assert.ok(hub.includes(HEADER_MARKER));
+});
+
+test('the browse-by-type pages list each app and command-line tool, filed by the job it serves', () => {
+  const surfaces = [
+    { slug: 'dunning-engine', title: 'Dunning engine', description: 'Failed-payment recovery.', kind: 'app' },
+    { slug: 'ebay-fee-calculator', title: 'eBay fee calculator', description: 'Fees.', kind: 'browser' },
+  ];
+  const apps = KIND_PAGES.find((k) => k.id === 'apps');
+  const { items } = kindPageGroups(apps, surfaces);
+  assert.deepEqual(items.map((s) => s.slug), ['dunning-engine']);
+  const page = renderCategoryPage({ category: apps, items, groups: groupByCategory(surfaces), baseUrl: BASE, deployable: true });
+  assert.match(page, /data-tool="dunning-engine"/);
+  assert.match(page, /href="\.\.\/\.\.\/deploy\/\?app=dunning-engine">Deploy your own copy/);
+  assert.doesNotMatch(page, /data-tool="ebay-fee-calculator"/);
 });
 
 test('surfaceKind reads the files a venture ships', async () => {

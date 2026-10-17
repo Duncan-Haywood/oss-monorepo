@@ -2,6 +2,7 @@
 // figure is baked in at build time from files on `main`.
 
 import { esc, inline, REPO_BLOB, REPO_PULL, renderMarkdown } from './markdown.mjs';
+import { withSiteHeader } from '../pages/site-nav.mjs';
 
 const STYLE = `
   :root { --bg:#f6f8fb; --panel:#fff; --ink:#1d2530; --muted:#556275; --line:#d9e0e8; --accent:#2a5bd7;
@@ -44,7 +45,9 @@ const STYLE = `
 `;
 
 function page({ title, description, toRoot, crumbs, body, generated }) {
-  return `<!doctype html>
+  // The site's shared header (platform/pages/site-nav.mjs) above this
+  // section's own breadcrumb.
+  return withSiteHeader(`<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -63,7 +66,7 @@ Machine-readable: <a href="${toRoot}dev/analyses/analyses.json">analyses.json</a
 </main>
 </body>
 </html>
-`;
+`, { toRoot });
 }
 
 const slugClass = (s) => String(s ?? 'unknown').toLowerCase().replace(/[^a-z0-9_]+/g, '-');

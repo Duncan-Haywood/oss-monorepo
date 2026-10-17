@@ -103,6 +103,8 @@ ${rows
 </tbody></table>`;
 }
 
+import { withSiteHeader } from '../pages/site-nav.mjs';
+
 export function renderDashboard(stats, { title = 'How this is built' } = {}) {
   const { git, runs, github: gh, inventory: inv } = stats;
   const ci = stats.ci?.available ? stats.ci : null;
@@ -141,7 +143,9 @@ export function renderDashboard(stats, { title = 'How this is built' } = {}) {
     ? `<ul>${runs.doc_friction_top.map(([f, n]) => `<li><code>${esc(f)}</code>: ${n}</li>`).join('')}</ul>`
     : '<p class="na">None reported in this window.</p>';
 
-  return `<!doctype html>
+  // The site's shared header (platform/pages/site-nav.mjs): this page used to
+  // offer only "← Home".
+  return withSiteHeader(`<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -176,7 +180,6 @@ export function renderDashboard(stats, { title = 'How this is built' } = {}) {
 </head>
 <body>
 <div class="wrap">
-  <p class="meta"><a href="../">← Home</a></p>
   <h1>${esc(title)}</h1>
   <p class="lede">This repository is built mostly by automated agent runs, merged without human review once CI passes. These are the numbers we steer by: how fast work lands, how often CI catches it, what each run costs, and what is left lying around. Built ${esc(stats.generated_at.slice(0, 16).replace('T', ' '))} UTC from <code>${esc((stats.source_commit ?? '').slice(0, 10))}</code>.</p>
 
@@ -211,5 +214,5 @@ ${tiles}
 </div>
 </body>
 </html>
-`;
+`, { toRoot: '../', crumbs: [{ label: 'Development dashboard' }] });
 }
