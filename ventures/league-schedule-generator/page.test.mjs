@@ -162,6 +162,27 @@ test("the team-count page's table matches roundRobin", () => {
   for (const m of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)) JSON.parse(m[1]);
 });
 
+test("the fixture-template page's rows match roundRobin and it is linked and in the sitemap", () => {
+  const html = page("round-robin-schedule-template.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /<link rel="canonical" href="\.\/round-robin-schedule-template\.html">/);
+  assert.match(page("sitemap.xml"), /round-robin-schedule-template\.html/);
+  assert.match(page("index.html"), /href="\.\/round-robin-schedule-template\.html"/);
+  assert.match(page("round-robin-schedule-by-number-of-teams.html"), /href="\.\/round-robin-schedule-template\.html"/);
+  for (const n of [4, 5, 6, 7, 8, 10, 12]) {
+    const rr = roundRobin(n);
+    assert.ok(html.includes(`<h2 id="teams-${n}">${n} team round robin schedule</h2>`));
+    rr.forEach((r, i) => {
+      const row = `<tr><td>${i + 1}</td><td>${r.matches.map(([a, b]) => `${a + 1} v ${b + 1}`).join(", ")}</td><td>${r.bye === null ? "&ndash;" : r.bye + 1}</td></tr>`;
+      assert.ok(html.includes(row), row);
+    });
+    const pairs = new Set(rr.flatMap((r) => r.matches.map(([a, b]) => [Math.min(a, b), Math.max(a, b)].join("-"))));
+    assert.equal(pairs.size, (n * (n - 1)) / 2);
+  }
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+});
+
 test("the Swiss guide's worked example matches swissPairings and is linked and in the sitemap", async () => {
   const { swissPairings, swissRounds, parseSwissResults } = await import("./calc.mjs");
   const name = "how-to-run-a-swiss-tournament.html";
