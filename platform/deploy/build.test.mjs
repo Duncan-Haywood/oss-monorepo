@@ -49,6 +49,12 @@ test('a real build writes the page, a catalogue and one json per app', async () 
   for (const f of ['index.html', 'app.mjs', 'compose.mjs', 'sealedbox.mjs', 'zip.mjs', 'templates.json', 'vendor/nacl-fast.mjs', 'vendor/blake2b.mjs']) {
     await fs.stat(path.join(out, f));
   }
+  // The page used to have no link back to the rest of the site at all.
+  const page = await fs.readFile(path.join(out, 'index.html'), 'utf8');
+  assert.match(page, /class="pfs-brand" href="\.\.\/" data-pf-to="hub"/);
+  assert.match(page, /data-pfs-nav="deploy" href="\.\.\/deploy\/" aria-current="page"/);
+  // Its own search box keeps its id; the header's is a different one.
+  assert.equal(page.match(/id="q"/g).length, 1);
 }, { timeout: 120000 });
 
 test('every built app composes into a repo for every provider', async () => {

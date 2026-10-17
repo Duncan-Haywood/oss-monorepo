@@ -3,6 +3,7 @@
     python3 research/_homepage/build.py            # writes research/_homepage/_site/index.html
     python3 research/_homepage/build.py --out DIR
     python3 research/_homepage/build.py --out DIR --base-url URL   # adds canonical + social tags
+    ... --site-chrome FILE   # the parent site's shared header and footer (build.mjs passes it)
 
 platform/pages/build.mjs runs the last form to publish the page at <site>/research/.
 
@@ -153,7 +154,30 @@ def log_html(slug):
 
 
 
-def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=None):
+def with_site_chrome(page, chrome, root, replace_topbar):
+    """Give a page the parent site's shared header, stylesheet and footer links.
+
+    `chrome` is the JSON platform/pages/build.mjs writes from site-nav.mjs, so the
+    markup is defined once, in JavaScript, for every page on the site. On the
+    research index the site header replaces this page's own top bar; on a project
+    page it sits above it, and the bar stays as the "← All projects" sub-nav."""
+    header = chrome["header"].replace("{{ROOT}}", root)
+    footer = chrome["footer"].replace("{{ROOT}}", root)
+    link = f'<link rel="stylesheet" href="{root}{chrome["style_file"]}">\n'
+    page = page.replace("</head>", link + "</head>", 1)
+    if replace_topbar:
+        page, n = re.subn(r'<header class="topbar">.*?</header>', lambda m: header, page, count=1, flags=re.S)
+    else:
+        page, n = re.subn(r'<header class="topbar">', lambda m: header + "\n" + m.group(0), page, count=1)
+    if n != 1:
+        raise ValueError("no top bar to attach the site header to")
+    page, n = re.subn(r"</footer>", lambda m: f'<div class="wrap">{footer}</div></footer>', page, count=1)
+    if n != 1:
+        raise ValueError("no footer to attach the site links to")
+    return page
+
+
+def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=None, chrome=None):
     slug = p["slug"]
     if not (RESEARCH / slug / "README.md").is_file():
         raise ValueError(f"research/{slug} has no README.md")
@@ -178,7 +202,9 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
     if leftover:
         raise ValueError(f"research/{slug}: unfilled placeholders {leftover}")
     if base_url:
-        page = published_page(page, slug, base_url)
+        page = published_page(page, slug, base_url, chrome is None)
+    if chrome:
+        page = with_site_chrome(page, chrome, "../../", replace_topbar=False)
     (d / "index.html").write_text(page)
 
 
@@ -195,7 +221,7 @@ def card(p, theme, lede, tests):
     </article>"""
 
 
-def published_page(page, slug, base_url):
+def published_page(page, slug, base_url, hub_link=True):
     """When published under a parent site (--base-url): a canonical URL and share-card tags, and a
     link back to the site's front page (two levels up), as every page on that site carries."""
     base = html.escape(base_url.rstrip("/") + "/")
@@ -214,6 +240,8 @@ def published_page(page, slug, base_url):
             text = text[:159].rsplit(" ", 1)[0].rstrip(" ,;:") + "…"
         return m.group(1) + html.escape(text) + '"'
     page = re.sub(r'(<meta (?:name="description"|property="og:description") content=")([^"]*)"', shorten, page)
+    if not hub_link:  # the site header links home instead
+        return page
     return page.replace('<a href="../index.html">', '<a href="../../" data-pf-to="hub">All tools</a><a href="../index.html">', 1)
 
 
@@ -230,7 +258,7 @@ def social_meta(base_url):
     )
 
 
-def build(out, base_url=None):
+def build(out, base_url=None, chrome=None):
     data = json.loads((HERE / "projects.json").read_text())
     ledes = readme_ledes()
     errors = validate(data, ledes)
@@ -290,6 +318,8 @@ def build(out, base_url=None):
     if leftover:
         sys.exit(f"unfilled template placeholders: {leftover}")
 
+    if chrome:
+        page = with_site_chrome(page, chrome, "../", replace_topbar=True)
     out.mkdir(parents=True, exist_ok=True)
     (out / "index.html").write_text(page)
     # One home page per project: _site/<slug>/index.html. Any failure fails the build.
@@ -299,7 +329,7 @@ def build(out, base_url=None):
     failures = []
     for slug, (p, t) in by_slug.items():
         try:
-            project_page(p, t, ledes[slug], tests[slug], tokens, theme_vars, tmpl, out, base_url)
+            project_page(p, t, ledes[slug], tests[slug], tokens, theme_vars, tmpl, out, base_url, chrome)
         except Exception as e:  # noqa: BLE001
             failures.append(f"project page for research/{slug}: {e}")
     if failures:
@@ -311,5 +341,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, default=HERE / "_site")
     ap.add_argument("--base-url", help="published site root; the page lives at <base-url>research/")
+    ap.add_argument("--site-chrome", type=Path,
+                    help="JSON with the parent site's header and footer (written by platform/pages/build.mjs)")
     args = ap.parse_args()
-    build(args.out, args.base_url)
+    build(args.out, args.base_url, json.loads(args.site_chrome.read_text()) if args.site_chrome else None)

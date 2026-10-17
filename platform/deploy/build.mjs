@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { REPO_ROOT } from '../pages/build.mjs';
 import { deployableApps } from './catalog.mjs';
+import { withSiteHeader } from '../pages/site-nav.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PAGE_FILES = ['index.html', 'app.mjs', 'compose.mjs', 'sealedbox.mjs', 'zip.mjs'];
@@ -36,6 +37,10 @@ export async function build(out) {
   await fs.mkdir(path.join(out, 'vendor'), { recursive: true });
   await fs.mkdir(path.join(out, 'apps'), { recursive: true });
   for (const f of PAGE_FILES) await fs.copyFile(path.join(HERE, f), path.join(out, f));
+  // The page is a static file kept beside its modules; it gets the site's
+  // shared header here, so it is no longer the one page with no way back.
+  const page = path.join(out, 'index.html');
+  await fs.writeFile(page, withSiteHeader(await fs.readFile(page, 'utf8'), { toRoot: '../', current: 'deploy' }));
   for (const f of VENDOR) await fs.copyFile(path.join(HERE, 'vendor', f), path.join(out, 'vendor', f));
   await fs.writeFile(path.join(out, 'templates.json'), JSON.stringify(await loadTemplates()));
 

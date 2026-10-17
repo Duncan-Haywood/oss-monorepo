@@ -250,6 +250,10 @@ def slug_for(uri: str) -> str | None:
         # A bare root page such as "/404.html" or "/offline.html".
         return parts[0].removesuffix(".html")
     if parts[0] == "c":
+        # `/c/index.html` is the Tools index that lists every category: its own
+        # `c` row, not a category called "index".
+        if parts[1] == "index.html":
+            return "c"
         return f"c/{parts[1].removesuffix('.html')}"
     if parts[0] == COMPARE_DIR and len(parts) > 2:
         # `/compare/jobber/index.html` — one of the comparison index's

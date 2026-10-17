@@ -692,6 +692,34 @@ test('a healthy artifact with category pages passes', async () => {
   assert.deepEqual(await checkSite(dir), []);
 });
 
+test('a product listed only on a category page the hub links is reachable', async () => {
+  // The hub is a front door: it links the category pages, and they list the
+  // tools. Two clicks is reachable.
+  const dir = await siteWith({
+    ...CATEGORY_SITE,
+    'other/index.html': '<p>Other</p><footer>No warranty.</footer>',
+    'other/sitemap.xml': urlset('other/'),
+    'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml', 'other/sitemap.xml'),
+    'c/trades/index.html':
+      '<a href="../../tool/" data-tool="tool">Tool</a><a href="../../other/" data-tool="other">Other</a>'
+      + '<footer>No warranty.</footer>',
+  });
+  assert.deepEqual(mentioning(await checkSite(dir), 'other/: shipped but the hub does not link it'), []);
+});
+
+test('a product listed only on a category page the hub does not link is still unreachable', async () => {
+  const dir = await siteWith({
+    ...CATEGORY_SITE,
+    'other/index.html': '<p>Other</p><footer>No warranty.</footer>',
+    'other/sitemap.xml': urlset('other/'),
+    'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml', 'other/sitemap.xml'),
+    'c/hidden/index.html':
+      '<a href="../../other/" data-tool="other">Other</a><footer>No warranty.</footer>',
+  });
+  const problems = await checkSite(dir);
+  assert.equal(mentioning(problems, 'other/: shipped but the hub does not link it').length, 1, problems.join('\n'));
+});
+
 test('c/ is not held to the product contract', async () => {
   // Before the exclusion, `c/` was read as a product: no `c/index.html`, no hub
   // link named `c`, no `c` row in llms.txt — three problems for a directory

@@ -381,3 +381,26 @@ export const SAMPLE_FOODS = [
 export function sampleSpec() {
   return { ...DEFAULTS, foods: parseFoods(SAMPLE_FOODS).foods };
 }
+
+// Share link: the food list and targets as a URL fragment (never sent to a server).
+export const SHARE_FIELDS = ["kmin", "kmax", "pmin", "fmin", "fmax", "cmin", "cmax", "fibmin", "dmax", "share", "step"];
+const SHARE_VALUE = /^[0-9.]*$/;
+
+export function encodeShare(foodsText, fields) {
+  const p = new URLSearchParams();
+  p.set("foods", String(foodsText));
+  for (const k of SHARE_FIELDS) if (fields[k] !== undefined && fields[k] !== "") p.set(k, String(fields[k]));
+  return p.toString();
+}
+
+// Returns { foods, fields } with only known, numeric-looking fields; anything else is dropped.
+export function decodeShare(fragment) {
+  const p = new URLSearchParams(String(fragment).replace(/^#/, ""));
+  const foods = (p.get("foods") || "").slice(0, 20000);
+  const fields = {};
+  for (const k of SHARE_FIELDS) {
+    const v = p.get(k);
+    if (v !== null && SHARE_VALUE.test(v) && v.length <= 12) fields[k] = v;
+  }
+  return { foods, fields };
+}
