@@ -126,6 +126,7 @@
     <p class="note">Re-builds the week without each person. If shifts then go uncovered, that person is a single point of failure.</p>
     <div id="critical"></div>
     <div id="daily-box"></div>
+    <div id="fair-box"></div>
     <h3>Someone called in sick? Who can take the shift</h3>
     <p class="note">Pick a shift. It lists everyone who could take it without touching anyone else's week, cheapest first, and why the rest cannot.</p>
     <label for="cover-shift">Shift to cover</label> <select id="cover-shift"></select>
@@ -183,7 +184,7 @@
   </footer>
 
   <script type="module">
-    import { carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, fairnessReport, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -256,6 +257,8 @@
         : '<p class="ok">Nobody on this roster is a single point of failure: every shift can still be covered if any one person drops out.</p>';
       const dl = dailyLabor(r, st.staff, $("#dailysales").value);
       $("#daily-box").innerHTML = `<h3>Each day against sales</h3><p class="note">Scheduled hours and payroll at base wage (plus extras) per day${dl.hasSales ? ", with each day's labor share of the sales you gave" : "; add sales by day above to see each day's labor share"}. Overtime premiums are priced across the week, so they are not spread over days here.</p><div class="scroll"><table><thead><tr><th>Day</th><th class="n">Hours</th><th class="n">Payroll</th>${dl.hasSales ? '<th class="n">Sales</th><th class="n">Labor share</th>' : ""}</tr></thead><tbody>${dl.days.map((d) => `<tr><td>${d.day}</td><td class="n">${num(d.hours)}</td><td class="n">${money(d.cost)}</td>${dl.hasSales ? `<td class="n">${d.sales ? money(d.sales) : "—"}</td><td class="n">${d.pct === null ? "—" : num(d.pct) + "%" + (d === dl.worst ? " (highest)" : "")}</td>` : ""}</tr>`).join("")}</tbody></table></div>`;
+      const fr = fairnessReport(r);
+      $("#fair-box").innerHTML = fr.rows.length ? `<h3>Who gets the tough shifts</h3><p class="note">Weekend, closing (10pm or later, or past midnight) and opening (6am or earlier) shifts per person.${fr.flag ? ` <strong>${esc(fr.most.name)} has ${fr.most.tough} and ${esc(fr.least.name)} has ${fr.least.tough}.</strong> Check this is what people agreed to; the builder does not balance it and cannot know who asked for what.` : " The spread is small."}</p><div class="scroll"><table><thead><tr><th>Person</th><th class="n">Shifts</th><th class="n">Weekend</th><th class="n">Closing</th><th class="n">Opening</th></tr></thead><tbody>${fr.rows.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${x.shifts}</td><td class="n">${x.weekend}</td><td class="n">${x.closing}</td><td class="n">${x.opening}</td></tr>`).join("")}</tbody></table></div>` : "";
       $("#cmp tbody").innerHTML = [["This roster", r.unfilledSlots, r.otHours, r.cost], ["Listed order", r.listed.unfilledSlots, r.listed.otHours, r.listed.cost]]
         .map(([n, u, o, c]) => `<tr><td>${n}</td><td class="n">${u}</td><td class="n">${num(o)}</td><td class="n">${money(c)}</td></tr>`).join("");
       $("#icsperson").innerHTML = '<option value="">Everyone</option>' + r.people.map((p) => `<option>${esc(p.name)}</option>`).join("");

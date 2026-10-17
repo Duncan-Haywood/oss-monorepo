@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { laborPercent, dailyLabor, scheduleFlags,
+import { laborPercent, dailyLabor, fairnessReport, scheduleFlags,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -614,4 +614,19 @@ test("prefer: gives the hours to the person who asked, but never leaves a shift 
 
 test("prefer: bad days are reported", () => {
   assert.ok(parseStaff("Ana, 15, 40, 0, any, prefer: Funday").errors.some((e) => /prefer/.test(e)));
+});
+
+test("fairnessReport counts weekend, closing and opening shifts per person and flags a lopsided week", () => {
+  const staff = staffOf("Ann,10,60,0,any\nBo,10,60,0,Mon-Fri 9am-5pm");
+  const slots = slotsOf("Mon,9am,5pm,1\nTue,9am,5pm,1\nSat,10am,6pm,1\nFri,4pm,11pm,1\nSun,5am,1pm,1");
+  const r = buildRoster(staff, slots, { minRestHours: 0 });
+  const f = fairnessReport(r);
+  const ann = f.rows.find((x) => x.name === "Ann");
+  assert.equal(ann.weekend, 2);
+  assert.equal(ann.closing, 1);
+  assert.equal(ann.opening, 1);
+  assert.equal(ann.tough, 3);
+  assert.equal(f.most.name, "Ann");
+  assert.ok(f.spread >= 3 && f.flag);
+  assert.equal(fairnessReport({ people: [], assignments: [] }).flag, false);
 });

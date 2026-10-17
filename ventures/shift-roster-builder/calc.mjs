@@ -949,6 +949,28 @@ export function scheduleFlags(r, { dailyLimit = 8, splitGap = 1, mealAfter = 5, 
   return { overDaily: overDaily.sort(order), splits: splits.sort(order), longStretches: longStretches.sort(order), notice };
 }
 
+// Who gets the shifts people trade favours to avoid: per person, weekend shifts (start Sat or Sun), closing shifts (end
+// at or after `closeAt`, default 10pm, or run past midnight), opening shifts (start at or before `openAt`, default 6am)
+// and "tough" shifts, meaning any of the three, counted once. `spread` is the largest minus the smallest tough count
+// among people who work at all; `flag` is set when it is 3 or more, so one person is not stuck with every close.
+// A report only: the search does not balance these, and people differ in what they asked for.
+export function fairnessReport(r, { closeAt = 22 * 60, openAt = 6 * 60 } = {}) {
+  const by = new Map((r.people || []).map((p) => [p.name, { name: p.name, shifts: 0, hours: 0, weekend: 0, closing: 0, opening: 0, tough: 0 }]));
+  for (const a of r.assignments || []) {
+    if (!a.person || !by.has(a.person)) continue;
+    const x = by.get(a.person), s = a.slot;
+    const weekend = s.day >= 5, closing = s.endMin >= closeAt || s.endMin > 1440 || s.endMin <= s.startMin, opening = s.startMin <= openAt;
+    x.shifts++; x.hours += (s.endMin - s.startMin) / 60;
+    if (weekend) x.weekend++;
+    if (closing) x.closing++;
+    if (opening) x.opening++;
+    if (weekend || closing || opening) x.tough++;
+  }
+  const rows = [...by.values()].filter((x) => x.shifts > 0).sort((a, b) => b.tough - a.tough || a.name.localeCompare(b.name));
+  const spread = rows.length ? rows[0].tough - rows[rows.length - 1].tough : 0;
+  return { rows, spread, flag: spread >= 3, most: rows.length ? rows[0] : null, least: rows.length ? rows[rows.length - 1] : null };
+}
+
 export function hoursCsv(r) {
   const rows = ["person,shifts,hours,overtime_hours,estimated_payroll,minimum_hours,hours_under_minimum"];
   for (const p of r.people) rows.push([p.name.includes(",") ? `"${p.name}"` : p.name, p.shifts, p.hours.toFixed(2), p.otHours.toFixed(2), p.cost.toFixed(2), p.minHours, p.short.toFixed(2)].join(","));
