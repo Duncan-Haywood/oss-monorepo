@@ -1,0 +1,245 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01T4H3PBDFWNKKAgjhy1p9x6",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T16:07:14Z",
+  "ended": "2026-10-17T16:07:25Z",
+  "wall_minutes": 0.83,
+  "tokens_in": 807141,
+  "tokens_out": 3758,
+  "cost_usd": 0.3714,
+  "tool_calls": 13,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/uk-child-benefit-charge-calculator/calc.mjs",
+        "test": "node --test ventures/uk-child-benefit-charge-calculator/**/*.test.mjs  (in .)",
+        "seed": 147998294,
+        "commit": "bbd2b3d9df",
+        "sites": 89,
+        "baseline_seconds": 0.8,
+        "mutants": [
+          {
+            "file": "ventures/uk-child-benefit-charge-calculator/calc.mjs",
+            "line": 17,
+            "col": 28,
+            "operator": "plus-to-minus",
+            "before": "const money = (n) => \"GBP \" + Number(Math.round(n * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 });",
+            "after": "const money = (n) => \"GBP \" - Number(Math.round(n * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 });",
+            "line_text": "const money = (n) => \"GBP \" + Number(Math.round(n * 100) / 100).toLocaleString(\"en-GB\", { minimumFractionDigits: 0, maximumFractionDigits: 2 });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-child-benefit-charge-calculator/calc.mjs",
+            "line": 18,
+            "col": 31,
+            "operator": "times-to-div",
+            "before": "const r2 = (n) => Math.round(n * 100) / 100;",
+            "after": "const r2 = (n) => Math.round(n / 100) / 100;",
+            "line_text": "const r2 = (n) => Math.round(n * 100) / 100;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-child-benefit-charge-calculator/calc.mjs",
+            "line": 58,
+            "col": 17,
+            "operator": "max-to-min",
+            "before": "const ani = r2(Math.max(0, income - grossPension - grossGift));",
+            "after": "const ani = r2(Math.min(0, income - grossPension - grossGift));",
+            "line_text": "  const ani = r2(Math.max(0, income - grossPension - grossGift));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-child-benefit-charge-calculator/calc.mjs",
+            "line": 58,
+            "col": 51,
+            "operator": "minus-to-plus",
+            "before": "const ani = r2(Math.max(0, income - grossPension - grossGift));",
+            "after": "const ani = r2(Math.max(0, income - grossPension + grossGift));",
+            "line_text": "  const ani = r2(Math.max(0, income - grossPension - grossGift));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-child-benefit-charge-calculator/calc.mjs",
+            "line": 68,
+            "col": 10,
+            "operator": "eq-flip",
+            "before": "if (pct === 0) {",
+            "after": "if (pct !== 0) {",
+            "line_text": "  if (pct === 0) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-child-benefit-charge-calculator/calc.mjs",
+            "line": 72,
+            "col": 23,
+            "operator": "minus-to-plus",
+            "before": "if (income > START - 2000 && income <= START) findings.push({ severity: \"medium\", title: `You are within ${money(START - income)} of the ${money(START)} line. A small pay rise or bonus starts the charge, so check again.` });",
+            "after": "if (income > START + 2000 && income <= START) findings.push({ severity: \"medium\", title: `You are within ${money(START - income)} of the ${money(START)} line. A small pay rise or bonus starts the charge, so check again.` });",
+            "line_text": "    if (income > START - 2000 && income <= START) findings.push({ severity: \"medium\", title: `You are within ${money(START - income)} of the ${money(START)} line. A small pay rise or bonus starts the charge, so check again.` });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "near-line warning untested; added test"
+          },
+          {
+            "file": "ventures/uk-child-benefit-charge-calculator/calc.mjs",
+            "line": 74,
+            "col": 18,
+            "operator": "ge-to-gt",
+            "before": "outcome = pct >= 100 ? \"full\" : \"partial\";",
+            "after": "outcome = pct > 100 ? \"full\" : \"partial\";",
+            "line_text": "    outcome = pct >= 100 ? \"full\" : \"partial\";",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-child-benefit-charge-calculator/calc.mjs",
+            "line": 74,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "outcome = pct >= 100 ? \"full\" : \"partial\";",
+            "after": "outcome = pct >= 101 ? \"full\" : \"partial\";",
+            "line_text": "    outcome = pct >= 100 ? \"full\" : \"partial\";",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/uk-child-benefit-charge-calculator/calc.mjs",
+        "issue": "ANI 60,001-60,199 (0% charge) was described as 'at or under GBP 60,000'",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6c299144-9dad-5b9f-900a-3f22b2c38810",
+    "transcripts": 1,
+    "first": "2026-10-17T16:07:14Z",
+    "last": "2026-10-17T16:08:04Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 12,
+        "input": 24,
+        "output": 3758,
+        "thinking": 605,
+        "cache_read": 761772,
+        "cache_write_5m": 0,
+        "cache_write_1h": 45345,
+        "api_equivalent_usd": 0.3714,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 12,
+      "input": 24,
+      "output": 3758,
+      "thinking": 605,
+      "cache_read": 761772,
+      "cache_write_5m": 0,
+      "cache_write_1h": 45345,
+      "api_equivalent_usd": 0.3714,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.944,
+    "tool_calls": 13,
+    "tools": {
+      "Bash": 10,
+      "Read": 3
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 0.83,
+      "active_minutes": 0.83,
+      "model_minutes": 0.57,
+      "tool_minutes": 0.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "estimate: one targeted mutation campaign plus a fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 269.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
