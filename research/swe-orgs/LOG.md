@@ -2,6 +2,13 @@
 
 An ongoing log of the `swe-orgs` study: each run reads a new batch of sources on how software companies organise and run engineering, adds them to `data/`, re-scores the catalogue against the run ledger, and appends an entry here, newest first. The project page on the portfolio site shows this log. Numbers come from `experiments/results.txt` as it stood at each entry.
 
+## 2026-10-17 · Batch 14: layered defences and normalization of deviance
+
+- Added 2 sources and 2 practices (49 practices, 48 sources): Reason's *Managing the Risks of Organizational Accidents* (1997; P48) and Vaughan's *The Challenger Launch Decision* (1996; P49). Both extend P33 (Feynman) from "a safety check nobody confirmed" to how checks fail together or erode.
+- **Both transfer `partial` and are `partly` adopted.** P48: CI, cross-review and run records are separate layers, but a model reviewer from the same family as the author may share its blind spots, so the holes may line up; nothing measures that overlap. P49: run records log deviations, but no check re-tests a gate that was loosened once. They rank 1.2% and 0.5%.
+- **Still no proposal.** The ledger has 762 rows (it had 758); the highest unadopted `yes` row is P23 at 2.5%, below the 5% bar.
+- Verification was by web search only (publisher, library and review pages); neither book was read, no figure from either is used, and the Vaughan url is a Publishers Weekly page.
+
 ## 2026-10-17 · Batch 13: lightweight review, the deployment pipeline and Extreme Programming
 
 - Added 3 sources and 3 practices (47 practices, 46 sources): Rigby and Bird's *Convergent contemporary software peer review practices* (ESEC/FSE 2013; P45, the catalogue's fourth `measured` row), Humble and Farley's *Continuous Delivery* (2010; P46) and Beck's *Extreme Programming Explained* (1999; P47, the first late-1990s small-team source).
