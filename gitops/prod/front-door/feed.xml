@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1276 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1277 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -14,6 +14,14 @@
     <updated>2026-10-17T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your GitHub Actions workflow YAML and find every schedule cron that is invalid, faster than GitHub&#39;s 5-minute minimum, or pinned to the top of the hour where scheduled runs get delayed. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Financial Aid Award Letter Comparator — true cost of each college offer</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/aid-award-letter-comparator/"/>
+    <id>tag:marisstella.dev,2026:tool/aid-award-letter-comparator</id>
+    <updated>2026-10-17T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free financial aid award letter comparator. Type in each college&#39;s cost, grants, loans and work-study and see the true four-year cost, loans repaid with interest, the year-2 price jump and the grant that would match the cheapest offer. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Survey Keeper — Self-Hosted NPS and Surveys, a Typeform and Delighted Alternative</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
     <summary type="text">A booking page you host yourself: weekly hours, buffers, notice, your calendar&#39;s busy time respected, time zones, calendar invites, reminders and cancel or reschedule links. Open source, MIT, no per-seat fee. Try the slot finder in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Trade Bid Studio — Price Any Contracting Job and Find Your Walk-Away Number</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/trade-bid-studio/"/>
-    <id>tag:marisstella.dev,2026:tool/trade-bid-studio</id>
-    <updated>2026-10-16T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free bid calculator for any trade: turn labor hours, materials, subs, overhead and a target margin into a price, your walk-away number, and what a competitor&#39;s lower quote actually leaves you. Plus 121 trade-specific bid calculators.</summary>
   </entry>
 </feed>

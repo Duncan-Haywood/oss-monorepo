@@ -2,13 +2,13 @@
 // together and avoided pairs do not, within table capacity and pinned seats.
 // Pure functions, no I/O, deterministic for a given seed.
 
-export const WEIGHTS = { want: 3, must: 12, party: 6, avoid: -6, never: -200 };
+export const WEIGHTS = { want: 3, must: 12, party: 6, avoid: -6, never: -200, mix: 2 };
 
 const SOFT_NEVER = -30;
 
 export const DEFAULTS = { seatsPerTable: 8, tableCount: "", balance: true, seed: 1 };
 
-/** Parse the guest box: one guest per line, "Name" or "Name | party". */
+/** Parse the guest box: one guest per line, "Name", "Name | party" or "Name | party | group". */
 export function parseGuests(text) {
   const guests = [];
   const errors = [];
@@ -16,14 +16,15 @@ export function parseGuests(text) {
   String(text || "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const [namePart, partyPart] = line.split("|");
+    const [namePart, partyPart, groupPart] = line.split("|");
     const name = namePart.trim().replace(/\s+/g, " ");
     const party = (partyPart || "").trim().replace(/\s+/g, " ");
     if (!name) { errors.push(`Guest line ${i + 1} has no name.`); return; }
     const key = name.toLowerCase();
     if (seen.has(key)) { errors.push(`"${name}" is listed twice (line ${seen.get(key)} and ${i + 1}); add a surname or initial to tell them apart.`); return; }
     seen.set(key, i + 1);
-    guests.push({ name, party });
+    const group = (groupPart || "").trim().replace(/\s+/g, " ");
+    guests.push({ name, party, group });
   });
   return { guests, errors };
 }
@@ -119,6 +120,15 @@ export function weightMatrix(spec, neverWeight = WEIGHTS.never) {
   for (const members of byParty.values())
     for (let x = 0; x < members.length; x++) for (let y = x + 1; y < members.length; y++) add(members[x], members[y], WEIGHTS.party);
   for (const r of spec.rules) if (r.kind !== "pin") add(r.a, r.b, r.kind === "never" ? neverWeight : r.weight);
+  // Optional mixing by group (side of the family, age band, "singles"): spread
+  // pushes same-group guests to different tables, cluster pulls them together.
+  const mixSign = spec.mix === "spread" ? -1 : spec.mix === "cluster" ? 1 : 0;
+  if (mixSign) {
+    const byGroup = new Map();
+    spec.guests.forEach((g, i) => { if (g.group) { const k = g.group.toLowerCase(); (byGroup.get(k) || byGroup.set(k, []).get(k)).push(i); } });
+    for (const members of byGroup.values())
+      for (let x = 0; x < members.length; x++) for (let y = x + 1; y < members.length; y++) add(members[x], members[y], mixSign * WEIGHTS.mix);
+  }
   return W;
 }
 
@@ -289,6 +299,7 @@ export function describe(spec, W, table, baseline) {
     const spread = new Set(p.members.map((m) => table[m]));
     if (spread.size > 1) partySplits.push({ party: p.name, tables: [...spread].map((t) => t + 1).sort((a, b) => a - b), size: p.members.length });
   }
+  const groupMix = groupMixOf(spec, table, T);
   const score = planScore(W, n, table);
   const baseScore = baseline ? planScore(W, n, baseline) : null;
   const baseBroken = baseline ? pairRules.filter((r) => (r.kind === "want" || r.kind === "must" ? baseline[r.a] === baseline[r.b] : baseline[r.a] !== baseline[r.b])).length : null;
@@ -306,8 +317,21 @@ export function describe(spec, W, table, baseline) {
     broken,
     neverBroken: broken.filter((r) => r.kind === "never"),
     partySplits,
+    groupMix,
     capacity: capacityPerTable(spec, T),
   };
+}
+
+/** Per group, how many of its guests sit at each table: [{ group, perTable: [..] }]. Empty when no guest has a group. */
+export function groupMixOf(spec, table, T = resolveTableCount(spec)) {
+  const byGroup = new Map();
+  spec.guests.forEach((g, i) => {
+    if (!g.group) return;
+    const k = g.group.toLowerCase();
+    if (!byGroup.has(k)) byGroup.set(k, { group: g.group, perTable: new Array(T).fill(0) });
+    byGroup.get(k).perTable[table[i]]++;
+  });
+  return [...byGroup.values()];
 }
 
 /** Independent check: every guest seated once, capacity and pins honoured, score recomputed. */
@@ -373,10 +397,10 @@ export function escortBoardHtml(spec, result, title = "Find your table") {
 }
 
 export function planCsv(spec, result) {
-  const rows = [["Table", "Guest", "Party"]];
+  const rows = [["Table", "Guest", "Party", "Group"]];
   result.tables.forEach((t) => t.guests.forEach((name) => {
     const g = spec.guests.find((x) => x.name === name);
-    rows.push([String(t.number), name, g.party]);
+    rows.push([String(t.number), name, g.party, g.group || ""]);
   }));
   const esc = (v) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
   return rows.map((r) => r.map(esc).join(",")).join("\n");
@@ -407,7 +431,7 @@ export const SAMPLE_RULES = [
 export function sampleSpec() {
   const { guests } = parseGuests(SAMPLE_GUESTS);
   const { rules } = parseRules(SAMPLE_RULES, guests);
-  return { guests, rules, seatsPerTable: 8, tableCount: 3, balance: true, seed: 1 };
+  return { guests, rules, seatsPerTable: 8, tableCount: 3, balance: true, mix: "off", seed: 1 };
 }
 
 export const STAY = { low: 1.5, medium: 4, high: 12 };
