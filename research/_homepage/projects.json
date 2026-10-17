@@ -2102,6 +2102,11 @@
      "summary": "A small finite-element sweep (stylised, preliminary; ideal elastic sheet, sharp inner corner, buckling only). Reusing the whole-L 3D eigenbuckling model of <em>simdesign-lbuckle</em>, the reversed-load factor of the 1.5&nbsp;mm bracket rises from 2.27 at w&nbsp;=&nbsp;18.4&nbsp;mm to 3.0 at w&nbsp;&asymp;&nbsp;22.5&ndash;22.6&nbsp;mm (coarse root 22.47, finer-mesh bracket 22.54&ndash;22.62), about 0.22 per extra millimetre. The plate mass rises from 30.7 to 36.6&nbsp;g (+19%). Stress, slenderness and minimum-wall limits were not rechecked at the wider web, the floor of 3 is an assumption, and the corner is sharp."
     },
     {
+     "slug": "simdesign-gaugelayers",
+     "title": "Do the reversed-load buckling widths of the L-bracket change with more element layers through the thickness?",
+     "summary": "A small finite-element check (stylised, preliminary; ideal elastic sheet, sharp inner corner, coarse in-plane mesh). Raising the number of hexahedral layers through the sheet from one to four moves the whole-L reversed-load buckling factor at the <em>simdesign-revgauge</em> root widths by at most 1.2% (3.0&nbsp;mm gauge; under 0.7% at 1.5 to 2.5&nbsp;mm) and the width needed for a factor of 3 by 0.07&nbsp;mm or less (2.0&nbsp;mm: 11.84 to 11.77&nbsp;mm, 27.4&nbsp;g). The thicker-sheet mass ranking of that project is not an artefact of a single through-thickness layer; its other doubt, a web barely wider than the sheet is thick, stands."
+    },
+   {
      "slug": "simdesign-revgauge",
      "title": "Is a thicker sheet lighter than a wider 1.5&nbsp;mm web for clearing the reversed-load buckling floor?",
      "summary": "A small finite-element sweep (stylised, preliminary; ideal elastic sheet, sharp inner corner, buckling only, one element layer through the thickness). Reusing the whole-L 3D eigenbuckling model of <em>simdesign-lbuckle</em>, the smallest web width that lifts the reversed-load factor to 3 falls from 22.6&nbsp;mm at 1.5&nbsp;mm sheet to 11.8&nbsp;mm at 2&nbsp;mm and 6.8&nbsp;mm at 2.5&nbsp;mm, so the plate mass at the floor falls from 36.6&nbsp;g to 27.5&nbsp;g (&minus;25%) and 20.5&nbsp;g (&minus;44%). Thick, narrow webs are where the model is weakest, and forward load, stress and minimum-wall rules were not rechecked, so this is an indication, not a design."
