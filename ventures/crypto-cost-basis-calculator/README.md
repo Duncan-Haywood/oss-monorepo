@@ -17,6 +17,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Tax-loss harvesting (`parsePrices`, `harvestPlan` in `calc.mjs`): type today's price per coin and it values every open lot, ranks the lots under water by tax saved, and shows how much of the year's estimated tax selling them would remove. Prices are yours; none are fetched; wash-sale rules are not applied.
 - Wallet-to-wallet transfers (`matchLots` in `calc.mjs`): with per-wallet matching on, a `transfer` row with a `to wallet` column moves lots (purchase date and basis intact, chosen by the selected method) so basis follows the coins; over-transfers are warned, not guessed. Without the column, or with matching off, transfers stay ignored.
 - `importers.mjs` - Coinbase, Kraken, Binance.US, Crypto.com App and Gemini export readers that produce the plain CSV `calc.mjs` reads (unpriced rows left empty and flagged, never zero).
+- `cli.mjs` - the same matching in a terminal, zero dependencies and no network: `node cli.mjs --method HIFO --year 2024 --form8949 8949.csv coinbase.csv kraken.csv` reads one or more exchange exports (or `-` for stdin), prints gains, the five-method comparison and holdings, and writes Form 8949 style rows; `--json` for scripts, `--per-wallet`, `--short-rate`/`--long-rate`. Exit 2 on bad usage, 1 when no transactions could be read.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `fifo-vs-hifo-crypto-cost-basis.html` - guide with a worked example that the
   test suite recomputes.
