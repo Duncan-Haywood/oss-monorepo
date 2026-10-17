@@ -354,6 +354,24 @@ export function tableSignsHtml(spec, result, title = "Seating plan") {
     + `section:last-child{page-break-after:auto;break-after:auto}</style></head><body>\n${sheets}\n</body></html>`;
 }
 
+/**
+ * A print-ready "find your table" board: every guest once, sorted by last name
+ * (the last word of the name), with their table number, in two columns, for the
+ * welcome sign or escort cards. Guest text is escaped; no script, nothing loaded.
+ */
+export function escortBoardHtml(spec, result, title = "Find your table") {
+  const rows = [];
+  result.tables.forEach((t) => t.guests.forEach((name) => rows.push({ name, table: t.number })));
+  const key = (n) => { const w = n.trim().split(/\s+/); return `${w[w.length - 1]} ${w.slice(0, -1).join(" ")}`.toLowerCase(); };
+  rows.sort((a, b) => key(a.name).localeCompare(key(b.name)) || a.table - b.table);
+  const items = rows.map((r) => `<li><span>${escHtml(r.name)}</span><b>${r.table}</b></li>`).join("");
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${escHtml(title)}</title>`
+    + `<style>body{font-family:Georgia,serif;margin:0;padding:40px}h1{text-align:center;font-size:40px;margin:0 0 24px}`
+    + `ul{list-style:none;padding:0;margin:0;columns:2;column-gap:48px;font-size:20px;line-height:1.7}`
+    + `li{display:flex;justify-content:space-between;break-inside:avoid;border-bottom:1px dotted #aaa}b{margin-left:16px}</style></head>`
+    + `<body><h1>${escHtml(title)}</h1><ul>${items}</ul></body></html>`;
+}
+
 export function planCsv(spec, result) {
   const rows = [["Table", "Guest", "Party"]];
   result.tables.forEach((t) => t.guests.forEach((name) => {

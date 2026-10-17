@@ -19,6 +19,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   only moves worth their cost happen (stickiness low/medium/high). Pins and
   never-together rules still win.
 - `tableSignsHtml` in `calc.mjs` - a print-ready page, one sheet per table (big number, guest names), opened from the "Print table signs" button.
+- `escortBoardHtml` in `calc.mjs` - a print-ready "find your table" list, every guest by last name with their table number, for the welcome sign or escort cards.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-make-a-wedding-seating-chart.html` - guide whose worked example is
   recomputed by the test suite.
