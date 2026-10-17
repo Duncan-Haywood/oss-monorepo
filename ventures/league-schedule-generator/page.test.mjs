@@ -169,7 +169,7 @@ test("the fixture-template page's rows match roundRobin and it is linked and in 
   assert.match(page("sitemap.xml"), /round-robin-schedule-template\.html/);
   assert.match(page("index.html"), /href="\.\/round-robin-schedule-template\.html"/);
   assert.match(page("round-robin-schedule-by-number-of-teams.html"), /href="\.\/round-robin-schedule-template\.html"/);
-  for (const n of [4, 5, 6, 7, 8, 10, 12]) {
+  for (const n of [4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16]) {
     const rr = roundRobin(n);
     assert.ok(html.includes(`<h2 id="teams-${n}">${n} team round robin schedule</h2>`));
     rr.forEach((r, i) => {
