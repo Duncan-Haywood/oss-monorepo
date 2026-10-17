@@ -2689,6 +2689,11 @@
      "slug": "house-cost",
      "title": "Where does a new home's price go, and which levers move it most?",
      "summary": "A driver-based price model anchored on NAHB's 2024 cost shares (construction 64.4% of the price, framing 16.6% of construction, lot 13.7%, profit 11.0%). Each construction stage scales with floor area, footprint or wall area, and the model reproduces every NAHB share at its 2,000 sq ft reference house. In a sweep, size moves the price most (index 87.8 to 112.0 for 1,600 to 2,400 sq ft), then one against three storeys (111.6 to 97.6), finish level, lot price and foundation type. A 14% cut in framing lumber, the gap between <code>house-plan</code>'s default and best plans, is worth only 0.85% of the price, or 2.4% if it also cuts framing labour by 20%. <em>Stylised</em>: a price index, not dollars; the stage-driver splits and lever ranges are my assumptions; the Census reconciliation and a priced takeoff are not done."
+    },
+    {
+     "slug": "house-costsens",
+     "title": "Does the house-cost lever ranking survive its assumed driver splits?",
+     "summary": "A Monte Carlo over <code>house-cost</code>'s assumed splits of each construction stage over floor area, footprint and wall area (Dirichlet, concentration 5, 20 and 80; 2,000 draws each). Floor area stays the largest lever in 96&ndash;100% of draws. Storeys is the soft claim: one versus three storeys swings the price index 9.0&ndash;19.9 points at concentration 20 (baseline 14.0), 5.1&ndash;24.1 at 5. The framing-lumber result does not move. Seven of ten levers cannot move under this test by construction. Stylised: tests only the splits, not the lever ranges or the NAHB shares."
     }
    ]
   }

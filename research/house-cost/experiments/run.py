@@ -59,4 +59,5 @@ def main():
               100 * (1 - PRICE_SHARES["construction"])))
 
 
-main()
+if __name__ == "__main__":
+    main()
