@@ -72,3 +72,7 @@ results, in the same commit:
 
 Tests and figures need packages the image may lack: from the repo root,
 `PY=$(python3 platform/ci/pyenv.py pytest numpy matplotlib)`, then use `"$PY"` instead of `python3`.
+
+A new `experiments/figure.py` that draws a line plot from `results.txt` should import
+`research/_shared/linefig.py` (`table`, `write_lines`; stdlib only, example:
+`research/workcell-twin/experiments/figure.py`) instead of copying its ~80-line plotting function again.
