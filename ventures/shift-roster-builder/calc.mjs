@@ -841,6 +841,41 @@ export function swapOptions(staff, slots, roster, slotIndex, options = {}) {
   return { slot: slots[slotIndex], from: staff[a].name, trades };
 }
 
+// A person is out for several days (flu, jury duty, a no-show week): hand every shift they hold on `days` (indexes
+// into DAYS, or all their shifts when omitted) to someone else without moving anyone else's existing shifts. It
+// works like the sick-call finder run repeatedly: the shift with the fewest people able to take it goes first, to the
+// cheapest of them, and the roster is updated before the next one so nobody is double-booked or pushed over a rule
+// by two hand-overs. A shift nobody can take stays open with the reasons. Greedy, not a proof of the best split.
+export function absencePlan(staff, slots, roster, name, days = null, options = {}) {
+  if (!roster || !roster.owner) return { error: "Build a roster first." };
+  const who = staff.findIndex((p) => p.name.toLowerCase() === String(name).trim().toLowerCase());
+  if (who < 0) return { error: `${name} is not in the staff list.` };
+  const owner = roster.owner.slice();
+  const pending = [];
+  owner.forEach((p, i) => { if (p === who && (!days || days.includes(slots[i].day))) pending.push(i); });
+  // A zero weekly limit keeps the absent person from being offered each other's shifts back.
+  const outStaff = staff.map((p, k) => (k === who ? { ...p, maxHours: 0 } : p));
+  const moves = [], open = [];
+  let extraCost = 0;
+  while (pending.length) {
+    let pick = null;
+    for (const i of pending) {
+      const c = coverOptions(outStaff, slots, { ...roster, owner }, i, options);
+      if (c.error) return c;
+      if (!pick || c.fits.length < pick.c.fits.length) pick = { i, c };
+    }
+    pending.splice(pending.indexOf(pick.i), 1);
+    const best = pick.c.fits[0];
+    if (!best) { open.push({ slot: slots[pick.i], index: pick.i, blocked: pick.c.blocked }); owner[pick.i] = -1; continue; }
+    owner[pick.i] = staff.findIndex((p) => p.name === best.name);
+    extraCost += best.extraCost;
+    moves.push({ slot: slots[pick.i], index: pick.i, to: best.name, extraCost: best.extraCost, overtimeAfter: best.overtimeAfter });
+  }
+  moves.sort((a, b) => a.slot.start - b.slot.start);
+  open.sort((a, b) => a.slot.start - b.slot.start);
+  return { ok: true, person: staff[who].name, moves, open, extraCost, owner };
+}
+
 export function rosterCsv(r) {
   const q = (s) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
   const rows = ["day,start,end,hours,label,assigned_to,role"];

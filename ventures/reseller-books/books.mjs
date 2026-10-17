@@ -4,7 +4,7 @@
 // part of the truth: eBay buries shipping labels and ads inside the same
 // report as sales, Etsy spreads fees over three columns and a second file,
 // Poshmark charges a flat fee that is invisible until it is divided out, and
-// Whatnot splits commission and processing. The four single-marketplace
+// Whatnot splits commission and processing. The single-marketplace
 // analyzers in this repository (`ebay-transaction-report-analyzer`,
 // `etsy-statement-profit-analyzer`, `poshmark-sales-report-analyzer`,
 // `whatnot-sales-report-analyzer`) each read one of them. This module reads
@@ -12,7 +12,7 @@
 // profit and loss, one comparison of what each channel really keeps, and one
 // worksheet laid out the way a tax preparer asks for it.
 //
-// The four engines in ./engines are verbatim copies of those calc.mjs files,
+// The engines in ./engines are verbatim copies of those calc.mjs files,
 // so the venture deploys on its own. `books.test.mjs` fails if a copy drifts
 // from its source while the source still exists in the monorepo.
 //
@@ -22,12 +22,14 @@ import * as ebay from "./engines/ebay.mjs";
 import * as etsy from "./engines/etsy.mjs";
 import * as poshmark from "./engines/poshmark.mjs";
 import * as whatnot from "./engines/whatnot.mjs";
+import * as shopify from "./engines/shopify.mjs";
 
 export const CHANNELS = {
   ebay: "eBay",
   etsy: "Etsy",
   poshmark: "Poshmark",
   whatnot: "Whatnot",
+  shopify: "Shopify",
 };
 
 const r2 = (n) => Math.round(n * 100) / 100;
@@ -52,6 +54,11 @@ export function detectKind(text) {
   if (/net amount/.test(head) && /(order number|transaction creation date)/.test(head)) return "ebay";
   const h = headerTokens(text);
   const has = (...names) => names.every((n) => h.some((x) => x === n));
+  // Shopify Payments "Transactions" export: a payout status and a type per money
+  // movement. Checked before the item-per-row formats, none of which has these.
+  if (has("transaction date", "type", "amount") && h.some((x) => /^payout (status|id)$/.test(x))) return "shopify";
+  // Shopify admin "Orders" export: one row per line item; only used to cost products.
+  if (has("name", "lineitem name") && h.includes("financial status")) return "shopify-orders";
   if (h.includes("fees & taxes") && h.includes("net")) return "etsy";
   if (has("item name", "order id") && h.some((x) => /sale date|date sold/.test(x))) return "etsy-items";
   if (h.some((x) => /^poshmark fee$|^posh fee$/.test(x)) || (h.includes("brand") && h.some((x) => /order price/.test(x)))) return "poshmark";
@@ -156,6 +163,78 @@ function etsyChannel(statements, itemFiles, costText) {
   return { line: out, months, detail: r, costBad: costs.bad.length };
 }
 
+// Shopify's Transactions export records what the customer paid, which includes
+// the sales tax and shipping collected on the order. Sales tax is the state's
+// money, not income, so when the Orders export is given the tax on each charged
+// order (less the share refunded) is taken out of both sales and net. Without
+// it the charges are used as they are and the channel says so.
+function shopifyChannel(txFiles, orderFiles, costText) {
+  const out = emptyLine("shopify");
+  const rows = [];
+  let skipped = 0;
+  for (const f of txFiles) {
+    const n = shopify.normalizeTransactions(shopify.parseCsv(f.text));
+    if (n.error) return { error: `${f.name}: ${n.error}` };
+    rows.push(...n.rows);
+    skipped += n.skipped.length;
+  }
+  const orders = [];
+  for (const f of orderFiles) {
+    const n = shopify.normalizeOrders(shopify.parseCsv(f.text));
+    if (n.error) return { error: `${f.name}: ${n.error}` };
+    orders.push(...n.orders);
+  }
+  const costs = costText ? shopify.parseCosts(costText) : { costs: {}, bad: [] };
+  const r = shopify.analyze(rows, orders, { costs: costs.costs });
+  if (r.invalid) return { error: r.invalid };
+  const s = r.summary;
+  const t = s.totals;
+
+  const taxByMonth = {};
+  let tax = 0;
+  if (orders.length) {
+    const byKey = new Map(r.orders.filter((o) => o.charged > 0).map((o) => [o.key, o]));
+    for (const o of orders) {
+      const tx = byKey.get(o.key);
+      if (!tx || !(o.taxes > 0)) continue;
+      const refundedShare = Math.min(1, Math.max(0, -tx.refunds / tx.charged));
+      const kept = r2(o.taxes * (1 - refundedShare));
+      tax = r2(tax + kept);
+      taxByMonth[tx.month] = r2((taxByMonth[tx.month] || 0) + kept);
+    }
+  }
+
+  out.orders = s.orderCount;
+  out.sales = r2(s.charges - tax);
+  out.refunds = r2(t.refunds);
+  out.platformFees = r2(t.processing + t.gateway);
+  out.net = r2(s.operating - tax);
+  out.other = r2(out.net - out.sales - out.refunds - out.platformFees);
+  out.from = s.firstMonth;
+  out.to = s.lastMonth;
+  if (orders.length) {
+    if (tax > 0) out.notes.push(`$${tax.toFixed(2)} of sales tax collected was taken out of Shopify sales and payout (from the Orders export); it is owed to the state, not income.`);
+  } else {
+    out.notes.push("Shopify sales here include the sales tax and shipping customers paid, because no Orders export was given. Add it to take tax out and to cost products.");
+  }
+  if (s.anyCosted && s.allCosted) {
+    out.cogs = s.cogsTotal;
+    out.costedShare = 1;
+    out.profit = r2(out.net - out.cogs);
+  } else if (s.anyCosted) {
+    out.notes.push("Only some Shopify products have a cost, so Shopify profit is left blank rather than overstated.");
+  } else if (costText && !orders.length) {
+    out.notes.push("Shopify costs are matched through the Orders export (by product name or SKU); add it to cost your Shopify sales.");
+  }
+  const months = r.months.map((m) => {
+    const mt = taxByMonth[m.key] || 0;
+    const sales = r2(m.charges - mt);
+    const net = r2(m.net - mt);
+    return { month: m.key, sales, refunds: r2(m.refunds), deductions: r2(net - sales - m.refunds), net, cogs: null };
+  });
+  return { line: out, months, detail: r, skipped, costBad: costs.bad.length };
+}
+
 function itemChannel(channel, engine, files, costText, feeMode) {
   const out = emptyLine(channel);
   const items = [];
@@ -208,7 +287,7 @@ function itemChannel(channel, engine, files, costText, feeMode) {
  *   its own key (eBay item title or number, SKU on the others).
  */
 export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
-  const groups = { ebay: [], etsy: [], "etsy-items": [], poshmark: [], whatnot: [] };
+  const groups = { ebay: [], etsy: [], "etsy-items": [], poshmark: [], whatnot: [], shopify: [], "shopify-orders": [] };
   const unread = [];
   for (const f of files) {
     const kind = detectKind(f.text);
@@ -239,12 +318,16 @@ export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
   if (groups.etsy.length) add("etsy", etsyChannel(groups.etsy, groups["etsy-items"], costs));
   if (groups.poshmark.length) add("poshmark", itemChannel("poshmark", poshmark, groups.poshmark, costs, feeMode));
   if (groups.whatnot.length) add("whatnot", itemChannel("whatnot", whatnot, groups.whatnot, costs, feeMode));
+  if (groups.shopify.length) add("shopify", shopifyChannel(groups.shopify, groups["shopify-orders"], costs));
+  if (groups["shopify-orders"].length && !groups.shopify.length) {
+    problems.push("A Shopify Orders export was given without the Shopify Payments Transactions export. The transactions file is the one with the fees; add it.");
+  }
   if (groups["etsy-items"].length && !groups.etsy.length) {
     problems.push("A Sold Order Items file was given without the Etsy Payment Account statement. The statement is the one with the fees; add it.");
   }
 
   if (!channels.length) {
-    return { invalid: problems[0] || "No marketplace file could be recognised. Expected an eBay Transaction report, an Etsy Payment Account statement, a Poshmark My Sales Report or a Whatnot orders export.", unread, problems };
+    return { invalid: problems[0] || "No marketplace file could be recognised. Expected an eBay Transaction report, an Etsy Payment Account statement, a Poshmark My Sales Report, a Whatnot orders export or a Shopify Payments Transactions export.", unread, problems };
   }
 
   // Combined months, newest last. Every row reconciles: sales + refunds +
@@ -380,18 +463,21 @@ export function summaryText(result) {
   return out.join("\n");
 }
 
-/** Synthetic example: the four engines' own made-up files, so no real seller appears. */
+/** Synthetic example: the engines' own made-up files, so no real seller appears. */
 export function sampleFiles() {
   const e = ebay.sampleData();
   const t = etsy.sampleData();
+  const sh = shopify.sampleData();
   return {
     files: [
       { name: "ebay-transaction-report.csv", text: e.report },
       { name: "etsy-payment-account-statement.csv", text: t.statement },
       { name: "poshmark-my-sales-report.csv", text: poshmark.sampleCsv() },
       { name: "whatnot-orders.csv", text: whatnot.sampleCsv() },
+      { name: "shopify-payments-transactions.csv", text: sh.transactions },
+      { name: "shopify-orders.csv", text: sh.orders },
     ],
-    costs: e.costs,
+    costs: e.costs + "\n" + sh.costs.split("\n").slice(1).join("\n"),
   };
 }
 

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { placeBreaks, laborPercent, dailyLabor, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags,
-  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
+  parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
@@ -877,4 +877,38 @@ test("placeBreaks: joins back-to-back shifts, skips short days, flags a lone wor
   assert.ok(b[0].alone && b[0].others === 0);
   assert.equal(placeBreaks(r, { mealAfter: 10 }).length, 0);
   assert.deepEqual(placeBreaks({ assignments: [] }), []);
+});
+
+test("absencePlan: hands a week of shifts to others cheapest first, stays valid, and leaves unfillable shifts open", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon-Wed 8-16\nBen, 20, 40, 0, Mon-Wed 8-16\nCy, 15, 8, 0, Mon-Wed 8-16\nDee, 12, 40, 0, Tue 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open\nTue, 8, 16, 1, open\nWed, 8, 16, 1, open");
+  const r = buildRoster(staff, slots);
+  const anas = r.assignments.filter((a) => a.person === "Ana").length;
+  assert.ok(anas >= 2);
+  const plan = absencePlan(staff, slots, r, "ana");
+  assert.equal(plan.moves.length + plan.open.length, anas);
+  assert.ok(plan.moves.every((m) => m.to !== "Ana"));
+  assert.ok(plan.owner.every((k) => k !== 0));
+  // Nobody is over their weekly limit, or double-booked on a day, afterwards.
+  for (let k = 0; k < staff.length; k++) {
+    const mine = plan.owner.map((o, i) => (o === k ? i : -1)).filter((i) => i >= 0);
+    assert.ok(mine.reduce((t, i) => t + (slots[i].end - slots[i].start) / 60, 0) <= staff[k].maxHours + 1e-9);
+    assert.equal(new Set(mine.map((i) => slots[i].day)).size, mine.length);
+  }
+  // Only Tuesday: at most that one shift moves, to someone free on Tuesday.
+  const tue = absencePlan(staff, slots, r, "Ana", [1]);
+  assert.ok(tue.moves.length + tue.open.length <= 1);
+  assert.ok(absencePlan(staff, slots, r, "Zed").error);
+  assert.ok(absencePlan(staff, slots, null, "Ana").error);
+});
+
+test("absencePlan: a shift nobody can take stays open with the reasons", () => {
+  const staff = staffOf("Ana, 10, 40, 0, Mon 8-16\nBen, 20, 4, 0, Mon 8-16");
+  const slots = slotsOf("Mon, 8, 16, 1, open");
+  const r = buildRoster(staff, slots);
+  const plan = absencePlan(staff, slots, r, "Ana");
+  assert.equal(plan.moves.length, 0);
+  assert.equal(plan.open.length, 1);
+  assert.equal(plan.open[0].blocked[0].name, "Ben");
+  assert.equal(plan.owner[0], -1);
 });
