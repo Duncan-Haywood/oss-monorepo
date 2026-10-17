@@ -1158,6 +1158,7 @@ const RELATIVE_SELF = relative(
 // +1: `shift-roster-builder` graduated.
 // +1: `time-off-request-planner` graduated.
 // +1: `cheap-meal-plan-optimizer` graduated.
+// +1: `aid-award-letter-comparator` graduated.
 // +1: `retirement-withdrawal-sequencer` graduated.
 // +1: `coffee-roaster-margin-calculator` graduated.
 // +1: `business-loan-offer-comparator` graduated.
@@ -1698,7 +1699,7 @@ const RELATIVE_SELF = relative(
 // +1: `error-keeper` graduated.
 // +1: `workflow-audit` graduated.
 // +1: `reseller-books` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1247;
+const SWITCHES_IN_THE_CATALOGUE = 1248;
 // +1: `llm-spend-guard` graduated.
 // +1: `liability-audit` graduated.
 // +1: `equipment-lease-vs-buy-calculator` graduated.
