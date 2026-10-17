@@ -3083,7 +3083,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `internal-link-planner` graduated (browser and CLI internal link audit: orphans, menu-only pages, suggested links with the PageRank effect).
     # +1: `trade-bid-studio` graduated (browser trade-agnostic bid engine: price at a target margin, walk-away price, competitor-quote check, markup/margin converter, directory of the 121 bid calculators).
     # +1: `devsec-toolkit` graduated (one zero-dependency command running 22 devsec checks, SARIF/JSON/Markdown, baselines, local report viewer page).
-    total = 1277  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1277 tools" wording.
+    total = 1278  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1278 tools" wording.
     # +1: `actions-schedule-check` graduated (browser + CLI lint of GitHub Actions schedule crons: invalid, faster than 5 minutes, minute 0).
     # +1: `liability-audit` graduated (zero-dependency repository scanner for legal and financial exposure: consent, auto-renewal, disclosures, leaked keys, open LLM endpoints, cloud budgets; CLI, SARIF, monorepo sweep, browser page, agent playbook).
     # +1: `llm-spend-guard` graduated (self-hosted proxy and zero-dependency library: hard per-user/feature/run LLM budgets with worst-case holds, loop breakers, browser log-replay simulator).
@@ -3115,6 +3115,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `self-hosted-saas-stack` graduated (browser directory of the 27 self-hosted small-SaaS tools, grouped by job and named against the paid products they replace).
     # +1: `trial-converter` graduated (self-hosted Stripe trial-to-paid conversion: card and no-card plans, browser simulator plus zero-dependency server).
     # +1: `survey-keeper` reached the mirror (it landed on main without its count bump; counted by sync_tree_counts.py while merging main into #7632).
+    # +1: `review-reply-desk` graduated (browser local-business review reply writer: rating-aware replies, risky-review triage, health-privacy-safe mode, reply checker, optional own-key AI).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
