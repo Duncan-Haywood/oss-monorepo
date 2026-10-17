@@ -104,6 +104,17 @@
     <div id="employer-box" hidden></div>
     <canvas id="view" role="img" aria-label="Calendar of the year coloured by state"></canvas>
     <div class="legend" id="legend"></div>
+    <div id="trip-box" style="margin-top:12px">
+      <h3>Planning a trip? See what it would change</h3>
+      <p class="note">Add a trip to the stays above without saving it: it shows the days it adds to each state, whether it crosses a published limit, and the longest trip from that start date that stays within the limit.</p>
+      <div class="row4">
+        <div><label for="trip-state">State</label><input id="trip-state" maxlength="2" placeholder="NY" style="text-transform:uppercase"></div>
+        <div><label for="trip-start">First day (YYYY-MM-DD)</label><input id="trip-start" placeholder="2025-10-15"></div>
+        <div><label for="trip-days">Length in days</label><input id="trip-days" inputmode="numeric" placeholder="14"></div>
+      </div>
+      <button type="button" class="secondary" id="trip-run">Check this trip</button>
+      <p id="trip-out" role="status"></p>
+    </div>
     <button type="button" id="download">Download the day record (CSV)</button>
     <button type="button" id="download-log">Download the day-by-day log (CSV, one row per date)</button>
     <button type="button" id="download-packet">Download printable audit packet (.html, print to PDF)</button>
@@ -141,14 +152,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or construction advice, does not state anyone's tax residency, and does not replace a tax professional or the state's own guidance. The rules are summarised from commonly published tests and may be out of date or incomplete. Counts are a record of the dates you typed.</p>
     <p><strong>Independent.</strong> Not affiliated with any state, tax authority, payroll or tax software company, and none is named or ranked here. The example year is invented.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so download the CSV.</p>
-    <p>Everything runs in your browser. Your dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>count_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>daily_log_downloaded</code>, <code>audit_packet_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>count_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>daily_log_downloaded</code>, <code>audit_packet_downloaded</code>, <code>trip_checked</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../economic-nexus-threshold-tracker/">economic nexus threshold tracker</a> for sellers, the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>, the <a href="../self-employment-tax-calculator/">self-employment tax calculator</a> and, for US expats, the <a href="../feie-physical-presence-calculator/">FEIE physical presence calculator</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { CONVENTIONS, auditReportHtml, icsToStays, timelineToStays, parseStays, analyze, sampleSpec, reportCsv, dailyLogCsv, statusText, dayIso, parseDate, toDay, fmtNum, fmtMoney, yearBounds, STATE_NAMES } from "./calc.mjs";
+    import { CONVENTIONS, tripImpact, auditReportHtml, icsToStays, timelineToStays, parseStays, analyze, sampleSpec, reportCsv, dailyLogCsv, statusText, dayIso, parseDate, toDay, fmtNum, fmtMoney, yearBounds, STATE_NAMES } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -296,6 +307,23 @@
     $("#load-example").addEventListener("click", () => {
       fill(sampleSpec());
       later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented year, not a real person."; } });
+    });
+    $("#trip-run").addEventListener("click", () => {
+      const out = $("#trip-out");
+      const r = readSpec();
+      if (r.error) { out.textContent = r.error; return; }
+      const year = r.spec.year;
+      const start = parseDate($("#trip-start").value.trim(), year);
+      const days = Number($("#trip-days").value);
+      if (start === null) { out.textContent = "The first day is not a real date. Use YYYY-MM-DD."; return; }
+      try {
+        const t = tripImpact(r.spec, { state: $("#trip-state").value.trim().toUpperCase(), start, days });
+        const lines = t.changes.map((c) => `${c.code}: ${c.before} → ${c.after} days${c.limit ? ` (limit ${c.limit})` : ""}${c.crossed ? " — crosses the limit" : ""}`);
+        out.textContent = (lines.length ? lines.join("; ") + ". " : "This trip does not change any state's day count. ")
+          + (t.maxSafeDays === null ? "" : t.maxSafeDays < 1 ? `Even one day from that date would put ${t.trip.state} over its ${t.tripLimit}-day limit.` : `Longest stay from that date within the ${t.tripLimit}-day limit: ${t.maxSafeDays} day(s).`)
+          + " A planning aid, not a determination of residency.";
+        record("trip_checked");
+      } catch (e) { out.textContent = e.message; }
     });
     $("#clear-all").addEventListener("click", () => { for (const id of ["asof", "home", "employer", "wages", "stays", "abode", "limits"]) $("#" + id).value = ""; $("#report").hidden = true; last = null; status.textContent = "Cleared."; });
     $("#download").addEventListener("click", () => {
