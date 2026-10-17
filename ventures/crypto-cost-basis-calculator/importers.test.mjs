@@ -120,3 +120,36 @@ test("convertMany merges files under one header", () => {
   assert.deepEqual(r.formats, ["coinbase", "kraken"]);
   assert.ok(r.notes.every((n) => /^(cb|kr)\.csv: /.test(n)));
 });
+
+const BINANCEUS = `User_Id,Time,Category,Operation,Order_Id,Transaction_Id,Primary_Asset,Realized_Amount_For_Primary_Asset,Realized_Amount_For_Primary_Asset_In_USD_Value,Base_Asset,Realized_Amount_For_Base_Asset,Realized_Amount_For_Base_Asset_In_USD_Value,Quote_Asset,Realized_Amount_For_Quote_Asset,Realized_Amount_For_Quote_Asset_In_USD_Value,Fee_Asset,Realized_Amount_For_Fee_Asset,Realized_Amount_For_Fee_Asset_In_USD_Value,Payment_Method,Withdrawal_Method,Additional_Note
+1,2023-03-01 10:00:00,Spot Trading,Buy,o1,t1,BTC,0.5,10000,BTC,0.5,10000,USD,10000,10000,USD,10,10,,,
+1,2023-09-01 10:00:00,Spot Trading,Sell,o2,t2,BTC,0.2,6000,BTC,0.2,6000,USD,6000,6000,USD,6,6,,,
+1,2024-01-05 10:00:00,Staking,Staking Rewards,,t3,DOT,3,,,,,,,,,,,,,
+1,2024-01-06 10:00:00,Deposit,USD Deposit,,t4,USD,1000,1000,,,,,,,,,,,,
+1,2024-01-07 10:00:00,Withdrawal,Crypto Withdrawal,,t5,BTC,0.1,4000,,,,,,,,,,,,
+1,2024-01-08 10:00:00,Other,Mystery Op,,t6,BTC,0.1,4000,,,,,,,,,,,,
+`;
+
+test("Binance.US: detected, trades and rewards mapped, movements ignored, unknowns flagged", () => {
+  assert.equal(detectFormat(BINANCEUS), "binanceus");
+  const r = convertExchangeCsv(BINANCEUS);
+  const lines = r.csv.trim().split("\n");
+  assert.equal(lines[0], OUT_HEADER);
+  assert.deepEqual(lines.slice(1), [
+    "2023-03-01,buy,BTC,0.5,10000,10,Binance.US",
+    "2023-09-01,sell,BTC,0.2,6000,6,Binance.US",
+    "2024-01-05,income,DOT,3,,0,Binance.US",
+  ]);
+  assert.ok(r.notes.some((n) => /1 Binance\.US row had no USD value/.test(n)));
+  assert.ok(r.notes.some((n) => /2 deposit, withdrawal/.test(n)));
+  assert.ok(r.notes.some((n) => /Mystery Op/.test(n)));
+});
+
+test("Binance.US rows flow through the matcher", () => {
+  const { csv } = convertExchangeCsv(BINANCEUS.split("\n").filter((l) => !/Staking|Mystery/.test(l)).join("\n"));
+  const t = parseTransactions(csv);
+  assert.equal(t.errors.length, 0);
+  assert.equal(t.transactions.length, 2);
+  const a = analyze(csv, { method: "FIFO", year: 2023 });
+  assert.ok(a);
+});
