@@ -566,3 +566,27 @@ test("dailyLabor: hours and base-wage cost per day, labor share where sales are 
   const b = buildRoster(staff, slots, { minRestHours: 0, burdenPct: 10 });
   assert.ok(Math.abs(dailyLabor(b, staff, "").days[0].cost - 88) < 1e-9);
 });
+
+test("an unpaid meal break lowers pay on long shifts only, never the hours a person is scheduled", () => {
+  const staff = staffOf("Ana, $20, 40");
+  const slots = slotsOf("Mon, 9am, 5pm, 1, Open\nTue, 9am, 1pm, 1, Short");
+  const plain = buildRoster(staff, slots, {});
+  const meal = buildRoster(staff, slots, { mealAfter: 6, mealMin: 30 });
+  assert.equal(meal.unfilledSlots, 0);
+  assert.equal(meal.hours, plain.hours);
+  // 8h shift loses 30 min of pay, the 4h shift does not: 20 * (12 - 0.5)
+  assert.ok(Math.abs(plain.cost - 240) < 1e-6);
+  assert.ok(Math.abs(meal.cost - 230) < 1e-6);
+});
+
+test("prefer: gives the hours to the person who asked, but never leaves a shift open", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any\nBen, 15, 40, 0, any, prefer: Sat");
+  const r = buildRoster(staff, slotsOf("Sat, 9, 17, 1"), { balance: 0 });
+  assert.equal(r.assignments[0].person, "Ben");
+  const only = buildRoster(staffOf("Ana, 15, 40, 0, any\nBen, 15, 40, 0, Mon-Fri 9-17, prefer: Sat"), slotsOf("Sat, 9, 17, 1"));
+  assert.equal(only.assignments[0].person, "Ana");
+});
+
+test("prefer: bad days are reported", () => {
+  assert.ok(parseStaff("Ana, 15, 40, 0, any, prefer: Funday").errors.some((e) => /prefer/.test(e)));
+});
