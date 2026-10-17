@@ -56,6 +56,14 @@
       .sched { font-size: .92rem; }
     .sched td { vertical-align: top; }
     .ok { color: #1d5a24; font-weight: 700; }
+    #wall { display: none; }
+    @media print {
+      body.print-wall > :not(#wall) { display: none !important; }
+      body.print-wall #wall { display: block; color: #000; background: #fff; }
+      #wall h1 { font-size: 1.4rem; margin: 0 0 8px; }
+      #wall table { width: 100%; border-collapse: collapse; font-size: 1rem; }
+      #wall th, #wall td { border: 1px solid #000; padding: 6px; vertical-align: top; }
+    }
   </style>
 </head>
 <body>
@@ -63,7 +71,7 @@
     <p class="note">SHIFT ROSTER BUILDER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Build this week's schedule without the spreadsheet puzzle</h1>
     <p>List <strong>the shifts you need covered</strong> and <strong>your people</strong> with their availability, weekly hour limits and wages. The tool assigns people to shifts so that <strong>every shift is covered if it can be</strong>, nobody works outside their availability, gets less rest than you allow, or goes into <strong>overtime</strong> when someone cheaper is free. Shifts it cannot fill come back with the reason, and it shows <strong>who the week depends on</strong>. Download the roster as a CSV.</p>
-    <p class="note">Your staff list never leaves this browser tab. Planning aid, not legal, tax, or financial advice. It does not know your local scheduling-notice, break or minor-labor laws. See <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a> for the method, and <a href="do-i-need-to-hire-another-employee.html">do I need to hire another employee?</a> for testing a hire before you post the job.</p>
+    <p class="note">Your staff list never leaves this browser tab. Planning aid, not legal, tax, or financial advice. It does not know your local scheduling-notice, break or minor-labor laws. See <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a> for the method, and <a href="do-i-need-to-hire-another-employee.html">do I need to hire another employee?</a> for testing a hire before you post the job. Worried about close-then-open shifts? See <a href="how-to-avoid-clopening.html">what a rest gap costs</a>.</p>
   </header>
 
   <section class="card">
@@ -126,6 +134,8 @@
     <div style="margin-top:12px"><label for="weekstart">Week starting (a Monday), for calendar files</label>
       <input id="weekstart" type="date"> <select id="icsperson" aria-label="Whose shifts"></select>
       <button type="button" class="secondary" id="download-ics">Download calendar (.ics)</button></div>
+    <div style="margin-top:12px"><button type="button" class="secondary" id="print-wall">Print a wall copy (names and shifts only)</button>
+      <span class="note">No pay or wages on it, so it is safe to post in the break room.</span></div>
     <div style="margin-top:12px"><button type="button" class="secondary" id="make-messages">Write a text for each person</button>
       <div id="messages" aria-live="polite"></div></div>
   </section>
@@ -270,6 +280,14 @@
       rd.readAsText(f);
     });
     $("#clear-all").addEventListener("click", () => { $("#staff").value = ""; $("#shifts").value = ""; persist(); $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Enter your people and shifts, then click the button."; });
+    $("#print-wall").addEventListener("click", () => {
+      if (!last) return;
+      const ws = $("#weekstart").value;
+      $("#wall").innerHTML = `<h1>Schedule${ws ? ", week of " + esc(ws) : ""}</h1><table><thead>${$("#grid thead").innerHTML}</thead><tbody>${$("#grid tbody").innerHTML}</tbody></table>`;
+      document.body.classList.add("print-wall");
+      window.print();
+      document.body.classList.remove("print-wall");
+    });
     $("#download").addEventListener("click", () => { if (last) download("roster.csv", rosterCsv(last)); });
     $("#download-hours").addEventListener("click", () => { if (last) download("roster-hours.csv", hoursCsv(last)); });
     $("#download-ics").addEventListener("click", () => {
@@ -319,5 +337,6 @@
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>
+<div id="wall" aria-hidden="true"></div>
 </body>
 </html>
