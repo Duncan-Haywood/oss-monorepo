@@ -892,6 +892,27 @@ export function laborPercent(payroll, sales, targetPct = null) {
   return { pct, target: t, maxPayroll, headroom: maxPayroll - c, over: pct > t + 1e-9 };
 }
 
+// Per-day view of a built roster: scheduled hours, payroll at each person's base wage (plus the burden %), and, when
+// `salesText` holds up to seven daily sales figures (Mon first, comma or space separated, blank or 0 = unknown), each
+// day's labor share of sales. Overtime premiums are priced weekly, so they are not spread over days here; the
+// day costs add up to the roster's payroll minus its overtime premium.
+export function dailyLabor(r, staff, salesText = "") {
+  const wage = new Map(staff.map((p) => [p.name, p.wage]));
+  const burden = 1 + ((r.options && r.options.burdenPct) || 0) / 100;
+  const sales = String(salesText).split(/[,\s;]+/).filter((t) => t !== "").map((t) => Number(t.replace(/[$]/g, "")));
+  const days = DAYS.map((d, i) => ({ day: d, hours: 0, cost: 0, sales: sales[i] > 0 ? sales[i] : null, pct: null }));
+  for (const a of r.assignments || []) {
+    if (!a.person) continue;
+    const h = (a.slot.endMin - a.slot.startMin) / 60;
+    days[a.slot.day].hours += h;
+    days[a.slot.day].cost += h * (wage.get(a.person) || 0) * burden;
+  }
+  for (const d of days) if (d.sales) d.pct = (d.cost / d.sales) * 100;
+  const withSales = days.filter((d) => d.pct !== null);
+  const worst = withSales.length ? withSales.reduce((a, b) => (b.pct > a.pct ? b : a)) : null;
+  return { days, worst, hasSales: withSales.length > 0 };
+}
+
 // Predictive-scheduling style flags on a built roster, for rules the search does not enforce: hours in one day over
 // `dailyLimit` (daily-overtime states), split shifts (two shifts one day with a gap over `splitGap` hours), and how many
 // days of notice the week gets when the Monday and today's date are given. Flags only; not legal advice.
