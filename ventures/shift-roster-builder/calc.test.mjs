@@ -357,6 +357,8 @@ test("money formats whole dollars and cents, with a minus sign for negatives", (
   assert.equal(money(-42), "\u2212$42");
   assert.equal(money2(1234.5), "$1,234.50");
   assert.equal(money2(-0.5), "\u2212$0.50");
+  assert.equal(money2(0), "$0.00");
+  assert.equal(money2(0.5), "$0.50");
 });
 
 test("ics export: the per-person file holds only that person's shifts and unfilled shifts are left out", () => {
@@ -545,6 +547,13 @@ test("avoid: is still worked when nobody else is available, and says so", () => 
   assert.ok(r.warnings.some((w) => /Ana works 3 hours inside/.test(w)));
 });
 
+test("avoid: a Monday window counts against a Sunday shift that runs past midnight", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any, avoid: Mon 12am-3am");
+  const slots = slotsOf("Sun, 22, 2, 1");
+  const r = buildRoster(staff, slots);
+  assert.equal(r.people[0].avoidHours, 2);
+});
+
 test("avoid: bad days are reported", () => {
   const r = parseStaff("Ana, 15, 40, 0, any, avoid: Funday");
   assert.ok(r.errors.some((e) => /avoid/.test(e)));
@@ -703,4 +712,14 @@ test("trimOptions: flags a cut that drops someone under their minimum hours; no 
   const r = buildRoster(staff, slots);
   assert.equal(trimOptions(staff, slots, r).rows[0].breaksMinimum, true);
   assert.ok(trimOptions(staff, slots, null).error);
+});
+
+test("scheduleChanges: a blank or negative wage is unpriced, never $0 or a negative premium", () => {
+  const head = "Day,Start,End,Hours,Label,Person\n";
+  const a = head + "Mon,9am,5pm,8,x,Ana\n", b = head + "Mon,10am,6pm,8,x,Ana\n";
+  for (const w of ["", -5, "abc"]) {
+    const r = scheduleChanges(a, b, { changedAt: 0, wages: { Ana: w } });
+    assert.equal(r.owed, 0);
+    assert.equal(r.changes[0].premiumUnpriced, true);
+  }
 });
