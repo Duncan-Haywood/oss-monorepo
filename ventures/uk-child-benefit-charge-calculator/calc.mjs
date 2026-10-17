@@ -67,7 +67,7 @@ export function compute(input) {
 
   if (pct === 0) {
     outcome = "none";
-    findings.push({ severity: "info", title: `Adjusted net income of ${money(ani)} is at or under ${money(START)}: no charge. You keep all ${money(benefit)} of Child Benefit for ${label}.` });
+    findings.push({ severity: "info", title: `Adjusted net income of ${money(ani)} ${ani <= START ? `is at or under ${money(START)}` : `is over ${money(START)} but under the first 1% step (${money(START + STEP)})`}: no charge. You keep all ${money(benefit)} of Child Benefit for ${label}.` });
     if (income > START) findings.push({ severity: "info", title: `Your pension and Gift Aid reductions (${money(grossPension + grossGift)} grossed up) are what bring you under the line: keep the records for your return.` });
     if (income > START - 2000 && income <= START) findings.push({ severity: "medium", title: `You are within ${money(START - income)} of the ${money(START)} line. A small pay rise or bonus starts the charge, so check again.` });
   } else {
