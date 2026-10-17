@@ -22,6 +22,14 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `fifo-vs-hifo-crypto-cost-basis.html` - guide with a worked example that the
   test suite recomputes.
 
+## What you use today, and what this does differently
+
+- **A spreadsheet:** free and private, but the lot matching, holding-period split and per-method comparison are yours to build and keep correct for every sale.
+- **Crypto tax services** (Koinly, CoinTracker, TokenTax and similar): they sync exchanges and wallets and file-ready reports, but they want an account, your full transaction history on their servers, and usually a paid plan for larger histories. This tool reads exports you already have and keeps them in your browser.
+- **Your exchange's own tax report:** convenient, but typically one method and one platform. This tool combines several exports and shows FIFO, LIFO, HIFO, LOFO and a tax-aware rule side by side.
+- **A tax professional:** the right place to settle which method you may use and how to file. This tool does not decide that.
+- **What this adds:** a five-method comparison on your own CSV with estimated tax, tax-loss harvesting from prices you type, Form 8949 style rows, a zero-dependency CLI, no signup and no upload.
+
 **No warranty.** Free and as-is; arithmetic on figures you type, not legal, tax,
 financial or investment advice. It does not fetch prices or connect to exchanges,
 and does not model DeFi, NFTs, forks, lost coins, gifts, wash-sale style rules,
