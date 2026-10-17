@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1274 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1275 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-10-16T00:00:00Z</updated>
+  <updated>2026-10-17T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Survey Keeper — Self-Hosted NPS and Surveys, a Typeform and Delighted Alternative</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/survey-keeper/"/>
+    <id>tag:marisstella.dev,2026:tool/survey-keeper</id>
+    <updated>2026-10-17T00:00:00Z</updated>
+    <category term="Self-hosted business apps"/>
+    <summary type="text">Run surveys and Net Promoter Score on a server you own: NPS with a 95% range, the words detractors use, results by source, CSV export and an alert on every detractor. Open source, MIT, no per-response fee. Try the NPS calculator in your browser.</summary>
+  </entry>
   <entry>
     <title>GitHub Actions Runtime Deprecation Check — Find Steps on End-of-Life Node Runtimes</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-runtime-deprecation-check/"/>
@@ -125,7 +133,7 @@
     <id>tag:marisstella.dev,2026:tool/self-hosted-saas-stack</id>
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="Self-hosted business apps"/>
-    <summary type="text">27 open-source, self-hosted tools that replace the small-SaaS subscriptions a founder pays for: booking, help center, error tracking, feature flags, analytics, email, referrals, billing metrics and e-signature. MIT licensed, zero dependencies, one-click deploy.</summary>
+    <summary type="text">28 open-source, self-hosted tools that replace the small-SaaS subscriptions a founder pays for: booking, help center, error tracking, feature flags, analytics, email, referrals, billing metrics and e-signature. MIT licensed, zero dependencies, one-click deploy.</summary>
   </entry>
   <entry>
     <title>Sign Keeper — Free Self-Hosted E-Signature Links with a Tamper-Evident Audit Trail</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-16T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Add one free GitHub Action to scan your workflows for script injection, pwn requests, cache and artifact poisoning, leaked secrets, over-broad permissions and more. Read-only, zero dependencies, SARIF and step-summary output, no network calls.</summary>
-  </entry>
-  <entry>
-    <title>persist-credentials Check for actions/checkout — Find the Artipacked Pattern</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-checkout-credentials-check/"/>
-    <id>tag:marisstella.dev,2026:tool/actions-checkout-credentials-check</id>
-    <updated>2026-10-15T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your GitHub Actions workflow YAML and find every actions/checkout step without persist-credentials: false, with jobs that also upload artifacts (the artipacked pattern) listed first. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>

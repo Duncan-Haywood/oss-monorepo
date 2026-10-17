@@ -1,6 +1,6 @@
 # Self-Hosted SaaS Stack
 
-A directory of the 27 open-source, self-hosted tools in this repository that
+A directory of the 28 open-source, self-hosted tools in this repository that
 replace small-SaaS subscriptions: booking pages (Calendly alternative), help
 center (Help Scout Docs alternative), error tracking (Sentry alternative),
 feature flags (LaunchDarkly alternative), cookie-free analytics (Plausible
