@@ -114,6 +114,18 @@
     <div class="scroll"><table id="price-table" hidden><thead><tr><th>Measure</th><th class="n">Result</th><th>How to read it</th></tr></thead><tbody></tbody></table></div>
   </section>
 
+  <section class="card" id="multi-test">
+    <h2>More than one variant? Test A/B/n without fooling yourself</h2>
+    <p class="note">One line per arm: name, visitors, conversions. The first line is the control. Each variant is compared with control, and p-values are Holm-adjusted so testing several variants does not make a false winner likely.</p>
+    <label for="multi-text">Arms</label>
+    <textarea id="multi-text" rows="5" placeholder="Control, 5000, 250&#10;Variant B, 5000, 290&#10;Variant C, 5000, 262"></textarea>
+    <button type="button" id="multi-run">Compare variants</button>
+    <button type="button" class="secondary" id="multi-example">Load an example</button>
+    <p id="multi-status" role="status" class="note">Uses the significance level chosen above. Two-sided test.</p>
+    <div id="multi-findings"></div>
+    <div class="scroll"><table id="multi-table" hidden><thead><tr><th>Arm</th><th class="n">Rate</th><th class="n">Lift vs control</th><th class="n">p (raw)</th><th class="n">p (Holm)</th><th class="n">Chance best</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
   <section class="card">
     <h2>Plan a test: how many visitors do you need?</h2>
     <div class="grid">
@@ -159,14 +171,14 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the numbers you enter; they do not guarantee what will happen when you roll out a change. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any experimentation platform, analytics vendor or research firm, and none is named or ranked here.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>plan_run</code>, <code>price_test_run</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>plan_run</code>, <code>price_test_run</code>, <code>multi_test_run</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Running experiments on pricing or growth? See the <a href="../gabor-granger-price-analyzer/">Gabor-Granger price analyzer</a>, the <a href="../van-westendorp-pricing-analyzer/">Van Westendorp pricing analyzer</a> and the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a>. Setting a trial length? The <a href="../trial-conversion-timing-analyzer/">trial conversion timing analyzer</a> shows on which day of a trial people first pay.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { analyze, sampleSize, daysToRun, reportCsv, sampleText, pct, signedPct, priceTest, priceSampleText, money } from "./calc.mjs";
+    import { analyze, sampleSize, daysToRun, reportCsv, sampleText, pct, signedPct, priceTest, priceSampleText, money, multiTest, parseArms, multiSampleText } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -256,6 +268,24 @@
       ps.textContent = "Done. Decide your stopping rule before you start, and do not stop early on a good-looking result.";
       return true;
     }
+    function runMulti() {
+      const ms = $("#multi-status"), tbl = $("#multi-table");
+      const parsed = parseArms($("#multi-text").value);
+      const r = parsed.error ? parsed : multiTest({ arms: parsed.arms, alpha: Number($("#alpha").value) });
+      if (r.error) { ms.textContent = r.error; $("#multi-findings").innerHTML = ""; tbl.hidden = true; return false; }
+      ms.textContent = `${r.rows.length} variants against ${r.control.name}.`;
+      $("#multi-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      const row = (n, rate, lift, p, ph, best) => `<tr><td>${esc(n)}</td><td class="n">${pct(rate)}</td><td class="n">${lift}</td><td class="n">${p}</td><td class="n">${ph}</td><td class="n">${pct(best, 1)}</td></tr>`;
+      tbl.querySelector("tbody").innerHTML = row(r.control.name, r.control.rate, "control", "", "", r.control.probBest) +
+        r.rows.map((x) => row(x.name, x.rate, signedPct(x.lift), x.p.toFixed(4), x.pHolm.toFixed(4) + (x.significant ? " *" : ""), x.probBest)).join("");
+      tbl.hidden = false;
+      return true;
+    }
+    $("#multi-run").addEventListener("click", () => { if (runMulti()) record("multi_test_run"); });
+    $("#multi-example").addEventListener("click", () => {
+      $("#multi-text").value = multiSampleText();
+      if (runMulti()) { record("example_loaded"); $("#multi-status").textContent = "Sample data: an invented test, not a real experiment."; }
+    });
     $("#price-run").addEventListener("click", () => { if (runPrice()) record("price_test_run"); });
     $("#price-example").addEventListener("click", () => {
       const o = priceSampleText();
