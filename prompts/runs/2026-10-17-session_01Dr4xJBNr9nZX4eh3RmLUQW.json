@@ -1,0 +1,240 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01Dr4xJBNr9nZX4eh3RmLUQW",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T07:06:09Z",
+  "ended": "2026-10-17T07:06:21Z",
+  "wall_minutes": 1.13,
+  "tokens_in": 689719,
+  "tokens_out": 2947,
+  "cost_usd": 0.3111,
+  "tool_calls": 12,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "ebay-fee-calculator/csv.mjs: 3 escaped mutants on quantity fallback; 2 gaps closed by one test, 1 equivalent. No real defects found.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ebay-fee-calculator/csv.mjs",
+        "test": "node --test ventures/ebay-fee-calculator/**/*.test.mjs  (in .)",
+        "seed": 254635181,
+        "commit": "256b4cb4ee",
+        "sites": 9,
+        "baseline_seconds": 2.2,
+        "mutants": [
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 14,
+            "col": 42,
+            "operator": "and-to-or",
+            "before": "String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "after": "String(Number.isInteger(row.quantity) || row.quantity > 0 ? row.quantity : 1),",
+            "line_text": "    String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 14,
+            "col": 58,
+            "operator": "gt-to-ge",
+            "before": "String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "after": "String(Number.isInteger(row.quantity) && row.quantity >= 0 ? row.quantity : 1),",
+            "line_text": "    String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 14,
+            "col": 60,
+            "operator": "const-plus-one",
+            "before": "String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "after": "String(Number.isInteger(row.quantity) && row.quantity > 1 ? row.quantity : 1),",
+            "line_text": "    String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "quantity 1 yields \"1\" either way; q>1 else 1 is indistinguishable"
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 14,
+            "col": 79,
+            "operator": "const-plus-one",
+            "before": "String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "after": "String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 2),",
+            "line_text": "    String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 16,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "Number(row.profit).toFixed(2),",
+            "after": "Number(row.profit).toFixed(3),",
+            "line_text": "    Number(row.profit).toFixed(2),",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 18,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "Number(row.unitProfit).toFixed(2),",
+            "after": "Number(row.unitProfit).toFixed(3),",
+            "line_text": "    Number(row.unitProfit).toFixed(2),",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 19,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "Number(row.profitDelta).toFixed(2),",
+            "after": "Number(row.profitDelta).toFixed(3),",
+            "line_text": "    Number(row.profitDelta).toFixed(2),",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 21,
+            "col": 84,
+            "operator": "plus-to-minus",
+            "before": "return [header, ...body].map((row) => row.map(escapeCell).join(\",\")).join(\"\\r\\n\") + \"\\r\\n\";",
+            "after": "return [header, ...body].map((row) => row.map(escapeCell).join(\",\")).join(\"\\r\\n\") - \"\\r\\n\";",
+            "line_text": "  return [header, ...body].map((row) => row.map(escapeCell).join(\",\")).join(\"\\r\\n\") + \"\\r\\n\";",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3b8902a4-43d1-5255-9dd1-6c59002643ae",
+    "transcripts": 1,
+    "first": "2026-10-17T07:06:09Z",
+    "last": "2026-10-17T07:07:17Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 11,
+        "input": 22,
+        "output": 2947,
+        "thinking": 199,
+        "cache_read": 651902,
+        "cache_write_5m": 0,
+        "cache_write_1h": 37795,
+        "api_equivalent_usd": 0.3111,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 11,
+      "input": 22,
+      "output": 2947,
+      "thinking": 199,
+      "cache_read": 651902,
+      "cache_write_5m": 0,
+      "cache_write_1h": 37795,
+      "api_equivalent_usd": 0.3111,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.945,
+    "tool_calls": 12,
+    "tools": {
+      "Bash": 10,
+      "Read": 1,
+      "ToolSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.13,
+      "active_minutes": 1.13,
+      "model_minutes": 0.42,
+      "tool_minutes": 0.71,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "small mutation campaign and one test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 160.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

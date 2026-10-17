@@ -45,6 +45,13 @@ right now. This is your call, and these are only defaults:
   against its `baseline` and write the result: helped, no change, or worse.
   If a fix did not help, reopen the item or revert the change.
 
+When the backlog has no agent-owned open item (only `owner` rows), do not spend
+the run on Verify or backlog edits alone: 17 of the 61 process/1 runs ended
+`partial` that way (`prompts/runs/*.json`, outcome field). Take Critique and ship a
+fix to a tool, check or file that the recent `doc_friction` entries
+(`promptctl.py measure`, "Doc friction by file") name. A result written to a
+backlog item is bookkeeping, not the deliverable.
+
 A good run often mixes modes. You might verify one item, solve another, and
 file the two new problems you hit along the way.
 
