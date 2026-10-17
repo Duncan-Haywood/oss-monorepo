@@ -2002,6 +2002,9 @@ const CATEGORY_RULES = [
       // per state checked against residency limits -- the same tax-obligation axis as
       // `quarterly-estimated-tax-calendar` above, which it links to.
       || slug === 'state-residency-day-counter'
+      // `s-corp-basis-tracker` joined 2026-10-17 on its first commit: a shareholder's yearly basis roll-forward
+      // for the return -- the same tax-position bookkeeping axis as `state-residency-day-counter`.
+      || slug === 's-corp-basis-tracker'
       // `feie-physical-presence-calculator` joined 2026-10-03 on its first commit: the federal 330-day
       // count a US expat keeps, the same tax-obligation day-counting axis as `state-residency-day-counter`.
       || slug === 'feie-physical-presence-calculator'

@@ -1262,6 +1262,9 @@ workflows:
 - workflow: roofing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: s-corp-basis-tracker-ci.yml
+  classification: none
+  publishes: []
 - workflow: s3-bucket-exposure-check-ci.yml
   classification: none
   publishes: []

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>S corp distributions over basis: when a distribution becomes taxable, with an example</title>
+  <meta name="description" content="What happens when an S corporation distribution exceeds your stock basis: the excess is generally gain. How same-year income raises the ceiling, why losses do not help, and what to check about C corporation history.">
+  <link rel="canonical" href="./s-corp-distributions-over-basis.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "When an S corporation distribution is more than your basis", "description": "What happens when an S corporation distribution exceeds your stock basis: the excess is generally gain. How same-year income raises the ceiling, why losses do not help, and what to check about C corporation history.", "author": {"@type": "Organization", "name": "S-Corp Basis Tracker"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is an excess distribution always capital gain?", "acceptedAnswer": {"@type": "Answer", "text": "Generally it is treated as gain from the sale of the stock, capital gain if held over a year. Distributions of earnings from C corporation years can be dividends instead."}}, {"@type": "Question", "name": "Does income earned later in the year count?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Your share of the year's income is added to basis before distributions are tested, even if the company earns it after the cash goes out."}}, {"@type": "Question", "name": "Can I fix an excess distribution after year end?", "acceptedAnswer": {"@type": "Answer", "text": "Basis is measured at year end, so contributions made after year end do not count for that year. Talk to a tax professional about options before filing."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1d2330; background: #f4f2ee; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    a { color: #1b5e7a; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.4rem); line-height: 1.12; color: #3b3a2e; }
+    h2 { font-size: 1.2rem; color: #3b3a2e; margin-top: 28px; }
+    h3 { font-size: 1.02rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; } th, td { border-bottom: 1px solid #ddd8cc; padding: 6px; text-align: left; } td.n, th.n { text-align: right; }
+    footer { margin-top: 32px; border-top: 1px solid #ddd8cc; padding-top: 14px; font-size: .86rem; color: #54503f; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./index.html">S-Corp Shareholder Basis Tracker</a> · free, in your browser</p>
+  <h1>When an S corporation distribution is more than your basis</h1>
+  <p>A distribution from an S corporation is generally tax free up to your stock basis, then taxed as gain. Because basis is only known after the year's income is added, the same cash can be tax free or taxable depending on the year-end figures.</p>
+  <h2>Two invented cases</h2>
+  <p><strong>Case 1.</strong> Stock basis at the start of the year is $10,000. The company earns nothing for you and distributes $25,000. $10,000 is tax free, basis falls to $0 and <strong>$15,000 is excess</strong>, generally capital gain if you have held the stock more than a year.</p>
+  <p><strong>Case 2.</strong> Same start and same $25,000 distribution, but your share of income for the year is $20,000. Income is added first, so basis before the distribution is $30,000. Nothing is excess and basis ends at $5,000.</p>
+  <p><strong>Case 3.</strong> Start at $10,000, distribute $10,000 and also have a $5,000 loss. The distribution takes basis to $0 first, so the $5,000 loss is suspended rather than deducted. The order costs you the deduction until basis returns.</p>
+  <h2>What to check</h2>
+  <ul>
+    <li>If the company was ever a C corporation, a distribution beyond the accumulated adjustments account may be a dividend rather than gain. The tracker does not model that.</li>
+    <li>Distributions made early in the year are tested against year-end basis for the whole year, so timing within the year does not rescue them.</li>
+    <li>Adding a contribution or a direct loan before year end raises basis; ask a preparer how to document it.</li>
+  </ul>
+  <h2>Questions</h2>
+  <h3>Is an excess distribution always capital gain?</h3>
+  <p>Generally it is treated as gain from the sale of the stock, capital gain if held over a year. Distributions of earnings from C corporation years can be dividends instead.</p>
+  <h3>Does income earned later in the year count?</h3>
+  <p>Yes. Your share of the year's income is added to basis before distributions are tested, even if the company earns it after the cash goes out.</p>
+  <h3>Can I fix an excess distribution after year end?</h3>
+  <p>Basis is measured at year end, so contributions made after year end do not count for that year. Talk to a tax professional about options before filing.</p>
+  <p><a href="./index.html">Open the tracker</a> and put your own K-1 figures through it. Nothing is uploaded.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Not legal, tax, financial or accounting advice; the example is invented and the rules are summarised from commonly published guidance that may be out of date. Check Form 7203 instructions and your K-1, or ask a tax professional.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These pages may be slow, moved or taken offline without notice.</p>
+</footer>
+</body>
+</html>
