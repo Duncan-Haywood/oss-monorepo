@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Log-log plot of the percent difference of the six-part carry time at 400, 1600 and 6400 nodes from the 25600-node value, for three arm reaches; the error falls by roughly two to three orders of magnitude">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Time-optimal carry: error against the finest grid (wmax 2 rad/s, jaw cap 5x)</text>
+<line x1="64" x2="624" y1="312.7" y2="312.7" stroke="#ddd"/><text x="58" y="316.7" text-anchor="end" font-family="sans-serif" font-size="11">1e-05</text>
+<line x1="64" x2="624" y1="256.6" y2="256.6" stroke="#ddd"/><text x="58" y="260.6" text-anchor="end" font-family="sans-serif" font-size="11">0.0001</text>
+<line x1="64" x2="624" y1="200.4" y2="200.4" stroke="#ddd"/><text x="58" y="204.4" text-anchor="end" font-family="sans-serif" font-size="11">0.001</text>
+<line x1="64" x2="624" y1="144.3" y2="144.3" stroke="#ddd"/><text x="58" y="148.3" text-anchor="end" font-family="sans-serif" font-size="11">0.01</text>
+<line x1="64" x2="624" y1="88.2" y2="88.2" stroke="#ddd"/><text x="58" y="92.2" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">400</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1600</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6400</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">nodes n</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">|T(n) - T(25600)| / T(25600) (%)</text>
+<polyline points="64.0,70.4 344.0,133.4 624.0,228.9" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="70.4" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="133.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="228.9" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">L=0.08 m</text>
+<polyline points="64.0,89.7 344.0,182.6 624.0,261.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="89.7" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="182.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="261.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">L=0.12 m</text>
+<polyline points="64.0,156.2 344.0,237.2 624.0,309.6" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="156.2" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="237.2" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="309.6" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">L=0.2 m</text>
+</svg>
