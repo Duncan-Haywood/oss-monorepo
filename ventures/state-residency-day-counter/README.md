@@ -20,6 +20,8 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `183-day-rule-by-state.html` - guide with a worked example that the test
   suite recomputes.
+- `remote-work-convenience-of-the-employer-rule.html` - guide on the
+  employer-state rule, its dollar figures recomputed by the test suite.
 
 **No warranty.** Free and as-is; an organising aid, not tax or legal advice. It
 does not decide anyone's residency: domicile, ties, what counts as an abode,
