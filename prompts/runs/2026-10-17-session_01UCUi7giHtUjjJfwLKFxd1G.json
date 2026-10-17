@@ -1,0 +1,238 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01UCUi7giHtUjjJfwLKFxd1G",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T01:38:54Z",
+  "ended": "2026-10-17T01:39:05Z",
+  "wall_minutes": 0.67,
+  "tokens_in": 718492,
+  "tokens_out": 2584,
+  "cost_usd": 0.328,
+  "tool_calls": 11,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/uk-marriage-allowance-calculator/calc.mjs",
+        "test": "node --test ventures/uk-marriage-allowance-calculator/**/*.test.mjs  (in .)",
+        "seed": 1001224263,
+        "commit": "23fede07e8",
+        "sites": 80,
+        "baseline_seconds": 0.5,
+        "mutants": [
+          {
+            "file": "ventures/uk-marriage-allowance-calculator/calc.mjs",
+            "line": 14,
+            "col": 127,
+            "operator": "const-plus-one",
+            "before": "export const LIMITS = { rest: { label: \"England, Wales or Northern Ireland\", upper: 50270 }, scot: { label: \"Scotland\", upper: 43662 } };",
+            "after": "export const LIMITS = { rest: { label: \"England, Wales or Northern Ireland\", upper: 50270 }, scot: { label: \"Scotland\", upper: 43663 } };",
+            "line_text": "export const LIMITS = { rest: { label: \"England, Wales or Northern Ireland\", upper: 50270 }, scot: { label: \"Scotland\", upper: 43662 } };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added boundary/parse tests in calc.test.mjs"
+          },
+          {
+            "file": "ventures/uk-marriage-allowance-calculator/calc.mjs",
+            "line": 27,
+            "col": 92,
+            "operator": "const-plus-one",
+            "before": "if (v === undefined || v === null || v === \"\") { errors.push(`Enter ${label}.`); return 0; }",
+            "after": "if (v === undefined || v === null || v === \"\") { errors.push(`Enter ${label}.`); return 1; }",
+            "line_text": "    if (v === undefined || v === null || v === \"\") { errors.push(`Enter ${label}.`); return 0; }",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added boundary/parse tests in calc.test.mjs"
+          },
+          {
+            "file": "ventures/uk-marriage-allowance-calculator/calc.mjs",
+            "line": 38,
+            "col": 44,
+            "operator": "eq-flip",
+            "before": "let back = i.back === undefined || i.back === \"\" ? 0 : Number(i.back);",
+            "after": "let back = i.back === undefined || i.back !== \"\" ? 0 : Number(i.back);",
+            "line_text": "  let back = i.back === undefined || i.back === \"\" ? 0 : Number(i.back);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-marriage-allowance-calculator/calc.mjs",
+            "line": 49,
+            "col": 14,
+            "operator": "min-to-max",
+            "before": "const low = Math.min(a, b), high = Math.max(a, b);",
+            "after": "const low = Math.max(a, b), high = Math.max(a, b);",
+            "line_text": "  const low = Math.min(a, b), high = Math.max(a, b);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-marriage-allowance-calculator/calc.mjs",
+            "line": 49,
+            "col": 37,
+            "operator": "max-to-min",
+            "before": "const low = Math.min(a, b), high = Math.max(a, b);",
+            "after": "const low = Math.min(a, b), high = Math.min(a, b);",
+            "line_text": "  const low = Math.min(a, b), high = Math.max(a, b);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-marriage-allowance-calculator/calc.mjs",
+            "line": 55,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "const eligible = reasons.length === 0;",
+            "after": "const eligible = reasons.length === 1;",
+            "line_text": "  const eligible = reasons.length === 0;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-marriage-allowance-calculator/calc.mjs",
+            "line": 62,
+            "col": 23,
+            "operator": "times-to-div",
+            "before": "const total = r2(net * years);",
+            "after": "const total = r2(net / years);",
+            "line_text": "  const total = r2(net * years);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-marriage-allowance-calculator/calc.mjs",
+            "line": 88,
+            "col": 77,
+            "operator": "const-plus-one",
+            "before": "export const SAMPLE = { year: 2025, region: \"rest\", a: 9000, b: 32000, back: 4 };",
+            "after": "export const SAMPLE = { year: 2025, region: \"rest\", a: 9000, b: 32000, back: 5 };",
+            "line_text": "export const SAMPLE = { year: 2025, region: \"rest\", a: 9000, b: 32000, back: 4 };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "406ffe00-f1f9-50c7-b9fa-c89e13119689",
+    "transcripts": 1,
+    "first": "2026-10-17T01:38:54Z",
+    "last": "2026-10-17T01:39:34Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 11,
+        "input": 22,
+        "output": 2584,
+        "thinking": 99,
+        "cache_read": 676788,
+        "cache_write_5m": 0,
+        "cache_write_1h": 41682,
+        "api_equivalent_usd": 0.328,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 11,
+      "input": 22,
+      "output": 2584,
+      "thinking": 99,
+      "cache_read": 676788,
+      "cache_write_5m": 0,
+      "cache_write_1h": 41682,
+      "api_equivalent_usd": 0.328,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.942,
+    "tool_calls": 11,
+    "tools": {
+      "Bash": 11
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 0.67,
+      "active_minutes": 0.67,
+      "model_minutes": 0.38,
+      "tool_minutes": 0.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "small mutation campaign and two boundary tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 152.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
