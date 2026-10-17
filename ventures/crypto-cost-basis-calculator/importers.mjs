@@ -40,6 +40,7 @@ export function detectFormat(text) {
   const grid = parseCsv(text);
   if (findHeader(grid, ["timestamp", "transaction type", "asset"]) >= 0) return "coinbase";
   if (findHeader(grid, ["txid", "refid", "time", "type", "asset", "amount", "fee"]) >= 0) return "kraken";
+  if (findHeader(grid, ["time", "operation", "primary asset"]) >= 0) return "binanceus";
   return "generic";
 }
 
@@ -160,16 +161,57 @@ function importKraken(grid) {
   return { format: "kraken", rows: out, notes };
 }
 
+// ---- Binance.US (transaction history) --------------------------------------
+
+const BN_INCOME = /reward|distribution|airdrop|referral|cashback|interest/;
+const BN_MOVE = /deposit|withdraw|transfer|stake|unstake|subscri|redeem/;
+
+function importBinanceUs(grid) {
+  const h = findHeader(grid, ["time", "operation", "primary asset"]);
+  const names = grid[h].map(norm);
+  const ix = (n) => names.indexOf(n);
+  const c = {
+    time: ix("time"), cat: ix("category"), op: ix("operation"), asset: ix("primary asset"),
+    qty: ix("realized amount for primary asset"), usd: ix("realized amount for primary asset in usd value"),
+    qusd: ix("realized amount for quote asset in usd value"), fusd: ix("realized amount for fee asset in usd value"),
+  };
+  const out = [], notes = [];
+  let moves = 0, unpriced = 0;
+  for (let i = h + 1; i < grid.length; i++) {
+    const r = grid[i];
+    const g = (k) => (c[k] < 0 ? "" : r[c[k]] ?? "");
+    const op = norm(g("op"));
+    if (!op || !g("time")) continue;
+    const date = g("time").slice(0, 10);
+    const asset = g("asset").toUpperCase();
+    const qty = Math.abs(num(g("qty")) ?? 0);
+    const usd = num(g("usd")) ?? num(g("qusd"));
+    const total = usd === null ? null : Math.abs(usd);
+    const fee = Math.abs(num(g("fusd")) ?? 0);
+    if (/^buy\b/.test(op) || /^sell\b/.test(op)) {
+      if (total === null) unpriced++;
+      out.push([date, op.startsWith("buy") ? "buy" : "sell", asset, fmt(qty), fmt(total), fmt(fee), "Binance.US"]);
+    } else if (BN_INCOME.test(op) || BN_INCOME.test(norm(g("cat")))) {
+      if (total === null) unpriced++;
+      out.push([date, "income", asset, fmt(qty), fmt(total), "0", "Binance.US"]);
+    } else if (BN_MOVE.test(op)) moves++;
+    else notes.push(`Line ${i + 1}: Binance.US operation "${g("op")}" was skipped.`);
+  }
+  if (unpriced) notes.push(`${unpriced} Binance.US row${unpriced > 1 ? "s" : ""} had no USD value in the export and were left with an empty total. Fill each in from that day's price.`);
+  if (moves) notes.push(`${moves} deposit, withdrawal and staking-transfer rows ignored as non-taxable movements.`);
+  return { format: "binanceus", rows: out, notes };
+}
+
 // ---- entry points ---------------------------------------------------------
 
-export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", kraken: "Kraken ledger", generic: "plain CSV" };
+export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", generic: "plain CSV" };
 
 // Returns { format, csv, notes }. A generic file comes back unchanged.
 export function convertExchangeCsv(text) {
   const format = detectFormat(text);
   if (format === "generic") return { format, csv: String(text ?? ""), notes: [] };
   const grid = parseCsv(text);
-  const r = format === "coinbase" ? importCoinbase(grid) : importKraken(grid);
+  const r = format === "coinbase" ? importCoinbase(grid) : format === "binanceus" ? importBinanceUs(grid) : importKraken(grid);
   return { format, csv: toCsv(r.rows), notes: r.notes, count: r.rows.length };
 }
 
