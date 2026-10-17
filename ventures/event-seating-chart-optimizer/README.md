@@ -18,6 +18,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   CSV and re-seat; each returning guest is tied to an anchor at their old table, so
   only moves worth their cost happen (stickiness low/medium/high). Pins and
   never-together rules still win.
+- `tableSignsHtml` in `calc.mjs` - a print-ready page, one sheet per table (big number, guest names), opened from the "Print table signs" button.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-make-a-wedding-seating-chart.html` - guide whose worked example is
   recomputed by the test suite.
