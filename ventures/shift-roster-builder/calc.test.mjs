@@ -574,3 +574,15 @@ test("swapOptions: open shifts and a missing roster are reported, not guessed", 
   assert.ok(swapOptions(staff, slots, r, open).error);
   assert.ok(swapOptions(staff, slots, null, 0).error);
 });
+
+test("prefer: gives the hours to the person who asked, but never leaves a shift open", () => {
+  const staff = staffOf("Ana, 15, 40, 0, any\nBen, 15, 40, 0, any, prefer: Sat");
+  const r = buildRoster(staff, slotsOf("Sat, 9, 17, 1"), { balance: 0 });
+  assert.equal(r.assignments[0].person, "Ben");
+  const only = buildRoster(staffOf("Ana, 15, 40, 0, any\nBen, 15, 40, 0, Mon-Fri 9-17, prefer: Sat"), slotsOf("Sat, 9, 17, 1"));
+  assert.equal(only.assignments[0].person, "Ana");
+});
+
+test("prefer: bad days are reported", () => {
+  assert.ok(parseStaff("Ana, 15, 40, 0, any, prefer: Funday").errors.some((e) => /prefer/.test(e)));
+});

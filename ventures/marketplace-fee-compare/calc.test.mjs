@@ -196,6 +196,16 @@ test("a channel that sends no buyers always carries that caveat when it wins", (
   }
 });
 
+test("only the own-store channel is flagged as sending no buyers", () => {
+  // Every marketplace brings its own shoppers; flipping one of them would
+  // silently drop it from the parity anchor and from the no-buyers caveat.
+  const noBuyers = CHANNELS.filter((channel) => !channel.demandIncluded).map((c) => c.id);
+  assert.deepEqual(noBuyers, ["shopify"]);
+  const rows = compareChannels(loadItem(ITEM));
+  assert.equal(rows.filter((row) => row.demandIncluded).length, CHANNELS.length - 1);
+  assert.ok(rows.find((row) => row.id === "walmart").demandIncluded);
+});
+
 test("a near-tie is reported as a tie rather than a ranking", () => {
   const item = loadItem(ITEM);
   const ebayRow = calculateChannel(resolveChannels(item).find((c) => c.id === "ebay"), item);
