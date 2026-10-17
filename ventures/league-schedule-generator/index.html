@@ -104,7 +104,7 @@
     <textarea id="withdrawals" rows="2" placeholder="2026-11-03 Lob Squad"></textarea>
 
     <h2 style="margin-top:18px">5c. Teams that share a ground (optional)</h2>
-    <label for="grounds">One line per ground, teams separated by commas. Teams on a line are not both at home on the same night where that can be avoided; only venues are flipped, so dates, courts, times and opponents stay put. <code>Net Ninjas, Dink Dynasty</code></label>
+    <label for="grounds">One line per ground, teams separated by commas. Teams on a line are not both at home on the same night where that can be avoided; only venues are flipped, so dates, courts, times and opponents stay put. The same lines keep clubmates in different pools when you build pool play. <code>Net Ninjas, Dink Dynasty</code></label>
     <textarea id="grounds" rows="2" placeholder="Net Ninjas, Dink Dynasty"></textarea>
 
     <h2 style="margin-top:18px">6. Referees and officials (optional)</h2>
@@ -475,7 +475,8 @@
       if (errors.length) { out.textContent = errors.join(" "); return; }
       const k = Math.trunc(Number($("#pools").value) || 0);
       let play;
-      try { play = buildPoolPlay(spec, k); } catch (e) { out.textContent = e.message; return; }
+      const clubs = $("#grounds").value.trim() ? parseGrounds($("#grounds").value, spec.teams).groups.map((g) => g.map((i) => spec.teams[i])) : [];
+      try { play = buildPoolPlay(spec, k, clubs); } catch (e) { out.textContent = e.message; return; }
       const parts = [];
       const tables = [];
       const resText = $("#results").value;
