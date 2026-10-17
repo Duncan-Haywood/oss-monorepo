@@ -98,6 +98,7 @@
       <div><label for="ddtafter">Double time after (hours a day, 0 = off)</label><input id="ddtafter" inputmode="decimal" value="0"></div>
       <div><label for="burden">Payroll taxes and extras (%)</label><input id="burden" inputmode="decimal" value="0"></div>
       <div><label for="sales">Projected sales this week ($, optional)</label><input id="sales" inputmode="decimal" placeholder="e.g. 12000"></div>
+      <div><label for="dailysales">Sales by day, Mon to Sun ($, optional)</label><input id="dailysales" placeholder="e.g. 1200, 1100, 1300, 1500, 2600, 3200, 1800"></div>
       <div><label for="labortarget">Target labor cost (% of sales)</label><input id="labortarget" inputmode="decimal" placeholder="e.g. 30"></div>
       <div><label for="balance">Balance hours across people (0–100)</label><input id="balance" inputmode="decimal" value="25"></div>
     </div>
@@ -124,6 +125,7 @@
     <h3>Who this week depends on</h3>
     <p class="note">Re-builds the week without each person. If shifts then go uncovered, that person is a single point of failure.</p>
     <div id="critical"></div>
+    <div id="daily-box"></div>
     <h3>Someone called in sick? Who can take the shift</h3>
     <p class="note">Pick a shift. It lists everyone who could take it without touching anyone else's week, cheapest first, and why the rest cannot.</p>
     <label for="cover-shift">Shift to cover</label> <select id="cover-shift"></select>
@@ -181,7 +183,7 @@
   </footer>
 
   <script type="module">
-    import { carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -248,6 +250,8 @@
       $("#critical").innerHTML = r.critical.length
         ? `<div class="scroll"><table><thead><tr><th>Person</th><th class="n">Hours left uncovered without them</th></tr></thead><tbody>${r.critical.map((c) => `<tr><td>${esc(c.name)}</td><td class="n">${num(c.extraUnfilledHours)}</td></tr>`).join("")}</tbody></table></div>`
         : '<p class="ok">Nobody on this roster is a single point of failure: every shift can still be covered if any one person drops out.</p>';
+      const dl = dailyLabor(r, st.staff, $("#dailysales").value);
+      $("#daily-box").innerHTML = `<h3>Each day against sales</h3><p class="note">Scheduled hours and payroll at base wage (plus extras) per day${dl.hasSales ? ", with each day's labor share of the sales you gave" : "; add sales by day above to see each day's labor share"}. Overtime premiums are priced across the week, so they are not spread over days here.</p><div class="scroll"><table><thead><tr><th>Day</th><th class="n">Hours</th><th class="n">Payroll</th>${dl.hasSales ? '<th class="n">Sales</th><th class="n">Labor share</th>' : ""}</tr></thead><tbody>${dl.days.map((d) => `<tr><td>${d.day}</td><td class="n">${num(d.hours)}</td><td class="n">${money(d.cost)}</td>${dl.hasSales ? `<td class="n">${d.sales ? money(d.sales) : "—"}</td><td class="n">${d.pct === null ? "—" : num(d.pct) + "%" + (d === dl.worst ? " (highest)" : "")}</td>` : ""}</tr>`).join("")}</tbody></table></div>`;
       $("#cmp tbody").innerHTML = [["This roster", r.unfilledSlots, r.otHours, r.cost], ["Listed order", r.listed.unfilledSlots, r.listed.otHours, r.listed.cost]]
         .map(([n, u, o, c]) => `<tr><td>${n}</td><td class="n">${u}</td><td class="n">${num(o)}</td><td class="n">${money(c)}</td></tr>`).join("");
       $("#icsperson").innerHTML = '<option value="">Everyone</option>' + r.people.map((p) => `<option>${esc(p.name)}</option>`).join("");
@@ -315,7 +319,7 @@
     });
 
     // Remember the team on this device only; nothing is sent anywhere.
-    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "burden", "balance", "sales", "labortarget"];
+    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "burden", "balance", "sales", "dailysales", "labortarget"];
     const KEY = "shift-roster-builder:setup:v1";
     const snapshot = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]));
     const apply = (o) => { for (const f of FIELDS) if (o && typeof o[f] === "string") $("#" + f).value = o[f]; };
