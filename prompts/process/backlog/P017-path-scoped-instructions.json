@@ -1,7 +1,7 @@
 {
   "id": "P017",
   "title": "Load instructions by path and task instead of making every run read ~40k tokens",
-  "status": "in_progress",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 2,
@@ -27,7 +27,7 @@
   "opened": "2026-10-16",
   "source": "Owner review of repo standards in a Claude Code session, 2026-10-16 (cost share is an estimate from 8 runs with usage recorded; see problem)",
   "pr": null,
-  "result": null,
+  "result": "helped (chars/4 at ba0c6702e5): CLAUDE.md 6.5k -> 4.4k tokens (checklist moved to verify-and-merge.md, P030; product rules to ventures/CLAUDE.md, P031); DIRECTION.md is read by section (873 lines, was 1,015) instead of whole. Ventures run before-start reading ~41k -> ~26k worst case (CLAUDE 4.4k, AGENTS 2.5k, PLAYBOOK 6.9k, goals 6.9k, prompt 1.2k, sub-prompt 1.7k, land 2.1k) with DIRECTION by section. Cost median not re-measured (too few runs since).",
   "history": [
     {
       "date": "2026-10-16",
@@ -56,6 +56,10 @@
     {
       "date": "2026-10-17",
       "note": "Split into one-PR rows P030 (repoint pins, move checklist block) and P031 (product rules to ventures/CLAUDE.md). Step 4 follows once those land."
+    },
+    {
+      "date": "2026-10-17",
+      "note": "Steps 1-4 landed via P030/P031 and earlier partials; closed with measured result."
     }
   ]
 }
