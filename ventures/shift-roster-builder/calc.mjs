@@ -177,13 +177,35 @@ function subtractRange(ranges, [a, b]) {
   }
   return out;
 }
-export function applyTimeOff(days, text) {
+const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+const utcDay = (iso) => { const m = ISO_DATE.exec(iso); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) / 86400000 : NaN; };
+
+// "2026-11-04" or "2026-11-04..2026-11-06" -> the weekday indexes (0 = Mon) that fall in the
+// week starting `weekStart`; dates outside that week give []. null when the text is not a date.
+function datedDays(word, weekStart) {
+  const [a, b = a] = word.split("..");
+  const from = utcDay(a), to = utcDay(b), base = utcDay(weekStart);
+  if (!Number.isFinite(from) || !Number.isFinite(to)) return null;
+  const out = [];
+  for (let d = Math.max(from, base); d <= Math.min(to, base + 6); d++) out.push(d - base);
+  return out;
+}
+
+// `notes` (optional array) collects dated entries skipped because no week start was given.
+export function applyTimeOff(days, text, weekStart = null, notes = []) {
   const errors = [];
   for (const tok of String(text).split(/;|\|/)) {
     const part = tok.trim();
     if (!part) continue;
     const sp = part.search(/\s/);
-    const ds = parseDaySpec(sp < 0 ? part : part.slice(0, sp));
+    const word = sp < 0 ? part : part.slice(0, sp);
+    let ds;
+    if (/^\d{4}-\d{2}-\d{2}/.test(word)) {
+      if (!ISO_DATE.test(weekStart || "")) { notes.push(`"off: ${part}" is dated and was not applied: pick the week's Monday first`); continue; }
+      ds = datedDays(word, weekStart);
+      if (ds === null) { errors.push(`could not read the dates in "off: ${part}"; write YYYY-MM-DD or YYYY-MM-DD..YYYY-MM-DD`); continue; }
+      if (!ds.length) continue;
+    } else ds = parseDaySpec(word);
     if (!ds.length) { errors.push(`could not read the days in "off: ${part}"`); continue; }
     const rest = sp < 0 ? "" : part.slice(sp).trim();
     let r = [0, 1440];
@@ -197,8 +219,8 @@ export function applyTimeOff(days, text) {
 }
 
 // One person per line: name, hourly wage, max hours per week, min hours per week, availability, [roles: a|b]
-export function parseStaff(text) {
-  const staff = [], errors = [];
+export function parseStaff(text, { weekStart = null } = {}) {
+  const staff = [], errors = [], notes = [];
   const lines = String(text || "").split(/\r?\n/);
   let first = true;
   lines.forEach((raw, i) => {
@@ -239,13 +261,13 @@ export function parseStaff(text) {
     const av = parseAvailability(tail.filter((x) => !isExtra(x)).join(","));
     av.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
     for (const cell of tail.filter((x) => OFF_CELL.test(x))) {
-      applyTimeOff(av.days, cell.replace(OFF_CELL, "")).forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
+      applyTimeOff(av.days, cell.replace(OFF_CELL, ""), weekStart, notes).forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
     }
     staff.push({ name: c[0], wage, maxHours: maxH, minHours: Math.min(minH, maxH), roles, days: av.days, anyTime: av.any && !tail.some((x) => OFF_CELL.test(x)), prevEnd, maxDaily, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null });
   });
   if (!staff.length && !errors.length) errors.push("Add at least one person.");
   if (staff.length > MAX_STAFF) errors.push(`That is ${staff.length} people; this tool handles up to ${MAX_STAFF}.`);
-  return { staff, errors };
+  return { staff, errors, notes };
 }
 
 // One requirement per line: day(s), start, end, people needed, label (optional), role (optional: sixth column or "role: x")

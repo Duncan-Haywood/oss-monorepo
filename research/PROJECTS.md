@@ -60,7 +60,7 @@ deleted; its pull requests, review threads and old Pages site stay there.
      image under the project's `experiments/`), the homepage card links to it, and the build
      fails if a page cannot be built. Most projects ship no image yet (five were added 2026-10-15
      via `experiments/figure.py`, which parses the committed `results.txt`); `robofab-cell`, `robofab-cell-cv` and `robofab-cell-mva` followed, redrawn from their `results.json`, so most pages have no
-     figure yet. Every later figure follows the same pattern, drawn by an `experiments/figure.py` that parses the committed `results.txt` (the per-project changelog that sat here was dropped 2026-10-17 as unscannable; `git log -- research/*/experiments/figure.py` has it). Still open: have each project's experiment code write a figure (95 projects have none, counted 2026-10-17 by images under `experiments/`), and the
+     figure yet. Every later figure follows the same pattern, drawn by an `experiments/figure.py` that parses the committed `results.txt` (the per-project changelog that sat here was dropped 2026-10-17 as unscannable; `git log -- research/*/experiments/figure.py` has it). Still open: have each project's experiment code write a figure (86 projects have none, counted 2026-10-17 by images under `experiments/`), and the
      `oss-monorepo` products half.
    - **Products (*oss-monorepo*).** Every venture gets a home or marketing page from the Pages
      build, including the CLIs, servers and apps the mirror excludes today: what it does and for
@@ -854,7 +854,7 @@ Census Survey of Construction for where a house's price goes.
 5. `house-energy`: cost-optimal envelopes by climate zone. EnergyPlus or OpenStudio, run from
    scripts, sweeping insulation, windows, air tightness and HVAC. Report the net present cost of
    building plus 30 years of energy, BEopt-style, with the assumptions shown.
-6. `house-structure`: lateral design and alternative systems. Shear walls and bracing under
+6. `house-structure` (first version done 2026-10-17: wood-frame wind and seismic shear walls; the alternative systems are next steps): lateral design and alternative systems. Shear walls and bracing under
    wind and seismic load in OpenSees or a frame model, then wood frame against steel stud,
    insulated concrete forms, structural insulated panels, cross-laminated timber and 3D-printed
    concrete, on cost, carbon, speed and strength.

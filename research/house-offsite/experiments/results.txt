@@ -1,0 +1,57 @@
+house-offsite: factory against site, exterior-wall shell of the house-framing house (advanced 2x6 @24)
+All rates are assumptions of this project (see Process); counts and sheets are computed.
+
+Framing members 154, sheathed area 927 ft2, 4x9 sheet lower bound 26 sheets
+
+A. Panel layout and sheathing sheets by handling limit (site = as-you-go first fit, keep offcuts >= 12 in; factory = largest-first best fit, keep >= 4 in)
+ max panel  panels  joints  trips  site sheets  factory sheets  bound
+     12 ft      14      10      1           33              33     26
+     16 ft      10       6      1           33              30     26
+     24 ft       8       4      1           33              32     26
+     32 ft       6       2      1           33              32     26
+     44 ft       4       0      1           33              32     26
+
+B. Layout against algorithm at 24 ft panels (sheets)
+   pieces from  as-you-go  largest-first  largest+best  with rotation
+   site layout         33             32            32             31
+  panel layout         33             32            32             31
+
+C. Baseline (default Process, 24 ft panels, 4000 draws)
+labour hours: site 51, factory 23 plus 4 joints and 8 panel sets on site
+calendar days on the critical path after the foundation starts: site-built 1.96, panelised 2.17
+assumed cost: site-built $3,600, panelised $4,972 (+38.1%), trips 1
+
+D. Panelised minus site-built, by factory labour ratio and weather loss (days; assumed cost %)
+ weather        ratio 0.3       ratio 0.45        ratio 0.6        ratio 0.8        ratio 1.0
+    0.00    +0.40d +19.9%    +0.40d +29.0%    +0.40d +38.1%    +0.40d +50.3%    +0.40d +62.4%
+    0.15    +0.21d +19.9%    +0.21d +29.0%    +0.21d +38.1%    +0.21d +50.3%    +0.21d +62.4%
+    0.30    +0.00d +19.9%    +0.00d +29.0%    +0.00d +38.1%    +0.00d +50.3%    +0.00d +62.4%
+
+E. Same house, longer: fixed costs (a crane day, a trip, panel sets) against labour that grows with size
+ length ft  members  panels  site d  panel d   site $  panel $  diff %
+        24      134       6    1.76     2.17    3,040    4,413   +45.2
+        32      142       8    1.84     2.17    3,279    4,762   +45.2
+        40      154       8    1.96     2.17    3,600    4,972   +38.1
+        56      174      10    2.14     2.17    4,084    5,500   +34.7
+        80      202      12    2.58     2.16    4,807    6,243   +29.9
+       120      254      15    3.07     3.16    6,172    8,422   +36.5
+
+F0. Shortest house length (ft, step 2) at which panelising is cheaper, by factory labour ratio and crane-day cost
+ ratio       crane $0     crane $750    crane $1500
+   0.3             24             34    none to 200
+  0.45             24    none to 200    none to 200
+   0.6             24    none to 200    none to 200
+   0.8    none to 200    none to 200    none to 200
+
+F1. Shortest house length (ft, step 2) at which panelised finishes the shell in fewer days, by weather loss
+weather 0.00: 78
+weather 0.15: 58
+weather 0.30: 44
+
+G. What the fixed overheads cost (panelised cost minus site-built, $, at ratio 0.6, weather 0.15)
+                  baseline:    +1,373
+         no plant overhead:    +1,111
+     double plant overhead:    +1,635
+         no crane day cost:      -127
+  factory wage = site wage:    +1,664
+              trip cost x3:    +3,173
