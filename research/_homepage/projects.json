@@ -2719,6 +2719,11 @@
      "slug": "house-sobol",
      "title": "Which uncertain input of the house-cost model drives the uncertainty in a house's price?",
      "summary": "A variance-based (Sobol) global sensitivity analysis of <code>house-cost</code>, treating the ten lever ranges, the framing materials share and the assumed driver splits as random at once (4,096 base samples, bootstrap intervals). Floor area explains 53% of the price-index variance and storeys 19%; finish level, lot price and foundation type 6&ndash;9% each. The three framing inputs together explain under 1%, so the lumber saving optimised in <code>house-plan</code> barely moves the price of a whole house, and the assumed splits explain none alone and 1.7% through interactions. Per square foot, storeys matters more (25&ndash;27%). Stylised: the answer is relative to the assumed uniform ranges and ignores correlations."
+    },
+    {
+     "slug": "house-schedule",
+     "title": "How much do fewer handoffs, parallel trades, early ordering and a factory shell cut the time to build a house?",
+     "summary": "A Monte Carlo discrete-event model of one house build (20 tasks, a crew per trade, failing inspections, weather, material lead times; 4,000 builds per scenario with common random numbers). The zero-noise critical path is 100 working days but the baseline takes 214: the schedule is driven by waiting. Ordering long-lead materials at day 0 saves 63 days, fewer handoffs 21, parallel rough-in 12.5, faster inspections 11. A factory wall-and-roof shell saves only 6 days if ordered when the foundation starts and 78 if ordered at day 0. All levers together: 96 days, about 1.7% of the price in interest at 8%. <em>Stylised</em>: every duration and rate is my assumption and nothing is calibrated; the 63-day figure rests on a late-ordering baseline."
     }
    ]
   }
