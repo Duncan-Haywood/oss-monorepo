@@ -21,6 +21,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Printable audit packet: one self-contained HTML file (days by state against the test, the date ranges behind each total, notices, the day-by-day log with an evidence column, disclaimer) to print to PDF and keep with receipts (`auditReportHtml`).
 - Trip what-if: enter a planned trip and see the days it adds per state, whether it crosses a published limit, and the longest trip from that date that stays inside it (`tripImpact`).
 - Remember and save: an opt-in "Remember my entries on this device" box (local storage only) and a save-to-file / load-from-file pair for the form fields, so a year of stays survives between visits (`setupToJson`, `setupFromJson`).
+- Gap check: the notices name the date ranges no stay covers (the days the home-state assumption fills, or that count nowhere without one), so a missing trip shows up before an audit finds it (`gaps.ranges`).
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `183-day-rule-by-state.html` - guide with a worked example that the test
   suite recomputes.

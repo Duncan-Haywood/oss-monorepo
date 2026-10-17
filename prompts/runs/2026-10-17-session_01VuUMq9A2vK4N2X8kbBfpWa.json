@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01VuUMq9A2vK4N2X8kbBfpWa",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T22:40:43Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/7857",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Top venture candidates are already deeply built; finding a gap worth a run took several reads."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/ledger/session_gate.py",
+      "why": "Gate said to republish the stale gh-pages snapshot first; I shipped a small venture fix instead and did not publish."
+    }
+  ],
+  "goal": null,
+  "notes": "Small deepening of state-residency-day-counter gap notices.",
+  "corrections": [],
+  "redteam": null
+}

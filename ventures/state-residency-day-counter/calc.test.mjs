@@ -388,3 +388,13 @@ test("saved setup round-trips the form fields and rejects other files", async ()
   assert.match(setupFromJson('{"kind":"other","fields":{}}').error, /not a setup/);
   assert.match(setupFromJson("null").error, /not a setup/);
 });
+
+test("gap notices name the uncovered date ranges", () => {
+  const spec = { year: 2026, asOf: yearBounds(2026).end, homeState: "FL", stays: parseStays("2026-03-01 to 2026-03-31 NY\n2026-07-01 to 2026-07-10 NY", 2026).stays };
+  const r = analyze(spec);
+  const n = r.notices.find((x) => x.includes("assumed to be in FL"));
+  assert.ok(n.includes("2026-01-01 to 2026-02-28"), n);
+  assert.ok(n.includes("2026-04-01 to 2026-06-30"), n);
+  const noHome = analyze({ ...spec, homeState: null }).notices.find((x) => x.includes("not in any stay"));
+  assert.ok(noHome.includes("Uncovered: 2026-01-01 to 2026-02-28"), noHome);
+});
