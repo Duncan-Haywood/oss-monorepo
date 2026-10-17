@@ -44,7 +44,7 @@ shuffling on Sunday night.
 
 ## Limits
 
-Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), meal and rest breaks, minor-labor limits, tips, union rules, seniority, time-off across weeks. A
+Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), rest-break placement (unpaid meal breaks are deducted from paid time and flagged, not placed on the clock), minor-labor limits beyond the per-person daily cap, union rules, seniority, time-off across weeks. A
 heuristic search, not a proof of optimality on large problems. Verified only against exhaustive search and invented data.
 Not legal, tax, or financial advice.
 
