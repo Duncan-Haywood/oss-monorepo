@@ -90,6 +90,9 @@
     <p class="note">Estimated tax nets short against long results and applies the two rates you entered. It ignores the net investment income tax, the annual loss deduction limit, carryforwards, state tax and your other income. It is a comparison between methods, not a tax bill.</p>
     <h3>Form 8949 style rows</h3>
     <div class="scroll"><table id="rt"><thead><tr><th>Description</th><th>Acquired</th><th>Sold</th><th class="n">Proceeds</th><th class="n">Basis</th><th class="n">Gain / loss</th><th>Term</th></tr></thead><tbody></tbody></table></div>
+    <h3>Totals for Form 8949 and Schedule D</h3>
+    <div class="scroll"><table id="tt"><thead><tr><th>Part</th><th class="n">Rows</th><th class="n">Proceeds</th><th class="n">Basis</th><th class="n">Gain / loss</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">These are the column totals of the rows above: short-term for Part I, long-term for Part II. For 2025 returns the digital-asset boxes on Form 8949 (G to L) depend on whether your broker reported the sale on a Form 1099-DA, so split the rows by box yourself or with your preparer before carrying a total to Schedule D.</p>
     <h3>Coins still held</h3>
     <div class="scroll"><table id="ht"><thead><tr><th>Asset</th><th class="n">Quantity</th><th class="n">Remaining basis</th></tr></thead><tbody></tbody></table></div>
     <h3>Tax-loss harvesting: what selling your losing lots today would do</h3>
@@ -142,7 +145,7 @@
   </footer>
 
   <script type="module">
-    import { analyze, parsePrices, harvestPlan, toForm8949Csv, SAMPLE_CSV, METHOD_LABELS } from "./calc.mjs";
+    import { analyze, form8949Totals, parsePrices, harvestPlan, toForm8949Csv, SAMPLE_CSV, METHOD_LABELS } from "./calc.mjs";
     import { convertMany, FORMAT_LABELS } from "./importers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -161,7 +164,7 @@
       if (pre.formats[0] !== "generic") $("#csv").value = pre.csv;
       const r = analyze($("#csv").value, { method: $("#method").value, year, perWallet: $("#perWallet").checked, shortRate, longRate });
       const notices = [...(pre.formats[0] !== "generic" ? pre.notes : []), ...r.errors, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`);
-      if (!r.summary) { $("#notices").innerHTML = notices.join(""); report.hidden = false; $("#big").innerHTML = ""; $("#verdict").textContent = ""; for (const t of ["#ct", "#rt", "#ht"]) $(t + " tbody").innerHTML = ""; status.textContent = "Fix the rows listed in the result and run it again."; return false; }
+      if (!r.summary) { $("#notices").innerHTML = notices.join(""); report.hidden = false; $("#big").innerHTML = ""; $("#verdict").textContent = ""; for (const t of ["#ct", "#rt", "#tt", "#ht"]) $(t + " tbody").innerHTML = ""; status.textContent = "Fix the rows listed in the result and run it again."; return false; }
       last = r;
       const years = r.years.map((y) => `<option value="${y}"${y === r.year ? " selected" : ""}>${y}</option>`).join("");
       $("#year").innerHTML = '<option value="">Latest year with sales</option>' + years;
@@ -179,6 +182,8 @@
         : `${METHOD_LABELS[best.method]} would have given an estimated tax of ${usd(best.tax)} for ${r.year}, ${usd(mine.tax - best.tax)} less than ${r.method}. Whether you may use it depends on how your coins were identified and recorded at the time of sale.` + (r.income ? ` Income received in ${r.year}: ${usd(r.income)} (not included in these gains).` : "");
       $("#ct tbody").innerHTML = r.comparison.map((c) => `<tr${c.method === r.bestMethod ? ' class="rec"' : ""}><td>${esc(c.method)} — ${esc(c.label)}${c.method === r.method ? ' <span class="pill info">shown below</span>' : ""}</td><td class="n">${usd(c.shortGain)}</td><td class="n">${usd(c.longGain)}</td><td class="n">${usd(c.totalGain)}</td><td class="n">${usd(c.tax)}</td></tr>`).join("");
       $("#rt tbody").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.description)}${x.missingBasis ? ' <span class="pill high">no basis</span>' : ""}</td><td>${x.acquired || "VARIOUS"}</td><td>${x.sold}</td><td class="n">${usd(x.proceeds)}</td><td class="n">${usd(x.basis)}</td><td class="n">${usd(x.gain)}</td><td><span class="pill ${x.term === "Long" ? "good" : "info"}">${x.term}</span></td></tr>`).join("") || '<tr><td colspan="7">No sales in this year.</td></tr>';
+      const ft = form8949Totals(r.rows);
+      $("#tt tbody").innerHTML = [["Part I · short-term", ft.short], ["Part II · long-term", ft.long], ["Total", ft.total]].map(([n, v]) => `<tr><td>${n}${v.noBasis ? ` <span class="pill high">${v.noBasis} no basis</span>` : ""}</td><td class="n">${v.rows}</td><td class="n">${usd(v.proceeds)}</td><td class="n">${usd(v.basis)}</td><td class="n">${usd(v.gain)}</td></tr>`).join("");
       $("#ht tbody").innerHTML = r.holdings.map((h) => `<tr><td>${esc(h.asset)}</td><td class="n">${h.qty}</td><td class="n">${usd(h.basis)}</td></tr>`).join("") || '<tr><td colspan="3">Nothing left.</td></tr>';
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
