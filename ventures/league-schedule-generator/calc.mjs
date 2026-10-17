@@ -1098,15 +1098,28 @@ ${brk}
 
 // ---------------------------------------------------------------- results, standings, play-offs
 
-/** Lines like "Hawks 3 - 2 Owls". Names are matched against the team list. */
-export function parseResults(text, teams) {
+/**
+ * Lines like "Hawks 3 - 2 Owls". Names are matched against the team list.
+ * A forfeit is written "Hawks w/o Owls" (also "wo" or "walkover"): Hawks are awarded the win and
+ * the score `walkover` (default 3-0, so goal difference reflects it); the result carries `walkover: true`.
+ */
+export function parseResults(text, teams, { walkover = [3, 0] } = {}) {
   const results = [];
   const errors = [];
   for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
     const line = raw.trim();
     if (!line) continue;
+    const w = line.match(/^(.*?)\s+(?:w\/o|wo|walkover)\s+(.*)$/i);
+    if (w) {
+      const a = teamIndex(teams, w[1]);
+      const b = teamIndex(teams, w[2]);
+      if (a < 0 || b < 0) { errors.push(`Result line ${i + 1}: "${a < 0 ? w[1] : w[2]}" is not one of the teams.`); continue; }
+      if (a === b) { errors.push(`Result line ${i + 1}: a team cannot play itself.`); continue; }
+      results.push({ a, b, ga: walkover[0], gb: walkover[1], walkover: true });
+      continue;
+    }
     const m = line.match(/^(.*?)\s+(\d+)\s*[-–:]\s*(\d+)\s+(.*)$/);
-    if (!m) { errors.push(`Result line ${i + 1}: write it like "Hawks 3 - 2 Owls".`); continue; }
+    if (!m) { errors.push(`Result line ${i + 1}: write it like "Hawks 3 - 2 Owls" (or "Hawks w/o Owls" for a forfeit win).`); continue; }
     const a = teamIndex(teams, m[1]);
     const b = teamIndex(teams, m[4]);
     if (a < 0 || b < 0) { errors.push(`Result line ${i + 1}: "${a < 0 ? m[1] : m[4]}" is not one of the teams.`); continue; }
