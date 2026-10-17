@@ -295,6 +295,17 @@ test("results parse, and standings order by points then goal difference", () => 
   assert.equal(rows[0].rank, 1);
 });
 
+test("a forfeit line awards the win at the walkover score and is ranked like a played result", () => {
+  const teams = ["Hawks", "Owls", "Kites"];
+  const { results, errors } = parseResults("Hawks w/o Owls\nkites WO hawks\nOwls walkover Kites\nHawks w/o Hawks\nGhosts w/o Owls", teams);
+  assert.equal(errors.length, 2);
+  assert.deepEqual(results.map((r) => [r.a, r.b, r.ga, r.gb, r.walkover]), [[0, 1, 3, 0, true], [2, 0, 3, 0, true], [1, 2, 3, 0, true]]);
+  const rows = standings(teams, results);
+  assert.deepEqual(rows.map((r) => [r.name, r.points, r.gd]), [["Hawks", 3, 0], ["Owls", 3, 0], ["Kites", 3, 0]]);
+  const one = parseResults("Hawks w/o Owls", teams, { walkover: [1, 0] });
+  assert.deepEqual([one.results[0].ga, one.results[0].gb], [1, 0]);
+});
+
 test("head-to-head tiebreak splits teams level on points by their own matches first", () => {
   const teams = ["A", "B", "C", "D"];
   const { results } = parseResults("A 5 - 0 C\nB 1 - 0 A\nD 1 - 0 B", teams);
