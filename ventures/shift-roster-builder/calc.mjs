@@ -923,7 +923,7 @@ export function parseRosterCsv(csv) {
 export function scheduleChanges(postedCsv, revisedCsv, { changedAt = null, noticeHours = 336, premiumHours = 1, wages = {}, exempt = [] } = {}) {
   const posted = parseRosterCsv(postedCsv), revised = parseRosterCsv(revisedCsv);
   const skip = new Set((exempt || []).map((n) => String(n).trim().toLowerCase()).filter(Boolean));
-  const wageOf = new Map(Object.entries(wages || {}).map(([k, v]) => [k.toLowerCase(), Number(v)]));
+  const wageOf = new Map(Object.entries(wages || {}).map(([k, v]) => [k.toLowerCase(), String(v ?? "").trim() === "" ? NaN : Number(v)]));
   const people = [...new Set([...posted, ...revised].map((x) => x.person))];
   const changes = [];
   for (const who of people) {
@@ -950,8 +950,8 @@ export function scheduleChanges(postedCsv, revisedCsv, { changedAt = null, notic
     ch.exempt = skip.has(ch.person.toLowerCase());
     ch.shortNotice = known && ch.noticeHours < noticeHours;
     const wage = wageOf.get(ch.person.toLowerCase());
-    ch.premium = ch.shortNotice && !ch.exempt && Number.isFinite(wage) ? Math.round(premiumHours * wage * 100) / 100 : 0;
-    ch.premiumUnpriced = ch.shortNotice && !ch.exempt && !Number.isFinite(wage);
+    ch.premium = ch.shortNotice && !ch.exempt && wage > 0 ? Math.round(premiumHours * wage * 100) / 100 : 0;
+    ch.premiumUnpriced = ch.shortNotice && !ch.exempt && !(wage > 0);
     owed += ch.premium;
   }
   changes.sort((x, y) => x.touchesFrom - y.touchesFrom || x.person.localeCompare(y.person));
