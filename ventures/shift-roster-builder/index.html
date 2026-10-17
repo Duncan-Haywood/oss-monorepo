@@ -150,6 +150,11 @@
     <p class="note">Pick a shift. It lists everyone who could take it without touching anyone else's week, cheapest first, and why the rest cannot.</p>
     <label for="cover-shift">Shift to cover</label> <select id="cover-shift"></select>
     <div id="cover-out" aria-live="polite"></div>
+    <h3>Someone out for several days? Re-cover all their shifts</h3>
+    <p class="note">Pick the person and the days they are out. Every shift they hold on those days goes to someone else, cheapest first, without moving anyone else's existing shifts. Shifts nobody can take stay open, with the reason.</p>
+    <label for="absent-who">Person out</label> <select id="absent-who"></select>
+    <fieldset id="absent-days" style="border:0;padding:0;margin:.4rem 0"><legend class="note">Days out (none ticked = the whole week)</legend><label style="margin-right:.7rem"><input type="checkbox" class="absent-day" aria-label="Mon" value="0"> Mon</label><label style="margin-right:.7rem"><input type="checkbox" class="absent-day" aria-label="Tue" value="1"> Tue</label><label style="margin-right:.7rem"><input type="checkbox" class="absent-day" aria-label="Wed" value="2"> Wed</label><label style="margin-right:.7rem"><input type="checkbox" class="absent-day" aria-label="Thu" value="3"> Thu</label><label style="margin-right:.7rem"><input type="checkbox" class="absent-day" aria-label="Fri" value="4"> Fri</label><label style="margin-right:.7rem"><input type="checkbox" class="absent-day" aria-label="Sat" value="5"> Sat</label><label style="margin-right:.7rem"><input type="checkbox" class="absent-day" aria-label="Sun" value="6"> Sun</label></fieldset>
+    <div id="absent-out" aria-live="polite"></div>
     <h3>Against filling shifts in listed order</h3>
     <p class="note">What you get by going through the shifts in time order and giving each to the first person in your list who is free and within the rules.</p>
     <div class="scroll"><table id="cmp"><thead><tr><th>Plan</th><th class="n">Shifts left open</th><th class="n">Overtime hours</th><th class="n">Payroll</th></tr></thead><tbody></tbody></table></div>
@@ -203,7 +208,7 @@
   </footer>
 
   <script type="module">
-    import { scheduleChanges, carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { scheduleChanges, carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -228,6 +233,24 @@
     }
     $("#cover-shift").addEventListener("change", showCover);
 
+    function showAbsence() {
+      if (!last) return;
+      const days = [...document.querySelectorAll(".absent-day:checked")].map((c) => Number(c.value));
+      const a = absencePlan(lastIn.staff, lastIn.slots, last, $("#absent-who").value, days.length ? days : null);
+      if (a.error) { $("#absent-out").innerHTML = ""; return; }
+      const lbl = (x) => `${DAYS[x.day]} ${fmtClock(x.startMin)}–${fmtClock(x.endMin)}${x.label ? " " + esc(x.label) : ""}`;
+      if (!a.moves.length && !a.open.length) { $("#absent-out").innerHTML = `<p class="note">${esc(a.person)} has no shifts on those days.</p>`; return; }
+      const mv = a.moves.length
+        ? `<div class="scroll"><table><thead><tr><th>Shift</th><th>Goes to</th><th class="n">Payroll change</th></tr></thead><tbody>${a.moves.map((m) => `<tr><td>${lbl(m.slot)}</td><td>${esc(m.to)}${m.overtimeAfter > 0.01 ? ' <span class="pill medium">overtime</span>' : ""}</td><td class="n">${m.extraCost >= 0 ? "+" : ""}${money2(m.extraCost)}</td></tr>`).join("")}</tbody></table></div><p class="note">Total payroll change: <strong>${a.extraCost >= 0 ? "+" : ""}${money2(a.extraCost)}</strong>.</p>`
+        : "";
+      const op = a.open.length
+        ? `<div class="warn">Nobody can take: ${a.open.map((o) => lbl(o.slot) + (o.blocked.length ? " (" + o.blocked.map((b) => esc(b.name) + " " + esc(b.reason)).join("; ") + ")" : " (nobody else is available)")).join("; ")}.</div>`
+        : "";
+      $("#absent-out").innerHTML = mv + op;
+    }
+    $("#absent-who").addEventListener("change", showAbsence);
+    document.querySelectorAll(".absent-day").forEach((c) => c.addEventListener("change", showAbsence));
+
     function run() {
       const st = parseStaff($("#staff").value, { weekStart: $("#weekstart").value || null }), sh = parseShifts($("#shifts").value);
       const errors = [...st.errors, ...sh.errors];
@@ -240,6 +263,7 @@
       });
       if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
       last = r; lastIn = { staff: st.staff, slots: sh.slots };
+      $("#absent-who").innerHTML = st.staff.map((p) => `<option>${esc(p.name)}</option>`).join("");
       $("#cover-shift").innerHTML = sh.slots.map((x, i) => `<option value="${i}">${DAYS[x.day]} ${fmtClock(x.startMin)}–${fmtClock(x.endMin)}${x.label ? " " + esc(x.label) : ""}${r.owner[i] >= 0 ? " (" + esc(st.staff[r.owner[i]].name) + ")" : " (open)"}</option>`).join("");
       showCover();
       const sf = scheduleFlags(r, { weekStart: $("#weekstart").value || null, today: new Date().toISOString().slice(0, 10) });
