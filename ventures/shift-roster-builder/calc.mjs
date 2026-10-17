@@ -1059,6 +1059,29 @@ export function dailyLabor(r, staff, salesText = "") {
   return { days, worst, hasSales: withSales.length > 0 };
 }
 
+// Headcount per hour for each day of the roster, so thin and heavy hours show at a glance. A shift counts on the day it
+// starts; the hours after midnight of an overnight shift are listed under 24-47 on that day. `from`/`to` default to the
+// span the roster actually uses. `thin` marks hours with exactly one person on, `empty` hours inside a day's span with none.
+export function coverageGrid(r) {
+  const cells = DAYS.map(() => new Map());
+  let lo = Infinity, hi = -Infinity;
+  for (const a of r.assignments || []) {
+    if (!a.person) continue;
+    const first = Math.floor(a.slot.startMin / 60), last = Math.ceil(a.slot.endMin / 60);
+    for (let h = first; h < last; h++) cells[a.slot.day].set(h, (cells[a.slot.day].get(h) || 0) + 1);
+    lo = Math.min(lo, first); hi = Math.max(hi, last);
+  }
+  if (!Number.isFinite(lo)) return { from: 0, to: 0, rows: [], peak: 0 };
+  let peak = 0;
+  const rows = DAYS.map((day, i) => {
+    const counts = [];
+    for (let h = lo; h < hi; h++) { const c = cells[i].get(h) || 0; counts.push(c); peak = Math.max(peak, c); }
+    const used = counts.filter((c) => c > 0).length;
+    return { day, counts, thin: counts.filter((c) => c === 1).length, empty: used ? counts.filter((c) => c === 0).length : 0 };
+  });
+  return { from: lo, to: hi, rows, peak };
+}
+
 // Predictive-scheduling style flags on a built roster, for rules the search does not enforce: hours in one day over
 // `dailyLimit` (daily-overtime states), split shifts (two shifts one day with a gap over `splitGap` hours), and how many
 // days of notice the week gets when the Monday and today's date are given. Flags only; not legal advice.

@@ -823,3 +823,28 @@ test("toughBalance spreads weekend, closing and opening shifts without leaving s
   assert.ok(spread(on) <= spread(off));
   assert.ok(spread(on) <= 1);
 });
+
+test("coverageGrid counts people per clock hour and skips unfilled slots", async () => {
+  const { coverageGrid } = await import("./calc.mjs");
+  const slot = (day, s, e) => ({ day, startMin: s * 60, endMin: e * 60 });
+  const r = { assignments: [
+    { person: "Ana", slot: slot(0, 9, 13) }, { person: "Ben", slot: slot(0, 11, 15) }, { person: null, slot: slot(1, 6, 7) },
+  ] };
+  const g = coverageGrid(r);
+  assert.equal(g.from, 9); assert.equal(g.to, 15); assert.equal(g.peak, 2);
+  assert.deepEqual(g.rows[0].counts, [1, 1, 2, 2, 1, 1]);
+  assert.equal(g.rows[0].thin, 4);
+  assert.equal(g.rows[1].empty, 0);
+  assert.deepEqual(coverageGrid({ assignments: [] }).rows, []);
+});
+
+test("coverageGrid on a built sample roster never exceeds the staff and totals the scheduled hours", async () => {
+  const { coverageGrid, parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts } = await import("./calc.mjs");
+  const st = parseStaff(sampleStaff()), sh = parseShifts(sampleShifts());
+  const r = buildRoster(st.staff, sh.slots);
+  const g = coverageGrid(r);
+  const total = g.rows.reduce((t, row) => t + row.counts.reduce((a, b) => a + b, 0), 0);
+  const hours = r.assignments.filter((a) => a.person).reduce((t, a) => t + Math.ceil(a.slot.endMin / 60) - Math.floor(a.slot.startMin / 60), 0);
+  assert.equal(total, hours);
+  assert.ok(g.peak <= st.staff.length);
+});
