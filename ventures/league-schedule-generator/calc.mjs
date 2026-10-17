@@ -986,6 +986,13 @@ export function scheduleCsv(schedule) {
   return lines.join("\r\n") + "\r\n";
 }
 
+/** The standings table as a CSV (rank, team, played, won, drawn, lost, goals for/against, goal difference, points). */
+export function standingsCsv(table) {
+  const lines = [["Rank", "Team", "Played", "Won", "Drawn", "Lost", "For", "Against", "GD", "Points"].join(",")];
+  for (const r of table) lines.push([r.rank, r.name, r.played, r.won, r.drawn, r.lost, r.gf, r.ga, r.gd, r.points].map(csvCell).join(","));
+  return lines.join("\r\n") + "\r\n";
+}
+
 function icsEscape(s) {
   return String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 }

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
-  readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleIcs,
+  readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   splitPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
@@ -927,4 +927,14 @@ test("applyGroundSharing: nothing to do leaves the schedule alone; share link ke
   const r = applyGroundSharing(sch, [[0, 1]]);
   assert.equal(r.flips.length, groundClashes(sch, [[0, 1]]).count > 0 ? r.flips.length : 0);
   assert.equal(decodeFields(encodeFields({ ...sampleFields(), grounds: "Team 1, Team 2" })).grounds, "Team 1, Team 2");
+});
+
+test("standingsCsv lists every team ranked, quoting names with commas", () => {
+  const teams = ["Hawks, A", "Owls", "Wolves"];
+  const table = standings(teams, [{ a: 0, b: 1, ga: 3, gb: 1 }, { a: 1, b: 2, ga: 2, gb: 2 }]);
+  const lines = standingsCsv(table).split("\r\n");
+  assert.equal(lines[0], "Rank,Team,Played,Won,Drawn,Lost,For,Against,GD,Points");
+  assert.equal(lines[1], '1,"Hawks, A",1,1,0,0,3,1,2,3');
+  assert.equal(lines.length, 5);
+  assert.equal(lines[4], "");
 });

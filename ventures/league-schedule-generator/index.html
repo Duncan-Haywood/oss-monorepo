@@ -146,6 +146,7 @@
     </div>
 
     <button type="button" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="dl-standings">Download standings CSV</button>
     <button type="button" id="dl-ics">Download calendar (.ics), whole league</button>
     <button type="button" id="dl-team-ics">Download calendar (.ics), selected team</button>
     <button type="button" class="secondary" id="copy-link">Copy share link</button>
@@ -216,7 +217,7 @@
   </footer>
 
   <script type="module">
-    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, rematchReport, teamSchedule, scheduleCsv, scheduleIcs, scheduleText, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, playoffRace, remainingFixtures, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
+    import { doubleEliminationBracket, parseTeams, readSpec, buildSchedule, applyRainouts, applyWithdrawals, parseGrounds, applyGroundSharing, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, rematchReport, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs, scheduleText, leaguePageHtml, parseResults, standings, playoffBracket, bracketText, playoffRace, remainingFixtures, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -411,6 +412,11 @@
     });
     $("#team").addEventListener("change", showTeam);
     $("#dl-csv").addEventListener("click", () => { if (!last) return; download("league-schedule.csv", scheduleCsv(last.s), "text/csv"); record("csv_downloaded"); });
+    $("#dl-standings").addEventListener("click", () => {
+      if (!last) return;
+      if (!last.table) { status.textContent = "Type some results first, then the standings can be downloaded."; return; }
+      download("league-standings.csv", standingsCsv(last.table), "text/csv"); record("csv_downloaded");
+    });
     $("#dl-ics").addEventListener("click", () => { if (!last) return; download("league-schedule.ics", scheduleIcs(last.s, null), "text/calendar"); record("ics_downloaded"); });
     $("#dl-team-ics").addEventListener("click", () => {
       if (!last) return;
