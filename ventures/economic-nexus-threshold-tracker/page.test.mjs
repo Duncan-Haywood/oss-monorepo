@@ -101,3 +101,18 @@ test("both pages carry FAQPage JSON-LD that parses as valid JSON", () => {
     }
   }
 });
+
+test("the orders import is wired, local-only, and explains what it skips and assumes", () => {
+  assert.match(html, /from '\.\/orders\.mjs'/);
+  assert.match(html, /id="orders-file"/);
+  assert.match(html, /never uploaded/);
+  assert.match(html, /straight-line estimate/);
+  assert.match(html, /orders_imported/);
+  const orders = readFileSync(new URL("./orders.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(orders, /\bfetch\(/);
+  assert.doesNotMatch(orders, /XMLHttpRequest/);
+});
+
+test("the tracker's own results table is selected by id so the import table cannot capture it", () => {
+  assert.match(html, /querySelector\('#table tbody'\)/);
+});
