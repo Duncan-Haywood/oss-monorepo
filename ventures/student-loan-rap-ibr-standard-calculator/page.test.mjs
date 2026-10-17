@@ -47,3 +47,7 @@ test("usage events named on the page are the ones the code records", () => {
 test("page says its defaults are placeholders", () => {
   assert.match(page("index.html"), /placeholders, not/i);
 });
+
+test("links to the financial aid award letter comparator", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/aid-award-letter-comparator\/"/);
+});
