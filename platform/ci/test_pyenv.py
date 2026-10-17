@@ -80,6 +80,23 @@ class T(unittest.TestCase):
         pip = [c for c in run.calls if c[1:3] == ["-m", "pip"]][0]
         self.assertEqual(pip[-2:], ["scikit-learn", "pyyaml"])
 
+    def test_import_names_map_to_pip_names(self):
+        run = FakeRun(pip_ok={"/p/python3"})
+        pyenv.find(["skfem", "bs4"], ["/p/python3"], run, quiet)
+        pip = [c for c in run.calls if c[1:3] == ["-m", "pip"]][0]
+        self.assertEqual(pip[-2:], ["scikit-fem", "beautifulsoup4"])
+
+    def test_pip_failure_is_logged(self):
+        class Run(FakeRun):
+            def __call__(self, cmd, **kw):
+                r = super().__call__(cmd, **kw)
+                if cmd[1:3] == ["-m", "pip"]:
+                    r.stderr = b"x\nERROR: no matching distribution"
+                return r
+        seen = []
+        pyenv.find(["nope"], ["/p/python3"], Run(), seen.append)
+        self.assertTrue(any("no matching distribution" in m for m in seen), seen)
+
     def test_candidates_dedupes_and_skips_config(self):
         with tempfile.TemporaryDirectory() as d:
             for name in ("python3", "python3.11", "python3.11-config", "python3-foo"):

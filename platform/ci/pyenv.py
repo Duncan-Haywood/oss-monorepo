@@ -24,8 +24,12 @@ import subprocess
 import sys
 
 # import name -> package name, where they differ
-PIP_NAMES = {"sklearn": "scikit-learn", "yaml": "pyyaml", "PIL": "pillow"}
-APT_NAMES = {"sklearn": "python3-sklearn", "yaml": "python3-yaml", "PIL": "python3-pil"}
+PIP_NAMES = {"sklearn": "scikit-learn", "yaml": "pyyaml", "PIL": "pillow",
+             "skfem": "scikit-fem", "skimage": "scikit-image", "cv2": "opencv-python-headless",
+             "bs4": "beautifulsoup4", "dateutil": "python-dateutil"}
+APT_NAMES = {"sklearn": "python3-sklearn", "yaml": "python3-yaml", "PIL": "python3-pil",
+             "skimage": "python3-skimage", "cv2": "python3-opencv", "bs4": "python3-bs4",
+             "dateutil": "python3-dateutil"}
 
 
 def candidates(path=None, extra_globs=("/usr/bin/python3*", "/usr/local/bin/python3*")):
@@ -55,15 +59,18 @@ def imports(py, modules, run=subprocess.run):
         return False
 
 
-def pip_install(py, modules, run=subprocess.run):
+def pip_install(py, modules, run=subprocess.run, log=lambda m: print(m, file=sys.stderr)):
     pkgs = [PIP_NAMES.get(m, m) for m in modules]
     base = [py, "-m", "pip", "install", "--quiet", "--disable-pip-version-check"]
     for extra in ([], ["--break-system-packages"], ["--user", "--break-system-packages"]):
         try:
-            if run(base + extra + pkgs, capture_output=True, timeout=300).returncode == 0:
-                return True
+            done = run(base + extra + pkgs, capture_output=True, timeout=300)
         except (OSError, subprocess.TimeoutExpired):
             return False
+        if done.returncode == 0:
+            return True
+        tail = (getattr(done, "stderr", None) or b"").decode(errors="replace").strip().splitlines()[-1:]
+        log(f"pyenv: {py} -m pip install {' '.join(pkgs)} failed: {tail[0] if tail else 'no output'}")
     return False
 
 
@@ -85,7 +92,7 @@ def find(modules, cands, run=subprocess.run, log=lambda m: print(m, file=sys.std
             return py
     log(f"pyenv: none of {cands} imports {', '.join(modules)}; installing")
     for py in cands:
-        if pip_install(py, modules, run) and imports(py, modules, run):
+        if pip_install(py, modules, run, log) and imports(py, modules, run):
             log(f"pyenv: installed with {py} -m pip")
             return py
     if apt_install(modules, run):
