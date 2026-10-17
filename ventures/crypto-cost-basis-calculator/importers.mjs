@@ -39,6 +39,7 @@ function findHeader(grid, needles) {
 export function detectFormat(text) {
   const grid = parseCsv(text);
   if (findHeader(grid, ["timestamp utc", "transaction kind", "native amount in usd"]) >= 0) return "cryptocom";
+  if (findHeader(grid, ["date", "time utc", "type", "symbol", "usd amount usd"]) >= 0) return "gemini";
   if (findHeader(grid, ["timestamp", "transaction type", "asset"]) >= 0) return "coinbase";
   if (findHeader(grid, ["txid", "refid", "time", "type", "asset", "amount", "fee"]) >= 0) return "kraken";
   if (findHeader(grid, ["time", "operation", "primary asset"]) >= 0) return "binanceus";
@@ -251,16 +252,63 @@ function importCryptoCom(grid) {
   return { format: "cryptocom", rows: out, notes };
 }
 
+// ---- Gemini (transaction history) -----------------------------------------
+
+const GEM_INCOME = /interest|reward|earn|staking|airdrop|bonus|rebate/;
+const GEM_MOVE = /credit|debit|deposit|withdraw|transfer/;
+// Gemini writes amounts as "$1,000.00", "(100.00)" or "0.01 BTC".
+const gemNum = (raw) => num(String(raw ?? "").replace(/[A-Za-z]+/g, ""));
+
+function importGemini(grid) {
+  const h = findHeader(grid, ["date", "time utc", "type", "symbol", "usd amount usd"]);
+  const names = grid[h].map(norm);
+  const ix = (n) => names.indexOf(n);
+  const c = { date: ix("date"), type: ix("type"), sym: ix("symbol"), usd: ix("usd amount usd"), fee: ix("trading fee usd usd") };
+  const out = [], notes = [];
+  let moves = 0, unpriced = 0;
+  for (let i = h + 1; i < grid.length; i++) {
+    const r = grid[i];
+    const g = (k) => (c[k] < 0 ? "" : r[c[k]] ?? "");
+    const type = norm(g("type"));
+    if (!type || !g("date")) continue;
+    const date = g("date").slice(0, 10);
+    const sym = g("sym").toUpperCase().trim();
+    if (type === "buy" || type === "sell") {
+      const base = sym.endsWith("USD") ? sym.slice(0, -3) : "";
+      const qcol = base ? ix(`${base.toLowerCase()} amount ${base.toLowerCase()}`) : -1;
+      const qty = qcol < 0 ? null : Math.abs(gemNum(r[qcol]) ?? 0);
+      if (!base || qty === null) {
+        notes.push(`Line ${i + 1}: Gemini ${type} of "${g("sym")}" was skipped (only USD pairs with a matching amount column are read).`);
+        continue;
+      }
+      const usd = gemNum(g("usd"));
+      const total = usd === null ? null : Math.abs(usd);
+      if (total === null) unpriced++;
+      out.push([date, type, base, fmt(qty), fmt(total), fmt(Math.abs(gemNum(g("fee")) ?? 0)), "Gemini"]);
+    } else if (GEM_INCOME.test(type)) {
+      const col = ix(`${sym.toLowerCase()} amount ${sym.toLowerCase()}`);
+      const qty = col < 0 ? null : Math.abs(gemNum(r[col]) ?? 0);
+      if (!sym || qty === null) { notes.push(`Line ${i + 1}: Gemini "${g("type")}" for "${g("sym")}" was skipped.`); continue; }
+      unpriced++;
+      out.push([date, "income", sym, fmt(qty), "", "0", "Gemini"]);
+    } else if (GEM_MOVE.test(type)) moves++;
+    else notes.push(`Line ${i + 1}: Gemini transaction type "${g("type")}" was skipped.`);
+  }
+  if (unpriced) notes.push(`${unpriced} Gemini row${unpriced > 1 ? "s" : ""} had no USD value in the export and were left with an empty total. Fill each in from that day's price.`);
+  if (moves) notes.push(`${moves} credit, debit, deposit and withdrawal rows ignored as non-taxable movements. A withdrawal that paid someone is a sale; enter it by hand.`);
+  return { format: "gemini", rows: out, notes };
+}
+
 // ---- entry points ---------------------------------------------------------
 
-export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", cryptocom: "Crypto.com App transaction history", generic: "plain CSV" };
+export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", cryptocom: "Crypto.com App transaction history", gemini: "Gemini transaction history", generic: "plain CSV" };
 
 // Returns { format, csv, notes }. A generic file comes back unchanged.
 export function convertExchangeCsv(text) {
   const format = detectFormat(text);
   if (format === "generic") return { format, csv: String(text ?? ""), notes: [] };
   const grid = parseCsv(text);
-  const r = format === "coinbase" ? importCoinbase(grid) : format === "binanceus" ? importBinanceUs(grid) : format === "cryptocom" ? importCryptoCom(grid) : importKraken(grid);
+  const r = format === "coinbase" ? importCoinbase(grid) : format === "binanceus" ? importBinanceUs(grid) : format === "cryptocom" ? importCryptoCom(grid) : format === "gemini" ? importGemini(grid) : importKraken(grid);
   return { format, csv: toCsv(r.rows), notes: r.notes, count: r.rows.length };
 }
 
