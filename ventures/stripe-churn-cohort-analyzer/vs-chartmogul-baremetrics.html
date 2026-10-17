@@ -77,11 +77,13 @@ node cli.mjs subscriptions.csv --max-churn 5   # exit 1 if monthly logo churn &g
   <section>
     <h2>Questions</h2>
     <h3>Is there a free alternative to ChartMogul or Baremetrics for Stripe churn?</h3>
-    <p>For a one-off or monthly look at MRR, churn and cohorts, yes: this analyzer, from a CSV export, with no account. It cannot see upgrades, discounts, refunds or failed payments.</p>
+    <p>For a one-off or monthly look at MRR, churn and cohort retention, yes: export your subscriptions from the Stripe Dashboard as CSV and analyze the file in your browser or with the command-line version. Nothing is uploaded and no account or API key is needed. It reads start and cancel dates and amounts, so it cannot see upgrades, discounts, refunds or failed payments the way a connected product that reads your full billing history can.</p>
+    <h3>What do connected analytics tools do that a CSV analysis cannot?</h3>
+    <p>Products that connect to your billing account can read invoice and event history, so they can report expansion and contraction MRR, discounts, refunds, trials and failed-payment recovery, keep the dashboard current without a monthly export, and join billing data with other sources. A subscriptions export carries only the dates and amounts on each subscription, so this tool holds each subscription's MRR constant and shows new and churned MRR only.</p>
     <h3>Can I run it automatically every month?</h3>
-    <p>The command-line version can exit non-zero when churn passes your threshold, so a scheduled job can flag a spike. You still export the CSV yourself; it never connects to Stripe.</p>
-    <h3>Is it affiliated with any of these products?</h3>
-    <p>No. Not affiliated with, endorsed by or sponsored by ChartMogul, Baremetrics, Paddle or Stripe. Names are used only to describe what each kind of tool does.</p>
+    <p>Yes. The command-line version reads a CSV from a file or stdin and can exit with status 1 when monthly logo churn passes a threshold you choose, so a cron job or CI step can flag a spike. You still need to export the CSV from Stripe; it does not connect to your account.</p>
+    <h3>Are these tools affiliated with this one?</h3>
+    <p>No. This project is not affiliated with, endorsed by or sponsored by ChartMogul, Baremetrics, Paddle or Stripe. Their names are used only to describe what each kind of tool does.</p>
   </section>
 
   <p class="fine">Free, open source (MIT). Estimates from the dates and amounts in your file; not legal, tax, or financial advice. No warranty. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a>.</p>
