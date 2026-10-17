@@ -2207,6 +2207,11 @@
      "summary": "Preliminary, stylised 2D plane stress. On the 39 gauge-2 bracket designs that fail the stress limit on fine meshes under the element-centroid peak, a 3&nbsp;mm patch-averaged stress changes by at most 2.2% between 1.0 and 0.75&nbsp;mm meshes (the centroid peak rises up to 9.7%), and all 39 stay feasible at every mesh size, with a median of 84&ndash;86&nbsp;MPa on the finest mesh. The verdict flips because the criterion is less strict, not because the model changed; whether a patch average is an adequate design rule was not shown, and no fine-mesh design search was run."
     },
     {
+     "slug": "simdesign-gradedtip",
+     "title": "Does the peak stress at the fillet tangent point of the L-bracket converge under graded mesh refinement?",
+     "summary": "Preliminary, stylised 2D plane stress. Uniform meshes left the element-centroid peak stress of the 2&nbsp;mm laser-cut bracket still rising. Refining only around the fillet tangent point, down to 0.025&nbsp;mm elements, the peak of four designs flattens at 1.09&ndash;1.14&times; its 1.5&nbsp;mm value (0.0&ndash;1.1% change over the last 4&times; refinement), so it has a finite limit and the earlier mesh dependence was a resolution effect. The converged plateau shifts about 2% with the grading rate; the 16/15/2 design sits marginally above the 100&nbsp;MPa limit (101.9&nbsp;MPa). No independent reference solution was compared; nothing was optimised."
+    },
+    {
      "slug": "simdesign-gaugefine",
      "title": "Is the least-mass laser-cut bracket the same on coarse and fine meshes under a patch-averaged stress rule?",
      "summary": "Preliminary, stylised 2D plane stress. On a 20&times;20 grid over arm width and fillet radius, the least mass of a feasible laser-cut bracket under a 3&nbsp;mm patch-averaged stress rule is the same on a 2.5&nbsp;mm and a 1.0&nbsp;mm mesh (2&nbsp;mm sheet: 32.31 vs 32.33&nbsp;g; 3&nbsp;mm: 40.81 vs 40.81&nbsp;g). Under the element-centroid peak rule the 2&nbsp;mm sheet has no feasible design on the fine mesh and the 3&nbsp;mm sheet needs 10.8% more mass. The catch: the patch value hardly depends on the fillet radius (94&ndash;102&nbsp;MPa for r from 0 to 15&nbsp;mm against a peak of 126&ndash;264&nbsp;MPa), so the rule cannot tell a sharp corner from a generous fillet. Two meshes only; one load case; nothing built or tested."
