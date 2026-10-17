@@ -178,6 +178,7 @@ export const DOWNLOADABLE_CLI_FILES = {
   'actions-runner-starvation-check': ['check.py'],
   'actions-secret-leak-check': ['check.py'],
   'actions-secrets-inherit-check': ['check.py'],
+  'actions-schedule-check': ['check.py'],
   'actions-timeout-check': ['check.py'],
   'actions-runtime-deprecation-check': ['check.py'],
   'jwt-verification-misuse-check': ['check.py'],

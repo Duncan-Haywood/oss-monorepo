@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GitHub Actions schedule cron: why runs are late, and which minute to pick</title>
+  <meta name="description" content="GitHub Actions scheduled workflows run in UTC, no faster than every 5 minutes, and can be delayed or dropped at busy times such as the start of the hour. What to put in your cron, and how to check it.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="github-actions-schedule-cron-delays.html">
+  <meta property="og:title" content="GitHub Actions schedule cron: why runs are late, and which minute to pick">
+  <meta property="og:description" content="Avoid minute 0, stay at 5 minutes or slower, and use exactly five fields.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the shortest interval for a GitHub Actions schedule?","acceptedAnswer":{"@type":"Answer","text":"5 minutes. A cron that asks for every minute, or every 1 to 4 minutes, cannot run as often as written."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Actions Schedule Cron Check</a></p>
+  <h1>GitHub Actions <code>schedule</code> cron: why runs are late, and which minute to pick</h1>
+  <p>A workflow with <code>on: schedule:</code> runs from a five-field cron expression, evaluated in UTC, on the default branch.</p>
+  <pre><code>on:
+  schedule:
+    - cron: '17 3 * * 1-5'   # 03:17 UTC, Monday to Friday</code></pre>
+  <h2>What is the shortest interval for a GitHub Actions schedule?</h2>
+  <p>5 minutes. A cron such as <code>* * * * *</code> or <code>*/2 * * * *</code> asks for more than GitHub supports, so it cannot run as often as written. If you need faster, trigger the work another way, for example with <code>workflow_dispatch</code> or a webhook.</p>
+  <h2>Why does my scheduled workflow run late, or not at all?</h2>
+  <p>GitHub documents that scheduled workflows can be delayed during periods of high load, that some queued runs may be dropped if the load is high enough, and that the start of every hour is a high-load time. A cron at minute 0, such as <code>0 * * * *</code> or <code>0 3 * * *</code>, lands on that peak. Choosing an odd minute such as 17 or 43 moves your run off it.</p>
+  <h2>Why is my cron rejected or ignored?</h2>
+  <ul>
+    <li>GitHub cron has exactly five fields: minute, hour, day of month, month, day of week. A sixth "seconds" field from Quartz or Spring syntax is invalid.</li>
+    <li>Each number must sit in its range: minute 0 to 59, hour 0 to 23, day of month 1 to 31, month 1 to 12, day of week 0 to 6.</li>
+    <li>Times are UTC, so a local-time schedule needs converting, and daylight saving shifts do not move it.</li>
+    <li>Scheduled workflows run from the default branch, and GitHub documents that a public repository's schedules are disabled after 60 days without repository activity.</li>
+  </ul>
+  <h2>Check your own workflows</h2>
+  <p><a href="./">Paste your workflow YAML into Actions Schedule Cron Check</a> to find every invalid, too-frequent or minute-0 cron across all your workflow files at once, or run the CLI in your own repository:</p>
+  <pre><code>python3 check.py --fail-on-risk</code></pre>
+  <p class="note">That exits with a nonzero status if any cron is flagged, so a bad one can be blocked in your own CI before it merges. GitHub's own documentation for the <code>schedule</code> event is the authority on current limits.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit, and a clean scan does not mean a schedule will fire on time, only that this one pattern was not found.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+</body>
+</html>
