@@ -216,3 +216,31 @@ test("Gemini export feeds the lot matcher end to end", () => {
   const a = analyze(r.csv, { method: "FIFO", year: 2023 });
   assert.ok(a.rows.length > 0);
 });
+
+const BITSTAMP = `Type,Datetime,Account,Amount,Value,Rate,Fee,Sub Type
+Deposit,"Jan. 09, 2023, 09:00 AM",Main Account,10000 USD,,,0 USD,
+Market,"Jan. 10, 2023, 10:00 AM",Main Account,0.5 BTC,10000 USD,20000 USD,25 USD,Buy
+Market,"Sep. 10, 2023, 10:00 AM",Main Account,0.5 BTC,15000 USD,30000 USD,37.5 USD,Sell
+Market,"Oct. 01, 2023, 10:00 AM",Main Account,1 ETH,1500 EUR,1500 EUR,3 EUR,Buy
+Withdrawal,"Oct. 02, 2023, 10:00 AM",Main Account,5000 USD,,,0 USD,
+`;
+
+test("Bitstamp: detected, USD market trades mapped; non-USD and movements flagged", () => {
+  assert.equal(detectFormat(BITSTAMP), "bitstamp");
+  const r = convertExchangeCsv(BITSTAMP);
+  const lines = r.csv.trim().split("\n");
+  assert.equal(lines[0], OUT_HEADER);
+  assert.ok(lines.includes("2023-01-10,buy,BTC,0.5,10000,25,Bitstamp"));
+  assert.ok(lines.includes("2023-09-10,sell,BTC,0.5,15000,37.5,Bitstamp"));
+  assert.equal(lines.length, 3);
+  assert.ok(r.notes.some((n) => /valued in EUR, not USD/.test(n)));
+  assert.ok(r.notes.some((n) => /2 deposit and withdrawal rows ignored/.test(n)));
+});
+
+test("Bitstamp export feeds the lot matcher end to end", () => {
+  const r = convertExchangeCsv(BITSTAMP);
+  const a = analyze(r.csv, { method: "FIFO" });
+  assert.equal(a.summary.shortBasis, 10025);
+  assert.equal(a.summary.shortProceeds, 14962.5);
+  assert.equal(a.summary.totalGain, 4937.5);
+});
