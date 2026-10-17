@@ -1084,3 +1084,30 @@ test("pool play spreads clubmates across pools without changing sizes or the see
   assert.ok(clubPairsInPools(splitPools(teams, 2, big), big) <= clubPairsInPools(splitPools(teams, 2), big));
   assert.deepEqual(splitPools(teams, 2, []), plain);
 });
+
+test("points adjustments: deductions and bonuses change the table, the race and the tiebreaks", () => {
+  const teams = ["Hawks", "Owls", "Lynx"];
+  const pr = parseResults("Hawks 2 - 0 Owls\nOwls 1 - 0 Lynx\nHawks -3 pts (late fee)\nLynx +1\nLynx +1 point", teams);
+  assert.deepEqual(pr.errors, []);
+  assert.equal(pr.results.length, 2);
+  assert.deepEqual(pr.adjustments, { 0: -3, 2: 2 });
+  const rows = standings(teams, pr.results, { adjustments: pr.adjustments });
+  const by = Object.fromEntries(rows.map((r) => [r.name, r]));
+  assert.equal(by.Hawks.points, 0);
+  assert.equal(by.Hawks.adj, -3);
+  assert.equal(by.Owls.points, 3);
+  assert.equal(by.Lynx.points, 2);
+  assert.deepEqual(rows.map((r) => r.name), ["Owls", "Lynx", "Hawks"]);
+  assert.equal(standings(teams, pr.results)[0].name, "Hawks");
+  const race = playoffRace(teams, pr.results, [], 1, { adjustments: pr.adjustments });
+  assert.equal(race.find((r) => r.name === "Hawks").points, 0);
+  assert.equal(race[0].name, "Owls");
+});
+
+test("points adjustments: unknown team is reported, a score line is never read as an adjustment", () => {
+  const teams = ["Team 5", "Foo"];
+  const pr = parseResults("Team 5 3 - 2 Foo\nGhosts -1", teams);
+  assert.equal(pr.results.length, 1);
+  assert.equal(pr.errors.length, 1);
+  assert.deepEqual(pr.adjustments, {});
+});
