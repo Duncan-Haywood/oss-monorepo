@@ -13,6 +13,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `calc.mjs` - parsing, a two-phase simplex (Bland's rule), branch and bound
   for whole or half servings, marginal costs by re-solving, a shopper's
   rule-of-thumb baseline, and an independent `verifyPlan`.
+- Variety limit: set "Most calories from one food (%)" (for example 30) and no single food may supply more than that share of the day's calories, which stops the cheapest plan being a bag of rice and nothing else. It is a linear row per food in the same solver, checked again by `verifyPlan`; leave it blank for the plain cheapest plan. Compare two runs to see what variety costs.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-eat-high-protein-on-a-budget.html` - guide whose worked example is
   recomputed by the test suite.

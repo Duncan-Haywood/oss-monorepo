@@ -121,3 +121,32 @@ test("the verifier catches a bad plan", () => {
   const bad = { ...r, servings: r.servings.map(() => 0) };
   assert.ok(verifyPlan(s, bad).length > 0);
 });
+
+test("variety limit caps each food's calorie share, costs no less, and rejects impossible limits", () => {
+  const base = { ...sampleSpec(), step: 0.5 };
+  const free = solve(base);
+  const lim = { ...base, maxShare: 30 };
+  assert.deepEqual(validateSpec(lim), []);
+  const r = solve(lim);
+  assert.equal(r.status, "optimal");
+  assert.deepEqual(verifyPlan(lim, r), []);
+  const kcal = r.totals[0];
+  r.items.forEach((it) => assert.ok(it.nutrients[0] <= 0.3 * kcal + 1e-6, it.name));
+  assert.ok(r.cost >= free.cost - 1e-9);
+  // continuous mode honours it too
+  const c = solve({ ...lim, step: 0 });
+  assert.equal(c.status, "optimal");
+  c.items.forEach((it) => assert.ok(it.nutrients[0] <= 0.3 * c.totals[0] + 1e-6));
+  assert.ok(validateSpec({ ...base, maxShare: 0 }).length);
+  assert.ok(validateSpec({ ...base, maxShare: 150 }).length);
+  assert.ok(validateSpec({ ...base, foods: base.foods.slice(0, 2), maxShare: 30 }).length);
+});
+
+test("variety limit agrees with brute force on a tiny menu", () => {
+  const spec = { foods: foods([["A", 1, [100, 5, 10, 1, 1]], ["B", 2, [100, 10, 10, 1, 1]], ["C", 3, [100, 12, 10, 1, 1]]]), kcalMin: 1200, kcalMax: 1300, proteinMin: 0, fatMin: 0, fatMax: "", carbsMin: "", carbsMax: "", fiberMin: 0, defaultMax: 12, step: 1, daysPerWeek: 7, maxShare: 50 };
+  let best = Infinity;
+  for (let a = 0; a <= 12; a++) for (let b = 0; b <= 12; b++) for (let c = 0; c <= 12; c++) if (planFeasible(spec, [a, b, c])) best = Math.min(best, planCost(spec, [a, b, c]));
+  const r = solve(spec);
+  assert.equal(r.status, "optimal");
+  assert.ok(Math.abs(r.cost - best) < 1e-6, `${r.cost} vs ${best}`);
+});
