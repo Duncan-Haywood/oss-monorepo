@@ -125,7 +125,7 @@ export function parseFoods(text) {
   return { foods: rows, errors };
 }
 
-export const DEFAULTS = { kcalMin: 2000, kcalMax: 2300, proteinMin: 100, carbsMin: "", carbsMax: "", fatMin: 45, fatMax: 80, fiberMin: 28, defaultMax: 4, step: 0.5, daysPerWeek: 7 };
+export const DEFAULTS = { kcalMin: 2000, kcalMax: 2300, proteinMin: 100, carbsMin: "", carbsMax: "", fatMin: 45, fatMax: 80, fiberMin: 28, defaultMax: 4, step: 0.5, daysPerWeek: 7, maxShare: "" };
 
 const bound = (v) => (v === "" || v == null ? null : Number(v));
 
@@ -150,11 +150,21 @@ export function validateSpec(spec) {
   else if (b.kcal[0] < MIN_SAFE_KCAL) errs.push(`This tool will not build a plan under ${MIN_SAFE_KCAL} calories a day. A very low intake needs a clinician or registered dietitian, not an optimizer.`);
   for (const k of NUTRIENTS) if (b[k][0] !== null && b[k][1] !== null && b[k][0] > b[k][1]) errs.push(`The ${k} minimum is above its maximum.`);
   if (![0, 0.25, 0.5, 1].includes(Number(spec.step))) errs.push("Serving step must be whole, half, quarter or any.");
+  const share = shareLimit(spec);
+  if (spec.maxShare !== "" && spec.maxShare != null && !(share > 0 && share <= 1)) errs.push("Most calories from one food must be a percentage above 0 and up to 100, or blank.");
+  if (share !== null && share < 1 && spec.foods.length * share < 1 - 1e-9) errs.push(`With ${spec.foods.length} foods no food can stay under ${Math.round(share * 100)}% of calories; raise the limit or add foods.`);
   if (!(Number(spec.defaultMax) > 0)) errs.push("Default maximum servings per food must be above zero.");
   return errs;
 }
 
 // ------------------------------------------------------------ model
+
+/** Largest share of the day's calories any one food may supply, as a fraction (the form takes a percentage), or null when unset. */
+function shareLimit(spec) {
+  if (spec.maxShare === "" || spec.maxShare == null) return null;
+  const v = Number(spec.maxShare) / 100;
+  return Number.isFinite(v) ? v : NaN;
+}
 
 function cap(spec, f) { return f.max == null ? Number(spec.defaultMax) : f.max; }
 
@@ -171,6 +181,16 @@ function buildRows(spec, lo, hi, minScale = {}) {
     if (mn !== null) rows.push({ a, rel: ">=", b: mn + (minScale[k] || 0) - base });
     if (mx !== null) rows.push({ a, rel: "<=", b: mx - base });
   });
+  const share = shareLimit(spec);
+  if (share !== null && share < 1) {
+    // variety: kcal_i * x_i <= share * (total kcal), one row per food
+    for (let i = 0; i < n; i++) {
+      const a = foods.map((f, j) => step * ((i === j ? f.n[0] : 0) - share * f.n[0]));
+      let base = 0;
+      for (let j = 0; j < n; j++) base += a[j] * lo[j];
+      rows.push({ a, rel: "<=", b: -base });
+    }
+  }
   for (let i = 0; i < n; i++) {
     if (Number.isFinite(hi[i])) { const a = new Array(n).fill(0); a[i] = 1; rows.push({ a, rel: "<=", b: hi[i] - lo[i] }); }
   }
@@ -200,6 +220,8 @@ export function nutrition(spec, servings) {
 
 export function planFeasible(spec, servings) {
   const t = nutrition(spec, servings), b = bounds(spec);
+  const share = shareLimit(spec);
+  if (share !== null && share < 1 && spec.foods.some((f, i) => f.n[0] * servings[i] > share * t[0] + 1e-6)) return false;
   return NUTRIENTS.every((k, ki) => (b[k][0] === null || t[ki] >= b[k][0] - 1e-6) && (b[k][1] === null || t[ki] <= b[k][1] + 1e-6)) &&
     servings.every((s, i) => s >= -1e-9 && s <= cap(spec, spec.foods[i]) + 1e-9);
 }
