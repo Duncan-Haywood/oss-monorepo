@@ -9,4 +9,4 @@ Free, read-only checker that scans a repository's GitHub Actions workflow files 
     path: .
 ```
 
-Runs [`ventures/actions-permissions-check/check.py`](../../../../ventures/actions-permissions-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-permissions-check/
+Runs [`ventures/actions-permissions-check/check.py`](../../../../ventures/actions-permissions-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-permissions-check/?ref=gh-action

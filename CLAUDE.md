@@ -140,33 +140,8 @@ fork, so:
 
 ## Product-first default (`ventures/`)
 
-Every session should move a venture closer to something strangers can use for
-free, with usage tracked and disclaimers in place. Features, fixes, landing
-pages, SEO, integrations (behind env vars), and VM-runnable apps beat ledger
-entries and analysis documents.
-
-**Self-deploy principle (owner, 2026-10-15).** The aim is not for us to host
-these apps. Each one is an MIT open-source business that anyone can one-click
-host in their own cloud: credentials go in, they click Deploy, OpenTofu does
-the rest, and nothing of ours runs in between. This is the business model
-(`prompts/goals.md`, Mission) and the finish line for a venture
-(`prompts/ventures/prompt-1.md`). Details, including how OpenTofu is set up and the Buy Me a
-Coffee exception: `PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can
-deploy it themselves".
-
-**Deploy-first.** Products already on `main` with no public URL outrank new
-candidates. Prepare a GitHub Pages artifact or a Hetzner product-box
-deploy; do not clone another undeployed calculator. The host is decided
-([`portfolio/hosting/`](portfolio/hosting/README.md)). The owner flip is
-`deploy-settings` — do not add a second ask. See `portfolio/DIRECTION.md`.
-
-Target super-niches where users have money and a real problem — especially
-tools that help them earn more. Low variable cost, traditional software, AI
-only where it clearly helps. Payment code is allowed only off by default and on
-the deployer's own keys, never the owner's accounts (`prompts/goals.md`,
-"Payments: never the owner's"); the owner's own instances take GitHub Sponsors
-donations only. Prefer higher-value work to another single-page calculator: a
-principle, not a ban (owner, 2026-10-16; `prompts/ventures/prompt-1.md`).
+Building or changing a venture: read [`ventures/CLAUDE.md`](ventures/CLAUDE.md)
+(product-first, self-deploy, deploy-first, niche choice). Skip it for research.
 
 ## Session gate (generic briefs only)
 
@@ -193,46 +168,15 @@ have disclaimers and usage tracking.
 
 **While runners are starved, "run or read CI" means run it here.** Check
 first with `python3 platform/ci/ci_starvation.py --run <run_id>` (below).
-When it says starvation, run what your change reaches from this set before
-merging, and say in the PR what each line printed. Every line below exists
-because a guard outside the list once went unrun while `main` broke (full
-incidents: [`docs/history/claude-md-2026-10-15.md`](docs/history/claude-md-2026-10-15.md)).
-
-```
-python3 platform/ci/checklist_coverage.py  # fails if a line below is missing
-python3 platform/ci/sync_tree_counts.py  # AFTER merging main: fixes the counts a concurrent merge just invalidated
-# New workflow in a PR? gitops/ci/README counts go stale: python3 gitops/ci/sync_readme_counts.py
-node platform/marketing/regen.mjs --verify  # 9s, read-only: is the committed apex stale?
-node platform/marketing/regen.mjs           # if that exited 1: commit whatever this rewrites (>2 min: background)
-node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
-node --test platform/proposal/*.test.mjs
-node --test platform/devlog/*.test.mjs
-node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
-node --test platform/deploy/*.test.mjs
-node --test platform/distribution/*.test.mjs
-node --test platform/llm/*.test.mjs
-node --test platform/devstats/*.test.mjs
-node --test platform/counter/*.test.mjs
-node --test platform/uitest/*.test.mjs        # browser half skips unless PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js
-node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
-python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
-# No pytest/numpy? PY=$(python3 platform/ci/pyenv.py pytest numpy), then "$PY" -m pytest: some images split python3 from what pip/apt install into. gitops/tests has a few failures on clean main that depend on the image (`gh` preinstalled, test_ci_runner.py): run the failing test on origin/main before blaming your change.
-(cd platform/ci && rc=0; for m in test_*.py; do python3 -m unittest "${m%.py}" || { echo "FAILED $m"; rc=1; }; done; exit $rc)  # runs every module, lists each failure
-(cd platform/ci/agent_review && python3 -m unittest test_review)
-python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline infra/tests -q
-python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
-python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
-python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt.md, prompts/, run records
-(cd research/<project> && PYTHONPATH=$(ls -d ../*/src | tr '\n' :) python3 -m pytest tests -q)  # research/ changes: one project at a time
-python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches (>2 min: run_in_background)
-python3 platform/ci/run_workflow_locally.py --tree          # and: is main itself green right now? (>10 min: background)
-```
-
-The traps in running those lines (what each is for, shallow clones,
-installing tools, long suites), the browser checks for typed-in markup, and the
-post-merge `gh-pages` refresh are in
-[`.github/prompts/verify-and-merge.md`](.github/prompts/verify-and-merge.md).
-Read it when you run the block or after merging a served-surface change.
+When it says starvation, run what your change reaches from the checklist in
+[`.github/prompts/verify-and-merge.md`](.github/prompts/verify-and-merge.md),
+and say in the PR what each line printed. Every line there exists because a
+guard outside the list once went unrun while `main` broke (full incidents:
+[`docs/history/claude-md-2026-10-15.md`](docs/history/claude-md-2026-10-15.md)).
+That file also holds the traps in running the lines (shallow clones, installing
+tools, long suites), the browser checks for typed-in markup, and the post-merge
+`gh-pages` refresh. Read it when you run the checklist or after merging a
+served-surface change.
 
 **Merge yourself after CI is green:**
 

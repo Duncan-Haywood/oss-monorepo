@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of mean absolute difference in skin temperature (C) and evaporative loss (W per square metre) between our two-node model and pythermalcomfort at air temperatures 18 to 36 C: the skin temperature gap falls with warmth while the evaporative gap rises">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Two-node model vs pythermalcomfort: gap by air temperature</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="270.9" y2="270.9" stroke="#ddd"/><text x="58" y="274.9" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="217.8" y2="217.8" stroke="#ddd"/><text x="58" y="221.8" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="164.7" y2="164.7" stroke="#ddd"/><text x="58" y="168.7" text-anchor="end" font-family="sans-serif" font-size="11">3</text>
+<line x1="64" x2="624" y1="111.5" y2="111.5" stroke="#ddd"/><text x="58" y="115.5" text-anchor="end" font-family="sans-serif" font-size="11">4</text>
+<line x1="64" x2="624" y1="58.4" y2="58.4" stroke="#ddd"/><text x="58" y="62.4" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">18</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">24</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">30</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">36</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">air temperature (C)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean |ours - reference|</text>
+<polyline points="64.0,270.4 250.7,291.6 437.3,301.7 624.0,308.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="270.4" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="291.6" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="301.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="308.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">skin temperature (C)</text>
+<polyline points="64.0,288.9 250.7,262.4 437.3,217.2 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="288.9" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="262.4" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="217.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">evaporative loss (W/m2)</text>
+</svg>

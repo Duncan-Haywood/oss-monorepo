@@ -23,7 +23,7 @@ test('collect lists launched tools sorted, skipping pages without metadata', asy
   assert.deepEqual(tools.map((t) => t.slug), ['a', 'b']);
   assert.equal(tools[0].title, 'Alpha Tool');
   assert.equal(tools[0].description, 'Does & counts.');
-  assert.match(tools[0].url, /^https:\/\/.+\/a\/$/);
+  assert.match(tools[0].url, /^https:\/\/.+\/a\/\?ref=vscode$/);
 });
 
 test('extension source is valid, registers the command and opens only the picked URL', async () => {

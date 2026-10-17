@@ -23,6 +23,7 @@ import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { importsOf, closure, descriptionOf, discover } from './npm.mjs';
 import { toolUrl } from './bluesky.mjs';
+import { tagUrl } from './attribution.mjs';
 
 const exec = promisify(execFile);
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -127,7 +128,7 @@ Source: ${REPO_URL}/tree/main/ventures
 export function buildBundle({ eligible, serverSource, license, name = DEFAULT_NAME, version = VERSION }) {
   const files = {};
   for (const e of eligible) for (const [rel, text] of Object.entries(e.files)) files[`tools/${e.slug}/${rel}`] = text;
-  files['tools.json'] = `${JSON.stringify(eligible.map((e) => ({ slug: e.slug, description: e.description, url: toolUrl(e.slug) })), null, 2)}\n`;
+  files['tools.json'] = `${JSON.stringify(eligible.map((e) => ({ slug: e.slug, description: e.description, url: tagUrl(toolUrl(e.slug), 'mcp') })), null, 2)}\n`;
   files['server.mjs'] = serverSource.startsWith('#!') ? serverSource : `#!/usr/bin/env node\n${serverSource}`;
   files.LICENSE = license;
   files['README.md'] = readmeText(name, eligible.length);

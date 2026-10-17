@@ -9,4 +9,4 @@ Free, read-only checker that scans GitHub Actions workflow YAML for two document
     path: .
 ```
 
-Runs [`ventures/actions-secrets-inherit-check/check.py`](../../../../ventures/actions-secrets-inherit-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-secrets-inherit-check/
+Runs [`ventures/actions-secrets-inherit-check/check.py`](../../../../ventures/actions-secrets-inherit-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-secrets-inherit-check/?ref=gh-action

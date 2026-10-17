@@ -9,4 +9,4 @@ Free, read-only heuristic scanner that reads your own Kubernetes Pod, Deployment
     path: .
 ```
 
-Runs [`ventures/k8s-pod-security-check/check.py`](../../../../ventures/k8s-pod-security-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/k8s-pod-security-check/
+Runs [`ventures/k8s-pod-security-check/check.py`](../../../../ventures/k8s-pod-security-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/k8s-pod-security-check/?ref=gh-action

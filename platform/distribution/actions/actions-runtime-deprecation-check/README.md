@@ -9,4 +9,4 @@ Free, read-only CLI that scans GitHub Actions workflows for first-party actions 
     path: .
 ```
 
-Runs [`ventures/actions-runtime-deprecation-check/check.py`](../../../../ventures/actions-runtime-deprecation-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-runtime-deprecation-check/
+Runs [`ventures/actions-runtime-deprecation-check/check.py`](../../../../ventures/actions-runtime-deprecation-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-runtime-deprecation-check/?ref=gh-action

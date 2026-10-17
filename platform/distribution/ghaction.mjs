@@ -21,6 +21,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { toolUrl } from './bluesky.mjs';
+import { tagUrl } from './attribution.mjs';
 import { descriptionOf } from './npm.mjs';
 import { disqualifying, discover } from './pypi.mjs';
 
@@ -98,7 +99,7 @@ export async function plan({ root = REPO_ROOT, slugs } = {}) {
       slug,
       files: {
         [`${ACTIONS_DIR}/${slug}/action.yml`]: actionYaml({ slug, description }),
-        [`${ACTIONS_DIR}/${slug}/README.md`]: `# ${title(slug)} (GitHub Action)\n\n${description}\n\n\`\`\`yaml\n- uses: actions/checkout@v4\n- uses: ${USES_PREFIX}/${slug}@main\n  with:\n    path: .\n\`\`\`\n\nRuns [\`ventures/${slug}/check.py\`](../../../../ventures/${slug}/check.py) (MIT, stdlib-only Python, no network calls). Docs: ${toolUrl(slug)}\n`,
+        [`${ACTIONS_DIR}/${slug}/README.md`]: `# ${title(slug)} (GitHub Action)\n\n${description}\n\n\`\`\`yaml\n- uses: actions/checkout@v4\n- uses: ${USES_PREFIX}/${slug}@main\n  with:\n    path: .\n\`\`\`\n\nRuns [\`ventures/${slug}/check.py\`](../../../../ventures/${slug}/check.py) (MIT, stdlib-only Python, no network calls). Docs: ${tagUrl(toolUrl(slug), 'gh-action')}\n`,
       },
     });
   }

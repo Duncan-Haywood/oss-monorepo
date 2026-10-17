@@ -9,4 +9,4 @@ Free, read-only checker that scans GitHub Actions workflow YAML for jobs with no
     path: .
 ```
 
-Runs [`ventures/actions-timeout-check/check.py`](../../../../ventures/actions-timeout-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-timeout-check/
+Runs [`ventures/actions-timeout-check/check.py`](../../../../ventures/actions-timeout-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/actions-timeout-check/?ref=gh-action

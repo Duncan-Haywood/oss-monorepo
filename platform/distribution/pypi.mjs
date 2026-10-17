@@ -20,6 +20,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { toolUrl } from './bluesky.mjs';
+import { tagUrl } from './attribution.mjs';
 import { descriptionOf } from './npm.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -76,7 +77,7 @@ keywords = ["cli", "free", "open-source"]
 classifiers = ["License :: OSI Approved :: MIT License", "Programming Language :: Python :: 3", "Environment :: Console"]
 
 [project.urls]
-Homepage = "${toolUrl(slug)}"
+Homepage = "${tagUrl(toolUrl(slug), 'pypi')}"
 Source = "${REPO_URL}/tree/main/ventures/${slug}"
 Issues = "${REPO_URL}/issues"
 
@@ -108,7 +109,7 @@ export async function buildPackage({ slug, dir, version = VERSION }) {
     [`${mod}/__main__.py`]: `from .cli import main\nraise SystemExit(main())\n`,
     [`${mod}/cli.py`]: src,
     LICENSE: license,
-    'README.md': `${readme.trimEnd()}\n\n---\n\nFree and open source (MIT), from the [monorepo-projects](${toolUrl(slug)}) portfolio. Install: \`pipx run ${slug}\`. Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`,
+    'README.md': `${readme.trimEnd()}\n\n---\n\nFree and open source (MIT), from the [monorepo-projects](${tagUrl(toolUrl(slug), 'pypi')}) portfolio. Install: \`pipx run ${slug}\`. Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`,
     'pyproject.toml': pyproject({ name: slug, slug, description, version }),
   };
   return { name: slug, version, files };

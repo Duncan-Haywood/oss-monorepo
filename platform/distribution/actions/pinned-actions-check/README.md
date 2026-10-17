@@ -9,4 +9,4 @@ Free, read-only checker that scans a repository's GitHub Actions workflow files 
     path: .
 ```
 
-Runs [`ventures/pinned-actions-check/check.py`](../../../../ventures/pinned-actions-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/
+Runs [`ventures/pinned-actions-check/check.py`](../../../../ventures/pinned-actions-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/?ref=gh-action

@@ -186,13 +186,16 @@ def header_check(size, span_in, w_plf, plies=2, jacks_per_side=1, stud="2x6"):
     defl = 5 * w * span_in ** 4 / (384 * SPF2["E"] * b * d ** 3 / 12)
     ratios = [fb / (SPF2["Fb"] * CD * CF_B[size]), fv / (SPF2["Fv"] * CD), defl / (span_in / 240)]
     if jacks_per_side:
-        ratios.append(V / (jacks_per_side * T * DEPTH[stud] * SPF2["Fc_perp"]))
+        # The header bears on the jack only across its own width (plies * T); the rest of the
+        # stud depth carries nothing unless a filler ply is added.
+        ratios.append(V / (jacks_per_side * T * min(b, DEPTH[stud]) * SPF2["Fc_perp"]))
     return max(ratios)
 
 
-def size_header(span_in, w_plf, scheme):
+def size_header(span_in, w_plf, scheme, jacks_per_side=None):
+    j = scheme.jacks_per_side if jacks_per_side is None else jacks_per_side
     for s in HEADER_SIZES:
-        if header_check(s, span_in, w_plf, jacks_per_side=scheme.jacks_per_side, stud=scheme.stud) <= 1.0:
+        if header_check(s, span_in, w_plf, jacks_per_side=j, stud=scheme.stud) <= 1.0:
             return s
     return None
 
@@ -219,6 +222,12 @@ def frame_wall(wall, house, scheme, loads):
             raise ValueError("opening runs into the wall end")
         flat = not wall.bearing and not scheme.nonbearing_header
         j = 0 if flat else nj
+        if j and wall.bearing:
+            # a wide opening needs more jacks per side to carry the header's end reaction
+            size = scheme.header if scheme.header != "sized" else HEADER_SIZES[-1]
+            while j < 4 and header_check(size, op.width_in + 2 * j * T, wD + wS, jacks_per_side=j,
+                                         stud=scheme.stud) > 1.0:
+                j += 1
         span = op.width_in + 2 * j * T
         if flat:
             hsize, hdepth = scheme.stud, T
@@ -226,7 +235,7 @@ def frame_wall(wall, house, scheme, loads):
         else:
             if scheme.header == "sized":
                 w = (wD + wS) if wall.bearing else 0.0
-                hsize = size_header(span, w, scheme) if wall.bearing else HEADER_SIZES[0]
+                hsize = size_header(span, w, scheme, j) if wall.bearing else HEADER_SIZES[0]
                 if hsize is None:
                     raise ValueError(f"no 2-ply header passes over {span:.0f} in")
             else:
