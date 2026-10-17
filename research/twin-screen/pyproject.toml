@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "twin-screen"
+version = "0.1.0"
+description = "Screening K designs in a digital twin and verifying the top m on the real plant under a fixed real-trial budget: exact twin-only value, optimal shortlist size"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
