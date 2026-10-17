@@ -26,13 +26,18 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "`route` drew the research track for a scheduled brief that is explicitly about revenue products; the brief won, so the draw was not followed."
+    }
+  ],
   "deviations": [],
   "goal": null,
-  "notes": "",
+  "notes": "Refreshed the stale gh-pages snapshot (publish-branch.sh, source d478ba3). Built survey-keeper (self-hosted surveys and NPS, Typeform/Delighted alternative) with 33 tests, listed it in self-hosted-saas-stack, preflight clean.",
   "corrections": [],
   "redteam": null
 }
