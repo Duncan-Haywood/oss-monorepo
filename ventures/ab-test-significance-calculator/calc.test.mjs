@@ -207,3 +207,33 @@ test("always-valid interval stays sane when the control rate is near zero", () =
   assert.ok(r.priorSd >= 0.04, "default prior is not tighter than the standard error");
   assert.ok(r.sequential.high - r.sequential.low < 1, "interval is narrower than the whole 0-1 range");
 });
+
+import { multiTest, parseArms, multiSampleText } from "./calc.mjs";
+
+test("A/B/n: Holm adjusts p-values and never lowers them", () => {
+  const { arms } = parseArms(multiSampleText());
+  const r = multiTest({ arms });
+  assert.equal(r.rows.length, 3);
+  for (const x of r.rows) { assert.ok(x.pHolm >= x.p && x.pHolm <= 1); }
+  // Smallest raw p is multiplied by the number of variants.
+  const min = r.rows.reduce((a, b) => (a.p < b.p ? a : b));
+  near(min.pHolm, Math.min(1, min.p * 3), 1e-12);
+  // Best-arm probabilities sum to one.
+  near(r.control.probBest + r.rows.reduce((s, x) => s + x.probBest, 0), 1, 1e-9);
+});
+
+test("A/B/n: a clear winner is found and identical arms are not", () => {
+  const win = multiTest({ arms: [{ name: "A", n: 10000, c: 500 }, { name: "B", n: 10000, c: 700 }, { name: "C", n: 10000, c: 505 }] });
+  assert.equal(win.winners[0].name, "B");
+  assert.equal(win.rows[1].significant, false);
+  const same = multiTest({ arms: [{ name: "A", n: 1000, c: 50 }, { name: "B", n: 1000, c: 50 }, { name: "C", n: 1000, c: 50 }] });
+  assert.equal(same.winners.length, 0);
+  assert.equal(same.rows[0].pHolm, 1);
+});
+
+test("A/B/n: rejects bad input and parses lines", () => {
+  assert.ok(multiTest({ arms: [{ name: "A", n: 10, c: 1 }, { name: "B", n: 10, c: 1 }] }).error);
+  assert.ok(multiTest({ arms: [{ name: "A", n: 10, c: 1 }, { name: "B", n: 10, c: 11 }, { name: "C", n: 10, c: 1 }] }).error);
+  assert.ok(parseArms("A, 100").error);
+  assert.deepEqual(parseArms("Big, red, 100, 5\n\nB,200,9\n").arms, [{ name: "Big, red", n: 100, c: 5 }, { name: "B", n: 200, c: 9 }]);
+});
