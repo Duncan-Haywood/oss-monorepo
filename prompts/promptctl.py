@@ -694,11 +694,14 @@ def print_measure(m: dict[str, Any]) -> None:
     print(f"# Prompt scores ({m['runs']} recorded runs; {m['since_review']} since the last "
           f"review, one is due every {m['review_every']})\n")
 
-    def table(title: str, rows: dict[str, dict[str, Any]]) -> None:
+    def table(title: str, rows: dict[str, dict[str, Any]], min_runs: int = 1) -> None:
         print(f"## {title}\n")
         print("| | runs | success | 95% CI | integrity | leaked | merged? | errors/run | CI fails | minutes | friction | API $ (median) | 14-day survival (reverted) |")
         print("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+        small = [k for k, s in rows.items() if s["runs"] < min_runs]
         for key, s in rows.items():
+            if key in small:
+                continue
             rate = "-" if s["success_rate"] is None else f"{s['success_rate']:.0%}"
             lo, hi = s["success_ci95"]
             print(f"| {key} | {s['runs']} | {rate} | {lo:.0%}-{hi:.0%} | {s['integrity_issues']} | "
@@ -706,11 +709,14 @@ def print_measure(m: dict[str, Any]) -> None:
                   f"{s['ci_failures_mean']} | {s['wall_minutes_median']} | {s['doc_friction']} | "
                   f"{s['cost_usd_median']} ({s['cost_measured']} measured) | "
                   f"{s['survival_median']} ({s['reverted']} of {s['rework_measured']}) |")
+        if small:
+            print(f"\n({len(small)} groups with fewer than {min_runs} runs, "
+                  f"{sum(rows[k]['runs'] for k in small)} runs in all, not shown)")
         print()
 
     table("By track and prompt version", m["by_version"])
     table("By track and model", m["by_model"])
-    table("By starting message (input_sha256)", m["by_input"])
+    table("By starting message (input_sha256)", m["by_input"], min_runs=3)
     print("## Active candidates\n")
     if not m["candidates"]:
         print("None. The review track writes the next one.\n")

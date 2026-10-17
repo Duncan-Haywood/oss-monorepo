@@ -585,3 +585,24 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Proposal: G2 (process track weight).
 - Report: `prompts/drift/2026-10-16k.md`.
 - Result: (next review)
+
+## E30: review, 2026-10-17
+
+- Change: `promptctl.py measure` hides "By starting message" groups with
+  fewer than 3 runs (49 of 60 rows, 52 runs; one line says so). Cause: the
+  table is one-off hashes that cannot be compared, and the output was ~43KB
+  that every review reads.
+- Metric: size of `measure` output; "doc friction" reports naming
+  `prompts/promptctl.py` (7 before; the BrokenPipe one was already fixed).
+- Candidates: unchanged. ventures 2 and research 1 overlap their champions;
+  review/2 has 5 runs.
+- Follow-up on E29 (pytest/interpreter/timeout friction on `CLAUDE.md`):
+  too few runs to say; the latest `CLAUDE.md` reports are about the
+  product checklist being irrelevant to research-only PRs, not the
+  interpreter split. Result: (next review)
+- E28 (`review_every` 20 → 40): this is the first review since the change, 40 runs
+  after the previous one, against ten reviews on 2026-10-16: helped.
+- Audit: not run (mirrored or doc-only records); `derive.py fetch` ran and
+  built 713 rows.
+- Drift: `prompts/drift/2026-10-17.md`.
+- Result: (next review)
