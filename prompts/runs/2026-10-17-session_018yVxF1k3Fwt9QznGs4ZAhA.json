@@ -1,0 +1,246 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_018yVxF1k3Fwt9QznGs4ZAhA",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-17T10:06:06Z",
+  "ended": "2026-10-17T10:06:31Z",
+  "wall_minutes": 1.32,
+  "tokens_in": 967601,
+  "tokens_out": 4937,
+  "cost_usd": 0.4229,
+  "tool_calls": 16,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/medicaid-lookback-penalty-calculator/calc.mjs",
+        "test": "node --test ventures/medicaid-lookback-penalty-calculator/**/*.test.mjs  (in .)",
+        "seed": 873781331,
+        "commit": "79afd08aac",
+        "sites": 138,
+        "baseline_seconds": 0.7,
+        "mutants": [
+          {
+            "file": "ventures/medicaid-lookback-penalty-calculator/calc.mjs",
+            "line": 30,
+            "col": 8,
+            "operator": "eq-flip",
+            "before": "if (v === \"\" || v === null || v === undefined) return NaN;",
+            "after": "if (v !== \"\" || v === null || v === undefined) return NaN;",
+            "line_text": "  if (v === \"\" || v === null || v === undefined) return NaN;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/medicaid-lookback-penalty-calculator/calc.mjs",
+            "line": 30,
+            "col": 34,
+            "operator": "eq-flip",
+            "before": "if (v === \"\" || v === null || v === undefined) return NaN;",
+            "after": "if (v === \"\" || v === null || v !== undefined) return NaN;",
+            "line_text": "  if (v === \"\" || v === null || v === undefined) return NaN;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/medicaid-lookback-penalty-calculator/calc.mjs",
+            "line": 37,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "let t = /^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/.exec(s);",
+            "after": "let t = /^(\\d{4})-(\\d{2,2})-(\\d{1,2})$/.exec(s);",
+            "line_text": "  let t = /^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/.exec(s);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "one-digit month 2026-1-5 now asserted"
+          },
+          {
+            "file": "ventures/medicaid-lookback-penalty-calculator/calc.mjs",
+            "line": 37,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "let t = /^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/.exec(s);",
+            "after": "let t = /^(\\d{4})-(\\d{1,2})-(\\d{1,3})$/.exec(s);",
+            "line_text": "  let t = /^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/.exec(s);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "three-digit day now asserted"
+          },
+          {
+            "file": "ventures/medicaid-lookback-penalty-calculator/calc.mjs",
+            "line": 43,
+            "col": 81,
+            "operator": "neq-flip",
+            "before": "if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== m - 1 || dt.getUTCDate() !== d) return null;",
+            "after": "if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== m - 1 || dt.getUTCDate() === d) return null;",
+            "line_text": "  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== m - 1 || dt.getUTCDate() !== d) return null;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/medicaid-lookback-penalty-calculator/calc.mjs",
+            "line": 80,
+            "col": 38,
+            "operator": "eq-flip",
+            "before": "const monthlyCost = raw.monthlyCost === \"\" || raw.monthlyCost == null ? divisor : num(raw.monthlyCost);",
+            "after": "const monthlyCost = raw.monthlyCost !== \"\" || raw.monthlyCost == null ? divisor : num(raw.monthlyCost);",
+            "line_text": "  const monthlyCost = raw.monthlyCost === \"\" || raw.monthlyCost == null ? divisor : num(raw.monthlyCost);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/medicaid-lookback-penalty-calculator/calc.mjs",
+            "line": 82,
+            "col": 49,
+            "operator": "or-to-and",
+            "before": "const monthlyIncome = raw.monthlyIncome === \"\" || raw.monthlyIncome == null ? 0 : num(raw.monthlyIncome);",
+            "after": "const monthlyIncome = raw.monthlyIncome === \"\" && raw.monthlyIncome == null ? 0 : num(raw.monthlyIncome);",
+            "line_text": "  const monthlyIncome = raw.monthlyIncome === \"\" || raw.monthlyIncome == null ? 0 : num(raw.monthlyIncome);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "blank income -> 0 now asserted"
+          },
+          {
+            "file": "ventures/medicaid-lookback-penalty-calculator/calc.mjs",
+            "line": 89,
+            "col": 59,
+            "operator": "gt-to-ge",
+            "before": "if (applicationDate) for (const x of g.gifts) if (x.date > applicationDate) errors.push(`Gift line ${x.line} is dated after the application date.`);",
+            "after": "if (applicationDate) for (const x of g.gifts) if (x.date >= applicationDate) errors.push(`Gift line ${x.line} is dated after the application date.`);",
+            "line_text": "  if (applicationDate) for (const x of g.gifts) if (x.date > applicationDate) errors.push(`Gift line ${x.line} is dated after the application date.`);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gift on application date now asserted"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/medicaid-lookback-penalty-calculator/calc.mjs",
+        "issue": "divisor/cost/income/returned = 'Infinity' accepted (divisor Infinity gives a 0-month penalty with no error); fractional look-back months accepted",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4012c844-9944-5530-9401-99f48d576912",
+    "transcripts": 1,
+    "first": "2026-10-17T10:06:06Z",
+    "last": "2026-10-17T10:07:25Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 14,
+        "input": 28,
+        "output": 4937,
+        "thinking": 672,
+        "cache_read": 920214,
+        "cache_write_5m": 0,
+        "cache_write_1h": 47359,
+        "api_equivalent_usd": 0.4229,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 14,
+      "input": 28,
+      "output": 4937,
+      "thinking": 672,
+      "cache_read": 920214,
+      "cache_write_5m": 0,
+      "cache_write_1h": 47359,
+      "api_equivalent_usd": 0.4229,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.951,
+    "tool_calls": 16,
+    "tools": {
+      "Bash": 12,
+      "Read": 3,
+      "ToolSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.32,
+      "active_minutes": 1.32,
+      "model_minutes": 0.8,
+      "tool_minutes": 0.51,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "read target, write 3 tests + validation fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 236.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
