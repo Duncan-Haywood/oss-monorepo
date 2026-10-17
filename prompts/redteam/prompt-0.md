@@ -25,7 +25,8 @@ python3 prompts/redteam.py campaign --mutants 8 --record prompts/runs/<your reco
 ```
 
 With no `--target`, the tool picks a random file that some test suite guards
-(`redteam.py targets` lists them). Pass `--target` to aim at a file that just
+(`redteam.py targets` lists them; about 95% are under `ventures/`, so
+`--under platform` aims the draw at the CI and tooling code). Pass `--target` to aim at a file that just
 changed on `main` (`git log --since=3.days --name-only origin/main`) or that
 users rely on most. Run two or three campaigns if each takes under a minute.
 

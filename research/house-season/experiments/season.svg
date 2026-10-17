@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of mean working days to build a house against the month the build starts. The cold-winter climate runs from about 211 days for a July start to 231 for December; the mild climate varies by under 4 days.">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">House build time by start month (assumed climates)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="269.3" y2="269.3" stroke="#ddd"/><text x="58" y="273.3" text-anchor="end" font-family="sans-serif" font-size="11">50</text>
+<line x1="64" x2="624" y1="214.7" y2="214.7" stroke="#ddd"/><text x="58" y="218.7" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="160.0" y2="160.0" stroke="#ddd"/><text x="58" y="164.0" text-anchor="end" font-family="sans-serif" font-size="11">150</text>
+<line x1="64" x2="624" y1="105.4" y2="105.4" stroke="#ddd"/><text x="58" y="109.4" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="165.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="267.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="369.5" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">7</text>
+<text x="471.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">9</text>
+<text x="573.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">11</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">start month (1 = Jan)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">mean working days</text>
+<polyline points="64.0,72.7 114.9,78.5 165.8,84.6 216.7,89.6 267.6,92.3 318.5,92.8 369.5,92.9 420.4,91.9 471.3,89.6 522.2,84.2 573.1,76.3 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="72.7" r="3" fill="#c0392b"/>
+<circle cx="114.9" cy="78.5" r="3" fill="#c0392b"/>
+<circle cx="165.8" cy="84.6" r="3" fill="#c0392b"/>
+<circle cx="216.7" cy="89.6" r="3" fill="#c0392b"/>
+<circle cx="267.6" cy="92.3" r="3" fill="#c0392b"/>
+<circle cx="318.5" cy="92.8" r="3" fill="#c0392b"/>
+<circle cx="369.5" cy="92.9" r="3" fill="#c0392b"/>
+<circle cx="420.4" cy="91.9" r="3" fill="#c0392b"/>
+<circle cx="471.3" cy="89.6" r="3" fill="#c0392b"/>
+<circle cx="522.2" cy="84.2" r="3" fill="#c0392b"/>
+<circle cx="573.1" cy="76.3" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">cold winters</text>
+<polyline points="64.0,88.2 114.9,89.6 165.8,91.2 216.7,91.8 267.6,91.8 318.5,92.2 369.5,92.5 420.4,92.2 471.3,91.7 522.2,91.1 573.1,90.0 624.0,88.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="88.2" r="3" fill="#1f6fb2"/>
+<circle cx="114.9" cy="89.6" r="3" fill="#1f6fb2"/>
+<circle cx="165.8" cy="91.2" r="3" fill="#1f6fb2"/>
+<circle cx="216.7" cy="91.8" r="3" fill="#1f6fb2"/>
+<circle cx="267.6" cy="91.8" r="3" fill="#1f6fb2"/>
+<circle cx="318.5" cy="92.2" r="3" fill="#1f6fb2"/>
+<circle cx="369.5" cy="92.5" r="3" fill="#1f6fb2"/>
+<circle cx="420.4" cy="92.2" r="3" fill="#1f6fb2"/>
+<circle cx="471.3" cy="91.7" r="3" fill="#1f6fb2"/>
+<circle cx="522.2" cy="91.1" r="3" fill="#1f6fb2"/>
+<circle cx="573.1" cy="90.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="88.4" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">mild</text>
+</svg>

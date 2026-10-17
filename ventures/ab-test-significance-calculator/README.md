@@ -50,3 +50,10 @@ taken offline without notice. Do not use this as a system of record.
 
 Free and open source (MIT, see `LICENSE`). Optional support:
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).
+
+## What you use today, and what this does differently
+
+- **A vendor's built-in significance readout:** convenient inside one testing tool, but each reports its own statistic, and few show a sample-ratio check or what peeking does to the false-positive rate.
+- **A generic online significance calculator:** quick for a fixed-sample p-value, typically without the Bayesian view, an always-valid result, or a duration plan.
+- **A spreadsheet or a statistics package:** fully transparent, but you write and verify the tests yourself.
+- **What this adds:** p-value and intervals, a sample-ratio mismatch check, the Bayesian chance the variant is better, an always-valid result that stays honest if you peeked, a sample-size and duration plan, and a price test, all in the browser with no upload.

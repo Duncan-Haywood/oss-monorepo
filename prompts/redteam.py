@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Red team: seed faults into the repository and measure how many its guards catch.
 
-    python3 prompts/redteam.py targets [--limit N] [--seed S]
-    python3 prompts/redteam.py campaign [--target FILE] [--mutants 8] [--seed S] [--record RUN.json]
+    python3 prompts/redteam.py targets [--limit N] [--seed S] [--under DIR]
+    python3 prompts/redteam.py campaign [--target FILE | --under DIR] [--mutants 8] [--seed S] [--record RUN.json]
     python3 prompts/redteam.py rerun RUN.json          # blue team: re-run escaped mutants
     python3 prompts/redteam.py tally [RUN.json ...]    # catch rate from run records
 
@@ -207,11 +207,15 @@ def suite_for(path: Path, repo: Path = REPO) -> tuple[list[str], Path] | None:
     return None
 
 
-def list_targets(repo: Path = REPO) -> list[Path]:
+def list_targets(repo: Path = REPO, under: str | None = None) -> list[Path]:
+    """Guarded files; `under` keeps those below a repo-relative directory prefix."""
     out = []
     tracked = subprocess.run(["git", "ls-files", "*.mjs", "*.js", "*.py"], cwd=repo,
                              capture_output=True, text=True, check=True).stdout.split()
+    prefix = under.strip("/") + "/" if under else ""
     for rel in tracked:
+        if not rel.startswith(prefix):
+            continue
         path = repo / rel
         if path.is_file() and suite_for(path, repo) is not None:
             out.append(path)
@@ -398,8 +402,11 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("targets", help="files a suite guards, sampled")
     p.add_argument("--limit", type=int, default=20)
     p.add_argument("--seed", type=int)
+    p.add_argument("--under", help="only files below this directory, e.g. platform")
     p = sub.add_parser("campaign", help="seed mutants into one file and run its suite")
     p.add_argument("--target", help="file to mutate; default a random guarded file")
+    p.add_argument("--under", help="draw the random file from below this directory, "
+                   "e.g. platform (3,500 of 3,670 guarded files are ventures)")
     p.add_argument("--mutants", type=int, default=8)
     p.add_argument("--seed", type=int, help="default: random, printed in the result")
     p.add_argument("--timeout", type=int, default=TIMEOUT_SECONDS)
@@ -413,7 +420,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.cmd == "targets":
-        targets = list_targets()
+        targets = list_targets(under=args.under)
         rng = random.Random(args.seed)
         for path in rng.sample(targets, min(args.limit, len(targets))):
             print(path.relative_to(REPO).as_posix())
@@ -424,7 +431,10 @@ def main(argv: list[str] | None = None) -> int:
         if args.target:
             target = (REPO / args.target).resolve()
         else:
-            target = random.Random(seed).choice(list_targets())
+            pool = list_targets(under=args.under)
+            if not pool:
+                raise SystemExit(f"no guarded files under {args.under}")
+            target = random.Random(seed).choice(pool)
         print(f"red team: {target.relative_to(REPO)} seed {seed}", file=sys.stderr)
         camp = campaign(target, args.mutants, seed, timeout=args.timeout)
         if args.record:

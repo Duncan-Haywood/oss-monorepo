@@ -190,3 +190,25 @@ test("the Maryland/Utah guide's figures match the counter", async () => {
   assert.match(page("index.html"), /href="\.\/maryland-utah-182-day-limit\.html"/);
   assert.match(page("sitemap.xml"), /maryland-utah-182-day-limit\.html/);
 });
+
+test("the California guide's figures match the counter", async () => {
+  const { analyze, parseStays, toDay, RULES } = await import("./calc.mjs");
+  const guide = page("california-nine-month-residency-presumption.html");
+  const ca = (text, convention = "inclusive") => {
+    const stays = parseStays(text, 2025);
+    return analyze({ year: 2025, stays: stays.stays ?? stays, homeState: "NV", abode: { NV: true }, asOf: toDay(2025, 12, 31), convention, wages: 0, overrides: {}, homeWorks: true }).states.find((x) => x.code === "CA");
+  };
+  assert.equal(RULES.CA.limit, 270);
+  assert.equal(RULES.CA.kind, "presumption");
+  const a = ca("2025-01-01 to 2025-09-26 CA");
+  assert.ok(guide.includes(`<td class="n">${a.days}</td><td>${a.room} day of room</td>`));
+  const b = ca("2025-01-01 to 2025-09-27 CA");
+  assert.equal(b.room, 0);
+  assert.ok(guide.includes(`<td class="n">${b.days}</td><td>No room left</td>`));
+  const c = ca("2025-01-01 to 2025-09-30 CA");
+  assert.ok(guide.includes(`<td class="n">${c.days}</td><td>Over by ${-c.room}</td>`));
+  assert.match(guide, /<link rel="canonical" href="\.\/california-nine-month-residency-presumption\.html">/);
+  assert.match(guide, /No warranty/);
+  assert.match(page("index.html"), /href="\.\/california-nine-month-residency-presumption\.html"/);
+  assert.match(page("sitemap.xml"), /california-nine-month-residency-presumption\.html/);
+});

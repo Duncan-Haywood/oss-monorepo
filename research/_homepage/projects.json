@@ -2839,6 +2839,11 @@
      "slug": "house-schedule-check",
      "title": "Does an independent second schedule model agree with house-schedule on what shortens a house build?",
      "summary": "A second, separately built Monte Carlo schedule (13 tasks, one crew per trade, weather, inspections, long-lead items; 4,000 builds per scenario). It agrees on the ranking: ordering long-lead items on day 0 is the biggest lever (205 to 181 calendar days, &minus;11%, against &minus;29% in <code>house-schedule</code>), prefabricated panels alone save 1.5%, and the handoff gap moves the baseline by 35%. Merging crews does nothing. The disagreement in size shows the magnitudes are set by assumed baselines and lead times. Stylised; every input is an assumption."
+    },
+    {
+     "slug": "house-season",
+     "title": "Does the month a house build starts change how long it takes and the interest paid?",
+     "summary": "Reruns the <code>house-schedule</code> Monte Carlo (3,000 builds per cell) with a monthly weather calendar and a slower concrete cure in the cold, starting in each month. In an assumed cold-winter climate a December start takes 231 working days against 211 for July (about 20 days, 0.3 points of the price in interest); in an assumed mild climate the swing is 4 days. Ordering all materials at day 0 saves about 63 days in every month, so the two levers add. A flat climate reproduces <code>house-schedule</code> exactly (tested). <em>Stylised</em>: the monthly loss fractions are my assumptions, not weather data, and seasonal prices are ignored."
     }
    ]
   }

@@ -1,0 +1,21 @@
+{
+  "id": "P034",
+  "title": "Red-team random draw is 95% ventures; CI and tooling code is almost never mutated",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "redteam.py's default target draw is uniform over guarded files, so platform/ and portfolio/ (the code every run depends on) are rarely tested. A redteam friction report also said platform/ci files never appear in `targets`.",
+  "evidence": [
+    "python3 -c 'redteam.list_targets()' by top directory, 2026-10-17: ventures 3502, platform 109, portfolio 52, prompts 4 (3667 total)."
+  ],
+  "change": "Add --under DIR to `redteam.py targets` and `campaign`, and mention it in the redteam prompt.",
+  "touches": ["prompts/redteam.py", "prompts/redteam/prompt-0.md", "prompts/test_redteam.py"],
+  "metric": "share of recorded campaigns whose target is outside ventures/",
+  "baseline": "not measured; expected about 5% from the draw",
+  "opened": "2026-10-17",
+  "source": "process run 2026-10-17, Critique mode",
+  "pr": "this",
+  "result": null,
+  "history": []
+}
