@@ -991,3 +991,27 @@ test("merging reports bad lines without touching the rest", () => {
   assert.equal(m.errors.length, 2);
   assert.deepEqual(m.updated, []);
 });
+
+test("parseRosterCsv: later days and overnight shifts keep absolute minutes from Monday", () => {
+  const csv = ["day,start,end,hours,label,assigned_to,role", "Tue,9:00 AM,5:00 PM,8.00,open,Ana,", "Fri (overnight),10:00 PM,2:00 AM,4.00,close,Ben,"].join("\n");
+  const rows = parseRosterCsv(csv);
+  assert.deepEqual([rows[0].start, rows[0].end], [1440 + 540, 1440 + 1020]);
+  assert.deepEqual([rows[1].start, rows[1].end], [4 * 1440 + 22 * 60, 5 * 1440 + 120]);
+});
+
+test("placeBreaks: only people on the floor at that time on that day count as cover", () => {
+  const r = { assignments: [
+    { slot: { day: 0, startMin: 480, endMin: 960 }, person: "Sam" },
+    { slot: { day: 1, startMin: 480, endMin: 960 }, person: "Zed" },
+  ] };
+  const b = placeBreaks(r);
+  const sam = b.find((x) => x.person === "Sam");
+  assert.ok(sam.alone && sam.others === 0, "Zed works Tuesday, so he is no cover for Monday");
+});
+
+test("placeBreaks: a break taken on one day does not take that person off the floor on another", () => {
+  const A = (person, day) => ({ slot: { day, startMin: 480, endMin: 960 }, person });
+  const b = placeBreaks({ assignments: [A("Ana", 0), A("Ben", 0), A("Ana", 1), A("Ben", 1)] });
+  assert.equal(b.length, 4);
+  assert.ok(b.every((x) => !x.alone && x.others === 1));
+});
