@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks } from "./calc.mjs";
+import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks, swissRounds, swissPairings, parseSwissResults } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-make-a-round-robin-schedule.html";
@@ -160,4 +160,25 @@ test("the team-count page's table matches roundRobin", () => {
     if (n % 2 === 0) assert.equal(breaks, n - 2);
   }
   for (const m of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)) JSON.parse(m[1]);
+});
+
+test("the Swiss guide's worked example matches the pairing engine", () => {
+  const guide = page("how-to-run-a-swiss-tournament.html");
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /<link rel="canonical" href="\.\/how-to-run-a-swiss-tournament\.html">/);
+  assert.match(page("sitemap.xml"), /how-to-run-a-swiss-tournament\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-run-a-swiss-tournament\.html"/);
+  for (const [lo, hi, r] of [[2, 2, 1], [3, 4, 2], [5, 8, 3], [9, 16, 4], [17, 32, 5], [33, 64, 6]]) {
+    assert.equal(swissRounds(lo), r);
+    assert.equal(swissRounds(hi), r);
+    assert.ok(guide.includes(`<tr><td>${lo} to ${hi}</td><td>${r}</td></tr>`), `${lo}-${hi}`);
+  }
+  const P = ["Ana", "Ben", "Cy", "Dee", "Eli", "Fay", "Gus", "Hal"];
+  const name = (r) => r.pairs.map((p) => `${P[p.white]} v ${P[p.black]}`);
+  assert.deepEqual(name(swissPairings(P, [], [])), ["Ana v Eli", "Ben v Fay", "Cy v Gus", "Dee v Hal"]);
+  const res = parseSwissResults("Ana 1 - 0 Eli\nFay 0 - 1 Ben\nCy 1 - 0 Gus\nHal 1 - 1 Dee", P);
+  const r2 = swissPairings(P, res.games, res.byes);
+  assert.deepEqual(name(r2), ["Ben v Ana", "Dee v Cy", "Eli v Hal", "Gus v Fay"]);
+  assert.equal(r2.floaters, 2);
+  for (const t of ["Ana v Eli, Ben v Fay, Cy v Gus, Dee v Hal", "Ben v Ana, Dee v Cy, Eli v Hal and Gus v Fay"]) assert.ok(guide.includes(t), t);
 });

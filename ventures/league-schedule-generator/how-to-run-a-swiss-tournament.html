@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Run A Swiss Tournament: Pairings, Rounds And Tie-Breaks</title>
+  <meta name="description" content="How a Swiss-system tournament works: how many rounds you need, how each round is paired, who gets the bye and how ties are broken, with a worked eight-player example. Then pair your own round for free.">
+  <meta property="og:title" content="How To Run A Swiss Tournament">
+  <meta property="og:description" content="Rounds, pairings, byes and tie-breaks with an eight-player example worked out. Free, private, in your browser.">
+  <link rel="canonical" href="./how-to-run-a-swiss-tournament.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a Swiss-system tournament?", "acceptedAnswer": {"@type": "Answer", "text": "A format where nobody is knocked out and nobody plays everyone. Every round, players with similar scores are paired against each other, no pair meets twice, and the table after the last round decides the winner. It suits chess, darts, table tennis, card and board games where a full round robin would take too many rounds."}}, {"@type": "Question", "name": "How many rounds does a Swiss tournament need?", "acceptedAnswer": {"@type": "Answer", "text": "Enough to leave one clear winner: the next whole number above log2 of the player count. Eight players need three rounds, 16 need four, 32 need five. More rounds sort the middle of the table better but do not change who can win."}}, {"@type": "Question", "name": "How do you pair the next round?", "acceptedAnswer": {"@type": "Answer", "text": "Sort by score, then pair players inside each score group, top half against bottom half, so the strongest of a group meets the weakest of that group. If a group has an odd number of players, one is paired down into the next group. Nobody may meet the same opponent twice, and colours (white and black, or home and away) alternate where they can."}}, {"@type": "Question", "name": "Who gets the bye when the number of players is odd?", "acceptedAnswer": {"@type": "Answer", "text": "One player sits out each round and is scored as a win. The generator gives it to the lowest-ranked player who has not had one, so nobody gets a second bye while someone has none."}}, {"@type": "Question", "name": "How is a tie on points broken?", "acceptedAnswer": {"@type": "Answer", "text": "The generator uses Buchholz: the sum of your opponents' scores. Two players on the same points are separated by who played the stronger field. Other tie-breaks exist, so check your club's rules."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to run a Swiss tournament, with a worked example</h1>
+  <p>A Swiss system lets a big field finish in a few rounds without knocking anyone out. The work is the pairing: after each round you have to match players of similar score, avoid rematches, and sort out the bye. Doing that by hand for 20 players on a Thursday night is where mistakes creep in.</p>
+  <p><a class="cta" href="./">Open the free pairing tool</a></p>
+  <h2>Rounds needed</h2>
+  <table>
+    <thead><tr><th>Players</th><th>Rounds</th></tr></thead>
+    <tbody>
+      <tr><td>2 to 2</td><td>1</td></tr>
+      <tr><td>3 to 4</td><td>2</td></tr>
+      <tr><td>5 to 8</td><td>3</td></tr>
+      <tr><td>9 to 16</td><td>4</td></tr>
+      <tr><td>17 to 32</td><td>5</td></tr>
+      <tr><td>33 to 64</td><td>6</td></tr>
+    </tbody>
+  </table>
+  <h2>A worked example</h2>
+  <p>Eight invented players, listed strongest first: Ana, Ben, Cy, Dee, Eli, Fay, Gus, Hal. In round 1 everyone is level, so the top half meets the bottom half: Ana v Eli, Ben v Fay, Cy v Gus, Dee v Hal. Suppose Ana, Ben and Cy win and Dee and Hal draw.</p>
+  <p>Round 2 has three players on 1 point (Ana, Ben, Cy), two on a half point (Dee, Hal) and three on nothing (Eli, Fay, Gus). The pairings are Ben v Ana, Dee v Cy, Eli v Hal and Gus v Fay. Cy is paired down against Dee and Eli is paired up against Hal, because three players cannot all meet inside their own group; those two pairings are the floaters the tool counts for you.</p>
+  <p><a class="cta" href="./">Pair your own round</a></p>
+  <h2>Questions</h2>
+  <h3>What is a Swiss-system tournament?</h3>
+  <p>A format where nobody is knocked out and nobody plays everyone. Every round, players with similar scores are paired against each other, no pair meets twice, and the table after the last round decides the winner. It suits chess, darts, table tennis, card and board games where a full round robin would take too many rounds.</p>
+  <h3>How many rounds does a Swiss tournament need?</h3>
+  <p>Enough to leave one clear winner: the next whole number above log2 of the player count. Eight players need three rounds, 16 need four, 32 need five. More rounds sort the middle of the table better but do not change who can win.</p>
+  <h3>How do you pair the next round?</h3>
+  <p>Sort by score, then pair players inside each score group, top half against bottom half, so the strongest of a group meets the weakest of that group. If a group has an odd number of players, one is paired down into the next group. Nobody may meet the same opponent twice, and colours (white and black, or home and away) alternate where they can.</p>
+  <h3>Who gets the bye when the number of players is odd?</h3>
+  <p>One player sits out each round and is scored as a win. The generator gives it to the lowest-ranked player who has not had one, so nobody gets a second bye while someone has none.</p>
+  <h3>How is a tie on points broken?</h3>
+  <p>The generator uses Buchholz: the sum of your opponents' scores. Two players on the same points are separated by who played the stronger field. Other tie-breaks exist, so check your club's rules.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing against your event's rules before you post it. It is not FIDE-certified pairing, so use an arbiter-approved program for rated events. The example players are invented.</p>
+    <p>Everything the tool does runs in your browser; names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
