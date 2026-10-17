@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-17",
+  "session": "https://claude.ai/code/session_01SdYR6T69ebr8Bk8ttFc3fP",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md (scheduled)",
+  "input_sha256": "a069142edff7faba0e7497f3e43587d325506648757355f87cd62c89d6f4f469",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-17T06:40:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 7678,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": 0,
+  "integrity_issues": 0,
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "Step 2 audit unrunnable again when recent records are mirrored or doc-only; step 4 has no candidate-eligible track without one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "Skipped audit and step 4 (no auditable outputs; no track without a candidate warrants one); ran no runcost attach."
+    }
+  ],
+  "goal": null,
+  "notes": "Review: regenerated derived (32 of 470 PRs fetched), cut the 10.5k-char milestone-9 line in research/PROJECTS.md, E31 + drift report. No candidate promoted/retired (overlap, review/2 has 5 runs). Audit not run (mirrored or doc-only).",
+  "corrections": [],
+  "redteam": null
+}
