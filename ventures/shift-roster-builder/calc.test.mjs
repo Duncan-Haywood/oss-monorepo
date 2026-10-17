@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { laborPercent, scheduleFlags,
+import { laborPercent, dailyLabor, scheduleFlags,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -548,4 +548,21 @@ test("avoid: is still worked when nobody else is available, and says so", () => 
 test("avoid: bad days are reported", () => {
   const r = parseStaff("Ana, 15, 40, 0, any, avoid: Funday");
   assert.ok(r.errors.some((e) => /avoid/.test(e)));
+});
+
+test("dailyLabor: hours and base-wage cost per day, labor share where sales are given", () => {
+  const staff = staffOf("Ann,10,40,0,any");
+  const slots = slotsOf("Mon,8,12,1\nMon,13,17,1\nWed,9,13,1");
+  const r = buildRoster(staff, slots, { minRestHours: 0 });
+  const d = dailyLabor(r, staff, "$400, 0, 100");
+  assert.equal(d.days.length, 7);
+  assert.equal(d.days[0].hours, 8);
+  assert.equal(d.days[0].cost, 80);
+  assert.ok(Math.abs(d.days[0].pct - 20) < 1e-9);
+  assert.equal(d.days[1].pct, null);
+  assert.ok(Math.abs(d.days[2].pct - 40) < 1e-9);
+  assert.equal(d.worst.day, "Wed");
+  assert.equal(dailyLabor(r, staff, "").hasSales, false);
+  const b = buildRoster(staff, slots, { minRestHours: 0, burdenPct: 10 });
+  assert.ok(Math.abs(dailyLabor(b, staff, "").days[0].cost - 88) < 1e-9);
 });
