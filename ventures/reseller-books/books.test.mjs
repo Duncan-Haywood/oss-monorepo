@@ -7,7 +7,7 @@ const near = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.011, `${msg}: ${a} vs 
 
 test("each marketplace's own sample file is recognised as that marketplace", () => {
   const { files } = sampleFiles();
-  assert.deepEqual(files.map((f) => detectKind(f.text)), ["ebay", "etsy", "poshmark", "whatnot"]);
+  assert.deepEqual(files.map((f) => detectKind(f.text)), ["ebay", "etsy", "poshmark", "whatnot", "shopify", "shopify-orders"]);
 });
 
 test("a Whatnot file is not read as a Poshmark file (their parsers accept each other's)", () => {
@@ -27,7 +27,7 @@ test("an unrecognised file is named, not guessed at", () => {
 test("every month and the total reconcile: sales + refunds + deductions = net", () => {
   const s = sampleFiles();
   const r = buildBooks(s.files, { costs: s.costs });
-  assert.equal(r.channels.length, 4);
+  assert.equal(r.channels.length, 5);
   for (const m of r.months) near(m.sales + m.refunds + m.deductions, m.net, `month ${m.month}`);
   const t = r.total;
   near(t.sales + t.refunds + t.platformFees + t.labels + t.ads + t.other, t.net, "total");
@@ -89,11 +89,11 @@ test("CSV and summary exports carry every channel and month", () => {
   for (const c of r.channels) assert.ok(csv.includes(`"${c.label}"`));
   for (const m of r.months) assert.ok(csv.includes(m.month));
   assert.match(csv, /schedule_c_line/);
-  assert.match(summaryText(r), /Reseller books: eBay, Etsy, Poshmark, Whatnot/);
+  assert.match(summaryText(r), /Reseller books: eBay, Etsy, Poshmark, Whatnot, Shopify/);
 });
 
 test("no network calls in the engine or the page", () => {
-  for (const f of ["books.mjs", "index.html", "engines/ebay.mjs", "engines/etsy.mjs", "engines/poshmark.mjs", "engines/whatnot.mjs"]) {
+  for (const f of ["books.mjs", "index.html", "engines/ebay.mjs", "engines/etsy.mjs", "engines/poshmark.mjs", "engines/whatnot.mjs", "engines/shopify.mjs"]) {
     assert.doesNotMatch(readFileSync(new URL(`./${f}`, import.meta.url), "utf8"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, f);
   }
 });
@@ -104,10 +104,40 @@ test("vendored engines are byte-identical to the analyzers they came from (check
     "engines/etsy.mjs": "../etsy-statement-profit-analyzer/calc.mjs",
     "engines/poshmark.mjs": "../poshmark-sales-report-analyzer/calc.mjs",
     "engines/whatnot.mjs": "../whatnot-sales-report-analyzer/calc.mjs",
+    "engines/shopify.mjs": "../shopify-payout-profit-analyzer/calc.mjs",
   };
   for (const [copy, src] of Object.entries(pairs)) {
     const srcUrl = new URL(`./${src}`, import.meta.url);
     if (!existsSync(srcUrl)) continue; // deployed on its own
     assert.equal(readFileSync(new URL(`./${copy}`, import.meta.url), "utf8"), readFileSync(srcUrl, "utf8"), `${copy} drifted from ${src}; re-copy it`);
   }
+});
+
+test("Shopify: sales tax collected comes out of sales and payout when the Orders export is given", () => {
+  const { files, costs } = sampleFiles();
+  const [tx, orders] = [files[4], files[5]];
+  const withOrders = buildBooks([tx, orders]).channels[0];
+  const without = buildBooks([tx]).channels[0];
+  assert.equal(withOrders.channel, "shopify");
+  assert.ok(without.sales - withOrders.sales > 100, "tax removed from sales");
+  near(without.net - withOrders.net, without.sales - withOrders.sales, "the same tax comes out of net");
+  near(withOrders.sales + withOrders.refunds + withOrders.platformFees + withOrders.other, withOrders.net, "reconciles");
+  assert.match(without.notes.join(" "), /include the sales tax/);
+  assert.match(withOrders.notes.join(" "), /sales tax collected/);
+  const r = buildBooks([tx, orders], { costs });
+  for (const m of r.months) near(m.sales + m.refunds + m.deductions, m.net, `month ${m.month}`);
+  const c = r.channels[0];
+  near(c.profit, c.net - c.cogs, "profit = net - cogs");
+});
+
+test("Shopify: an Orders export alone is refused with a reason", () => {
+  const r = buildBooks([sampleFiles().files[5]]);
+  assert.match(r.invalid, /Transactions export|No marketplace/);
+  assert.match(r.problems.join(" "), /Transactions export/);
+});
+
+test("Shopify: Shopify files are not mistaken for another marketplace", () => {
+  const { files } = sampleFiles();
+  for (const [i, kind] of [[4, "shopify"], [5, "shopify-orders"]]) assert.equal(detectKind(files[i].text), kind);
+  for (const i of [0, 1, 2, 3]) assert.ok(!/shopify/.test(detectKind(files[i].text)));
 });
