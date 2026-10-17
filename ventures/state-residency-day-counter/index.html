@@ -91,6 +91,11 @@
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <div style="margin-top:12px"><label for="ics">Or import your calendar (.ics file from Google, Apple or Outlook). Events whose location names a state become stay lines you can check and edit. The file is read in your browser and never uploaded.</label><input id="ics" type="file" accept=".ics,text/calendar"></div>
     <div style="margin-top:12px"><label for="timeline">Or import Google Timeline history (the Semantic Location History .json files from Google Takeout). Place visits whose address names a state become stay lines. Read in your browser, never uploaded.</label><input id="timeline" type="file" accept=".json,application/json" multiple></div>
+    <div style="margin-top:12px">
+      <input type="checkbox" id="remember" aria-label="Remember my entries on this device"> <label for="remember">Remember my entries on this device (stays in this browser's local storage only, never uploaded; untick to erase)</label>
+      <button type="button" class="secondary" id="save-setup">Save my entries to a file</button>
+      <label for="load-setup">Load entries from a saved file</label><input id="load-setup" type="file" accept=".json,application/json">
+    </div>
     <p id="form-status" role="status" class="note">Enter your stays, then click Count my days.</p>
   </section>
 
@@ -151,7 +156,7 @@
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or construction advice, does not state anyone's tax residency, and does not replace a tax professional or the state's own guidance. The rules are summarised from commonly published tests and may be out of date or incomplete. Counts are a record of the dates you typed.</p>
     <p><strong>Independent.</strong> Not affiliated with any state, tax authority, payroll or tax software company, and none is named or ranked here. The example year is invented.</p>
-    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so download the CSV.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved unless you tick "Remember my entries" or save a file, so download the CSV.</p>
     <p>Everything runs in your browser. Your dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>count_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>daily_log_downloaded</code>, <code>audit_packet_downloaded</code>, <code>trip_checked</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../economic-nexus-threshold-tracker/">economic nexus threshold tracker</a> for sellers, the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>, the <a href="../self-employment-tax-calculator/">self-employment tax calculator</a> and, for US expats, the <a href="../feie-physical-presence-calculator/">FEIE physical presence calculator</a>.</p>
@@ -159,7 +164,7 @@
   </footer>
 
   <script type="module">
-    import { CONVENTIONS, tripImpact, auditReportHtml, icsToStays, timelineToStays, parseStays, analyze, sampleSpec, reportCsv, dailyLogCsv, statusText, dayIso, parseDate, toDay, fmtNum, fmtMoney, yearBounds, STATE_NAMES } from "./calc.mjs";
+    import { SETUP_FIELDS, setupToJson, setupFromJson, CONVENTIONS, tripImpact, auditReportHtml, icsToStays, timelineToStays, parseStays, analyze, sampleSpec, reportCsv, dailyLogCsv, statusText, dayIso, parseDate, toDay, fmtNum, fmtMoney, yearBounds, STATE_NAMES } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -356,6 +361,41 @@
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       record("audit_packet_downloaded");
+    });
+    const KEY = "state-residency-day-counter:setup";
+    const formValues = () => Object.fromEntries(SETUP_FIELDS.map((k) => [k, $("#" + k).value]));
+    const applyValues = (f) => { for (const k of SETUP_FIELDS) if (k in f) $("#" + k).value = f[k]; };
+    const persist = () => {
+      try { if ($("#remember").checked) localStorage.setItem(KEY, setupToJson(formValues())); } catch { /* storage blocked: the page works without it */ }
+    };
+    try {
+      const saved = localStorage.getItem(KEY);
+      const r = saved ? setupFromJson(saved) : null;
+      if (r && r.fields) { applyValues(r.fields); $("#remember").checked = true; status.textContent = "Restored the entries you asked this browser to remember. Click Count my days."; }
+    } catch { /* storage blocked */ }
+    $("#remember").addEventListener("change", () => {
+      try { if ($("#remember").checked) persist(); else localStorage.removeItem(KEY); } catch { /* storage blocked */ }
+    });
+    for (const k of SETUP_FIELDS) $("#" + k).addEventListener("input", persist);
+    $("#analyze").addEventListener("click", persist);
+    $("#clear-all").addEventListener("click", persist);
+    $("#save-setup").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([setupToJson(formValues())], { type: "application/json" }));
+      a.download = "state-day-counter-entries.json";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("setup_saved");
+    });
+    $("#load-setup").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const r = setupFromJson(await f.text());
+      if (r.error) { status.textContent = r.error; return; }
+      applyValues(r.fields);
+      persist();
+      status.textContent = "Loaded your saved entries. Click Count my days.";
+      record("setup_loaded");
     });
     $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
