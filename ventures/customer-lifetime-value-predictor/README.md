@@ -28,9 +28,31 @@ and know what a new customer is worth before you buy one**.
 Not modelled: subscriptions with fixed billing, one-off purchases, seasonality, promotions, returns, customers who
 pause and return, frequency-spend correlation (warned about). Unverified against a published customer dataset.
 
+## Alternatives, and what this does differently
+
+Today a shop owner gets lifetime value from a paid retention platform's dashboard (Klaviyo, Triple Whale, Lifetimely
+and similar), from a data-science consultant, or from an "average order value x orders per year x years" spreadsheet
+guess. The dashboards need your store connected to a vendor and charge by order volume; the spreadsheet cannot tell
+a lapsed customer from a slow one. This tool fits the published BG/NBD and Gamma-Gamma models to an order export on
+your own machine, so each customer gets a probability of still being active and a value, and it back-tests itself on
+your recent weeks so you can see how far to trust it. It does not connect to your store, build audiences or send email.
+
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.
+
+**Command line** (Node 18+, no install, nothing sent anywhere):
+
+```
+node cli.mjs orders.csv                          # summary, segments, findings, top 10 customers
+node cli.mjs --horizon 24 --margin 40 orders.csv # 24-month value at a 40% margin
+node cli.mjs --csv orders.csv > clv.csv          # one row per customer, for a spreadsheet or a win-back list
+node cli.mjs --segment "At risk, high spend" --csv orders.csv
+node cli.mjs --json orders.csv                   # full analysis for scripts
+node cli.mjs --example                           # try it on synthetic data
+```
+
+Run the `--csv` form after each month's export to refresh the list of high-spend customers who look ready to leave.
 
 ## Disclaimer
 
