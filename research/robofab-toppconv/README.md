@@ -13,6 +13,7 @@ A follow-up to `research/robofab-scurvefine` (its first "next step"), on the sam
 cd research/robofab-toppconv
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 48 tests, < 10 s
 PYTHONPATH=src python3 experiments/run.py > experiments/results.txt   # about 5 min; also writes results.json
+python3 experiments/figure.py   # draws experiments/convergence.svg (error vs node count) from results.json
 ```
 Produced with Python 3.11, standard library only.
 
