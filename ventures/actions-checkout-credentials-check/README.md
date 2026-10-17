@@ -27,7 +27,9 @@ Tests: `python3 -m unittest test_check`; `node --test 'ventures/actions-checkout
 
 A line-oriented static scan, not a YAML parser or a security audit. It makes
 no network calls, uploads nothing, and cannot know whether a job really needs
-the credential to push, so a finding is a prompt to look, not a verdict. It
+the credential to push (when a job runs `git push` the finding says so, so
+you can tell a deliberate credential from a forgotten one), so a finding is a
+prompt to look, not a verdict. It
 reads one pattern only; it is not a substitute for a full workflow linter such
 as zizmor. Informational tool: no legal, security or compliance advice, and
 no warranty (MIT, see `LICENSE`).
