@@ -32,7 +32,7 @@
   "doc_friction": [],
   "deviations": [],
   "goal": "venture feature",
-  "notes": "Idea: A/B/n panel (control plus up to nine variants, Holm-adjusted p, Bayesian chance-best) for ab-test-significance-calculator, closing its 'more than two variants' gap. 45 tests pass; browser smoke test clean.",
+  "notes": "Idea: A/B/n panel (control plus up to nine variants, Holm-adjusted p, Bayesian chance-best) for ab-test-significance-calculator, closing its 'more than two variants' gap. 42 tests pass; browser smoke test clean.",
   "corrections": [],
   "redteam": null
 }
