@@ -9,7 +9,7 @@
   <link rel="canonical" href="github-actions-schedule-cron-delays.html">
   <meta property="og:title" content="GitHub Actions schedule cron: why runs are late, and which minute to pick">
   <meta property="og:description" content="Avoid minute 0, stay at 5 minutes or slower, and use exactly five fields.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the shortest interval for a GitHub Actions schedule?","acceptedAnswer":{"@type":"Answer","text":"5 minutes. A cron that asks for every minute, or every 1 to 4 minutes, cannot run as often as written."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the shortest interval for a GitHub Actions schedule?","acceptedAnswer":{"@type":"Answer","text":"5 minutes. A cron such as * * * * * or */2 * * * * asks for more than GitHub supports, so it cannot run as often as written. If you need faster, trigger the work another way, for example with workflow_dispatch or a webhook."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
