@@ -415,6 +415,11 @@ class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
         self.assertEqual(promptctl._flag_stale("2026-10-16: x", "2026-10-16"), "2026-10-16: x")
         self.assertEqual(promptctl._flag_stale("no date: x", "2026-10-16"), "no date: x")
         self.assertEqual(promptctl._flag_stale("2026-10-15: x", ""), "2026-10-15: x")
+        # a timestamped report is compared to the commit time, so same-day reports can be told apart
+        self.assertEqual(promptctl._flag_stale("2026-10-17T09:00: x", "2026-10-17T12:00:00+00:00"),
+                         "[file changed since] 2026-10-17T09:00: x")
+        self.assertEqual(promptctl._flag_stale("2026-10-17T13:00: x", "2026-10-17T12:00:00+00:00"),
+                         "2026-10-17T13:00: x")
 
     def test_string_friction_and_deviation_entries_do_not_crash(self):
         import tempfile, json
