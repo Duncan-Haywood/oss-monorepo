@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the true value of the design finally chosen against the number m of twin-shortlisted designs verified on the real plant, for four twin correlations: each curve rises then falls, and the best shortlist is smaller for a better twin">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Twin screening: value of the chosen design vs shortlist size (K=50, B=20)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="265.6" y2="265.6" stroke="#ddd"/><text x="58" y="269.6" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="207.2" y2="207.2" stroke="#ddd"/><text x="58" y="211.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="148.8" y2="148.8" stroke="#ddd"/><text x="58" y="152.8" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<line x1="64" x2="624" y1="90.4" y2="90.4" stroke="#ddd"/><text x="58" y="94.4" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="221.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="361.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>
+<text x="492.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">shortlist size m (log scale)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">true value of chosen design (sd)</text>
+<polyline points="64.0,245.4 163.2,192.4 221.3,169.0 294.4,147.2 361.7,137.7 419.7,135.5 492.8,143.0 572.9,163.2 624.0,184.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="245.4" r="3" fill="#c0392b"/>
+<circle cx="163.2" cy="192.4" r="3" fill="#c0392b"/>
+<circle cx="221.3" cy="169.0" r="3" fill="#c0392b"/>
+<circle cx="294.4" cy="147.2" r="3" fill="#c0392b"/>
+<circle cx="361.7" cy="137.7" r="3" fill="#c0392b"/>
+<circle cx="419.7" cy="135.5" r="3" fill="#c0392b"/>
+<circle cx="492.8" cy="143.0" r="3" fill="#c0392b"/>
+<circle cx="572.9" cy="163.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="184.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">rho = 0.3</text>
+<polyline points="64.0,166.6 163.2,128.7 221.3,115.1 294.4,105.7 361.7,105.2 419.7,112.4 492.8,130.1 572.9,159.8 624.0,184.1" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="166.6" r="3" fill="#1f6fb2"/>
+<circle cx="163.2" cy="128.7" r="3" fill="#1f6fb2"/>
+<circle cx="221.3" cy="115.1" r="3" fill="#1f6fb2"/>
+<circle cx="294.4" cy="105.7" r="3" fill="#1f6fb2"/>
+<circle cx="361.7" cy="105.2" r="3" fill="#1f6fb2"/>
+<circle cx="419.7" cy="112.4" r="3" fill="#1f6fb2"/>
+<circle cx="492.8" cy="130.1" r="3" fill="#1f6fb2"/>
+<circle cx="572.9" cy="159.8" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="184.1" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">rho = 0.6</text>
+<polyline points="64.0,114.1 163.2,92.9 221.3,86.8 294.4,87.1 361.7,94.3 419.7,106.4 492.8,128.7 572.9,161.1 624.0,183.3" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="114.1" r="3" fill="#2e8b57"/>
+<circle cx="163.2" cy="92.9" r="3" fill="#2e8b57"/>
+<circle cx="221.3" cy="86.8" r="3" fill="#2e8b57"/>
+<circle cx="294.4" cy="87.1" r="3" fill="#2e8b57"/>
+<circle cx="361.7" cy="94.3" r="3" fill="#2e8b57"/>
+<circle cx="419.7" cy="106.4" r="3" fill="#2e8b57"/>
+<circle cx="492.8" cy="128.7" r="3" fill="#2e8b57"/>
+<circle cx="572.9" cy="161.1" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="183.3" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">rho = 0.8</text>
+<polyline points="64.0,74.0 163.2,71.2 221.3,73.5 294.4,81.3 361.7,93.0 419.7,106.8 492.8,129.2 572.9,162.0 624.0,183.5" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="74.0" r="3" fill="#8e44ad"/>
+<circle cx="163.2" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="221.3" cy="73.5" r="3" fill="#8e44ad"/>
+<circle cx="294.4" cy="81.3" r="3" fill="#8e44ad"/>
+<circle cx="361.7" cy="93.0" r="3" fill="#8e44ad"/>
+<circle cx="419.7" cy="106.8" r="3" fill="#8e44ad"/>
+<circle cx="492.8" cy="129.2" r="3" fill="#8e44ad"/>
+<circle cx="572.9" cy="162.0" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="183.5" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">rho = 0.95</text>
+</svg>
