@@ -245,6 +245,7 @@
         ...sf.overDaily.map((x) => `${x.person} works ${num(x.hours)} hours on ${x.day}, ${num(x.overBy)} over 8 in a day. Some states pay daily overtime; check yours.`),
         ...sf.splits.map((x) => `${x.person} has a split shift on ${x.day} with a ${num(x.gapHours)}-hour gap. Some places owe split-shift pay.`),
         ...sf.longStretches.map((x) => `${x.person} works ${num(x.hours)} hours straight on ${x.day} (${fmtClock(x.startMin)}–${fmtClock(x.endMin)}). Many places require an unpaid or paid meal break after about 5 hours; the roster does not schedule breaks.`),
+        ...sf.sevenDays.map((x) => `${x.person} works all seven days. Some states (California, for one) owe a premium for the seventh consecutive day in a workweek; the search does not price it.`),
         ...(sf.notice && sf.notice.short ? [`The week starts in ${sf.notice.days} days. Fair-workweek rules in some cities require ${sf.notice.required} days of notice, so changes after posting may owe premium pay.`] : []),
       ];
       $("#notices").innerHTML = r.warnings.concat(st.notes, flagMsgs).map((w) => `<div class="warn">${esc(w)}</div>`).join("");
