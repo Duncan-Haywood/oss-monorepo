@@ -12,6 +12,7 @@ git fetch --unshallow origin main    # full history is needed
 cd research/swe-cleanbroken
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 6 tests, a few seconds
 python3 experiments/run.py > experiments/results.txt       # about a minute; ends at a pinned commit
+python3 experiments/figure.py                               # redraws experiments/windows.svg from results.txt
 ```
 
 ## Motivation
