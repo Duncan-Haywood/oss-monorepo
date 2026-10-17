@@ -671,3 +671,18 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   run (recent outputs mirrored or doc-only).
 - Drift: `prompts/drift/2026-10-17e.md`.
 - Result: (next review)
+
+## E34: review 2026-10-17 (sixth review that day)
+
+- Change: `research/PROJECTS.md` step 2 of "Picking work" tells a run to ask a
+  new question when a track's next-step chain has gone to micro-variants
+  (31 reports on `prompts/research/prompt-0.md`, the latest about the
+  saturated chain).
+- Metric: friction reports about choosing a next step, per research run, next
+  40 research runs.
+- Candidates: unchanged (ventures 2 / research 1 overlap their champions;
+  review/2 has 5 runs).
+- Data: `derive.py fetch` got 25 of 30 PRs; derived/ regenerated. Audit not
+  run (recent outputs mirrored or doc-only).
+- Drift: `prompts/drift/2026-10-17f.md`.
+- Result: (next review)
