@@ -224,13 +224,14 @@
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Item prices, costs, and payouts are never uploaded and never appear in a usage count — those are anonymous tallies of which features were used, stored locally. We don't have accounts, tracking cookies, or an analytics vendor. Saving your numbers writes them to this browser's local storage on this device only, and <em>Forget saved numbers</em> deletes them.</p>
     <p>Not affiliated with, endorsed by, or sponsored by Depop. Depop is a trademark of its owner, named here only to describe the published fee schedule this tool computes against (Depop Help Centre, "Seller fees and charges"). Depop can change this schedule at any time — verify against your own payout statement before you price a listing.</p>
     <p>Free and open source. If it changes how you price a closet clean-out, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
-    <p>Selling secondhand clothing on Poshmark or Mercari instead? See the <a href="../poshmark-fee-calculator/">Poshmark fee calculator</a> or the <a href="../mercari-fee-calculator/">Mercari fee calculator</a> for those platforms' own schedules. Selling on Facebook Marketplace? See the <a href="../facebook-marketplace-fee-calculator/">Facebook Marketplace fee calculator</a> for its shipped-vs-local split and $0.80 minimum fee. Want a channel ranked against eBay, Etsy, Amazon and a direct sale? See the <a href="../where-to-sell-calculator/">where-to-sell calculator</a> or the <a href="../marketplace-fee-compare/">marketplace fee compare</a>.</p>
+    <p>Selling secondhand clothing on Poshmark or Mercari instead? See the <a href="../poshmark-fee-calculator/">Poshmark fee calculator</a> or the <a href="../mercari-fee-calculator/">Mercari fee calculator</a> for those platforms' own schedules. Selling on Facebook Marketplace? See the <a href="../facebook-marketplace-fee-calculator/">Facebook Marketplace fee calculator</a> for its shipped-vs-local split and $0.80 minimum fee. Want a channel ranked against eBay, Etsy, Amazon and a direct sale? See the <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> (it opens with this item's price and cost already filled in) or the <a href="../marketplace-fee-compare/">marketplace fee compare</a>.</p>
   </footer>
 
   <script type="module">
     import { calculateSale, compareRegions, INPUT_IDS, TOGGLE_IDS, SELECT_IDS, REGIONS } from './calc.mjs';
     import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     import { encodeInputs, decodeInputs, formValues } from './share.mjs';
+    import { whereToSellUrl } from './to-where-to-sell.mjs';
 
     const DRAFT_KEY = 'depop-fee-calculator-draft';
     const el = id => document.getElementById(id);
@@ -310,7 +311,14 @@
         li.textContent = text;
         return li;
       }));
+      // Rebuilt on every render so the link carries what is on screen.
+      el('whereToSellLink').href = whereToSellUrl(readInput());
     }
+
+    el('whereToSellLink').addEventListener('click', () => {
+      // Records only that the handoff happened, never the item.
+      count('handoff_where_to_sell');
+    });
 
     el('saleForm').addEventListener('submit', event => {
       event.preventDefault();

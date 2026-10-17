@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { laborPercent, dailyLabor, fairnessReport, scheduleFlags,
+import { laborPercent, dailyLabor, fairnessReport, trimOptions, scheduleFlags,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages,
   sampleStaff, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -679,4 +679,28 @@ test("scheduleChanges leaves out exempt people and says when notice is unknown",
 
 test("scheduleChanges reports nothing for identical rosters", () => {
   assert.equal(scheduleChanges(POSTED, POSTED, { changedAt: 0 }).changes.length, 0);
+});
+
+test("trimOptions: ranks drops by payroll saved, safe ones first, and prices overtime from the whole week", () => {
+  const staff = staffOf("Ana, 10, 40, 0\nBen, 20, 40, 0");
+  const slots = slotsOf("Mon, 8, 16, 2, open\nTue, 8, 16, 1, close");
+  const r = buildRoster(staff, slots);
+  assert.ok(r.filledAll);
+  const t = trimOptions(staff, slots, r);
+  assert.equal(t.rows.length, 3);
+  assert.equal(t.safe, 2); // the two Monday copies; Tuesday has one person
+  assert.equal(t.rows[2].leavesEmpty, true);
+  assert.equal(t.rows[2].slot.day, 1);
+  const saves = t.rows.map((x) => x.saves);
+  assert.ok(Math.abs(saves[0] - 20 * 8) < 1e-6 || Math.abs(saves[0] - 10 * 8) < 1e-6);
+  assert.ok(saves[0] >= saves[1]);
+  assert.ok(t.rows.every((x) => x.saves > 0));
+});
+
+test("trimOptions: flags a cut that drops someone under their minimum hours; no roster is an error", () => {
+  const staff = staffOf("Ana, 10, 40, 8");
+  const slots = slotsOf("Mon, 8, 16, 1");
+  const r = buildRoster(staff, slots);
+  assert.equal(trimOptions(staff, slots, r).rows[0].breaksMinimum, true);
+  assert.ok(trimOptions(staff, slots, null).error);
 });

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of trained keyword-spotting test accuracy against logic cells used on an iCE40 UP5K for hidden widths 8 to 128, one line per weight width of 2, 4 and 8 bits: 4 and 8 bit weights reach 0.75 at 128 hidden units while 2-bit weights stay lower, while logic-cell count stays between about 640 and 1140 across all sizes">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Accel-fpga: accuracy against logic cells (iCE40 UP5K)</text>
+<line x1="64" x2="624" y1="313.2" y2="313.2" stroke="#ddd"/><text x="58" y="317.2" text-anchor="end" font-family="sans-serif" font-size="11">0.3</text>
+<line x1="64" x2="624" y1="259.3" y2="259.3" stroke="#ddd"/><text x="58" y="263.3" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="205.4" y2="205.4" stroke="#ddd"/><text x="58" y="209.4" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="151.5" y2="151.5" stroke="#ddd"/><text x="58" y="155.5" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="97.6" y2="97.6" stroke="#ddd"/><text x="58" y="101.6" text-anchor="end" font-family="sans-serif" font-size="11">0.7</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">643</text>
+<text x="121.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">694</text>
+<text x="166.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">734</text>
+<text x="239.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">798</text>
+<text x="276.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">831</text>
+<text x="457.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">991</text>
+<text x="529.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1054</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1138</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">logic cells (up5k LC, post place-and-route)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">test accuracy (trained, accel-kws)</text>
+<polyline points="64.0,108.4 77.6,280.9 121.7,206.5 165.8,280.3 166.9,324.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="108.4" r="3" fill="#c0392b"/>
+<circle cx="77.6" cy="280.9" r="3" fill="#c0392b"/>
+<circle cx="121.7" cy="206.5" r="3" fill="#c0392b"/>
+<circle cx="165.8" cy="280.3" r="3" fill="#c0392b"/>
+<circle cx="166.9" cy="324.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">2-bit weights</text>
+<polyline points="224.6,105.7 239.4,71.2 242.7,159.6 276.7,85.7 283.5,211.9" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="224.6" cy="105.7" r="3" fill="#1f6fb2"/>
+<circle cx="239.4" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="242.7" cy="159.6" r="3" fill="#1f6fb2"/>
+<circle cx="276.7" cy="85.7" r="3" fill="#1f6fb2"/>
+<circle cx="283.5" cy="211.9" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">4-bit weights</text>
+<polyline points="457.7,145.0 486.0,102.4 529.0,71.7 566.3,84.1 624.0,202.7" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="457.7" cy="145.0" r="3" fill="#2e8b57"/>
+<circle cx="486.0" cy="102.4" r="3" fill="#2e8b57"/>
+<circle cx="529.0" cy="71.7" r="3" fill="#2e8b57"/>
+<circle cx="566.3" cy="84.1" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="202.7" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">8-bit weights</text>
+</svg>

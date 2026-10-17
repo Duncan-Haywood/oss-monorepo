@@ -734,6 +734,35 @@ export function coverOptions(staff, slots, roster, slotIndex, options = {}) {
   return { slot, current: current >= 0 ? staff[current].name : null, fits, blocked };
 }
 
+// Over budget? Rank the assignments by what dropping each one saves in payroll (overtime and burden included, from the
+// person's whole week). A drop is "safe" when another copy of the same shift stays staffed, so the shift is still
+// covered, just thinner; it is "tight" when it would leave the shift empty. `breaksMinimum` marks a drop that would put
+// the person under their minimum hours. Savings are per drop and do not add up exactly (cutting two shifts from one
+// person's week can save more or less than the sum, because overtime is priced across the week). Safe drops first.
+export function trimOptions(staff, slots, roster, options = {}) {
+  if (!roster || !roster.owner) return { error: "Build a roster first." };
+  const ctx = buildContext(staff, slots, { ...(roster.options || {}), ...options });
+  const owner = roster.owner;
+  const key = (s) => `${s.day}|${s.startMin}|${s.endMin}|${s.label}|${s.role}`;
+  const staffed = new Map();
+  owner.forEach((p, i) => { if (p >= 0) staffed.set(key(slots[i]), (staffed.get(key(slots[i])) || 0) + 1); });
+  const sortList = (l) => l.sort((a, b) => slots[a].start - slots[b].start || a - b);
+  const rows = [];
+  owner.forEach((p, i) => {
+    if (p < 0) return;
+    const list = sortList(owner.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0));
+    const rest = list.filter((k) => k !== i);
+    const saves = payroll(ctx, p, list) - payroll(ctx, p, rest);
+    rows.push({
+      slot: slots[i], person: staff[p].name, saves, hoursSaved: (slots[i].end - slots[i].start) / 60,
+      leavesEmpty: staffed.get(key(slots[i])) === 1,
+      breaksMinimum: hoursOf(ctx, rest) < staff[p].minHours - 1e-9 && hoursOf(ctx, list) >= staff[p].minHours - 1e-9,
+    });
+  });
+  rows.sort((a, b) => a.leavesEmpty - b.leavesEmpty || b.saves - a.saves || a.slot.start - b.slot.start);
+  return { rows, safe: rows.filter((r) => !r.leavesEmpty).length };
+}
+
 // "Can I swap Saturday for Sunday?": for the shift at `slotIndex` (owned by someone), list one-for-one trades where
 // another person takes it and hands back one of their own shifts that the first person is free for, with both weeks
 // still passing every hard rule. Each trade carries the payroll change of the pair (overtime included), cheapest first.
