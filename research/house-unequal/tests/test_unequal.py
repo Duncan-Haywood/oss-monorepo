@@ -67,3 +67,10 @@ def test_cli_prints_every_ratio(capsys):
     main(["--size", "2x8", "--case", "ceiling"])
     out = capsys.readouterr().out
     assert out.count("  ratio ") == 6 and "governed by" in out
+
+
+def test_short_span_end_lifts_off_when_live_load_is_on_the_long_span_only():
+    from house_unequal.model import end_reaction_min_lb
+    m = Member("2x10", spacing_in=16)
+    assert end_reaction_min_lb(m, (6.0, 17.0), CASES["floor"]) < 0.0
+    assert end_reaction_min_lb(m, (15.0, 15.0), CASES["floor"]) > 0.0
