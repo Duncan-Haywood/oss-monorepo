@@ -143,3 +143,12 @@ test("hire-test guide: every figure in the worked example is what the engine ret
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("wall-copy print view exists, prints the grid only, and never carries pay", () => {
+  const html = page("index.html");
+  assert.match(html, /id="print-wall"/);
+  assert.match(html, /body\.print-wall > :not\(#wall\)/);
+  const handler = html.slice(html.indexOf('$("#print-wall")'), html.indexOf('$("#download")'));
+  assert.match(handler, /#grid thead/);
+  assert.doesNotMatch(handler, /payroll|wage|money/i);
+});

@@ -56,6 +56,14 @@
       .sched { font-size: .92rem; }
     .sched td { vertical-align: top; }
     .ok { color: #1d5a24; font-weight: 700; }
+    #wall { display: none; }
+    @media print {
+      body.print-wall > :not(#wall) { display: none !important; }
+      body.print-wall #wall { display: block; color: #000; background: #fff; }
+      #wall h1 { font-size: 1.4rem; margin: 0 0 8px; }
+      #wall table { width: 100%; border-collapse: collapse; font-size: 1rem; }
+      #wall th, #wall td { border: 1px solid #000; padding: 6px; vertical-align: top; }
+    }
   </style>
 </head>
 <body>
@@ -126,6 +134,8 @@
     <div style="margin-top:12px"><label for="weekstart">Week starting (a Monday), for calendar files</label>
       <input id="weekstart" type="date"> <select id="icsperson" aria-label="Whose shifts"></select>
       <button type="button" class="secondary" id="download-ics">Download calendar (.ics)</button></div>
+    <div style="margin-top:12px"><button type="button" class="secondary" id="print-wall">Print a wall copy (names and shifts only)</button>
+      <span class="note">No pay or wages on it, so it is safe to post in the break room.</span></div>
     <div style="margin-top:12px"><button type="button" class="secondary" id="make-messages">Write a text for each person</button>
       <div id="messages" aria-live="polite"></div></div>
   </section>
@@ -270,6 +280,14 @@
       rd.readAsText(f);
     });
     $("#clear-all").addEventListener("click", () => { $("#staff").value = ""; $("#shifts").value = ""; persist(); $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Enter your people and shifts, then click the button."; });
+    $("#print-wall").addEventListener("click", () => {
+      if (!last) return;
+      const ws = $("#weekstart").value;
+      $("#wall").innerHTML = `<h1>Schedule${ws ? ", week of " + esc(ws) : ""}</h1><table><thead>${$("#grid thead").innerHTML}</thead><tbody>${$("#grid tbody").innerHTML}</tbody></table>`;
+      document.body.classList.add("print-wall");
+      window.print();
+      document.body.classList.remove("print-wall");
+    });
     $("#download").addEventListener("click", () => { if (last) download("roster.csv", rosterCsv(last)); });
     $("#download-hours").addEventListener("click", () => { if (last) download("roster-hours.csv", hoursCsv(last)); });
     $("#download-ics").addEventListener("click", () => {
@@ -319,5 +337,6 @@
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>
+<div id="wall" aria-hidden="true"></div>
 </body>
 </html>
