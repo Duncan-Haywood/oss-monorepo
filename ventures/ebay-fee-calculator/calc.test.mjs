@@ -174,8 +174,8 @@ test('margin is zero rather than NaN when revenue is zero', () => {
 
 test('applies documented defaults when rates are omitted', () => {
   const r = calculateOrder({ price: 50 });
-  near(r.fees.finalValue, 50 * 0.1325, 'default final value fee');
-  near(r.fees.fixed, 0.3, 'default fixed fee');
+  near(r.fees.finalValue, 50 * 0.136, 'default final value fee');
+  near(r.fees.fixed, 0.4, 'default fixed fee');
 });
 
 test('scales batch economics while keeping price thresholds per unit', () => {
@@ -896,8 +896,8 @@ test('rejects a claim rate above 100% and a missing envelope comparison', () => 
 test('compares combined shipping against two separate labels on the default sales', () => {
   // One listing: completed $21.605, return −$11, 10% mix → $18.3445.
   // Separate ×2 → $36.689 after returns, $12 collected, $12 postage and pack.
-  // Combined: $80 + $8, $6.50 + $1.25 pack, $0.30 one checkout. Completed
-  // $44.29; return −$14.25; 10% mix → $38.436. Combined is ahead.
+  // Combined: $80 + $8, $6.50 + $1.25 pack, $0.40 one checkout. Completed
+  // $44.19; return −$14.25; 10% mix → $38.346. Combined is ahead.
   const comparison = compareCombinedShipping(agBase);
   assert.equal(comparison.itemCount, DEFAULT_COMBINED_ITEM_COUNT);
   assert.equal(comparison.combinedCharged, DEFAULT_COMBINED_SHIPPING_CHARGED);
@@ -908,10 +908,10 @@ test('compares combined shipping against two separate labels on the default sale
   assert.equal(comparison.monthlyOrders, DEFAULT_MONTHLY_COMBINED_ORDERS);
   near(comparison.separate.completedProfit, 43.21, 'separate completed');
   near(comparison.separate.expectedProfit, 36.689, 'separate after returns');
-  near(comparison.combined.completedProfit, 44.29, 'combined completed');
-  near(comparison.combined.expectedProfit, 38.436, 'combined after returns');
-  near(comparison.extraKeptOnCombined, 1.747, 'combined gap');
-  near(comparison.monthlyExtraOnCombined, 1.747 * 12, 'twelve invoices');
+  near(comparison.combined.completedProfit, 44.19, 'combined completed');
+  near(comparison.combined.expectedProfit, 38.346, 'combined after returns');
+  near(comparison.extraKeptOnCombined, 1.657, 'combined gap');
+  near(comparison.monthlyExtraOnCombined, 1.657 * 12, 'twelve invoices');
   near(comparison.separate.postageAndPack, 12, 'two labels and packs');
   near(comparison.combined.postageAndPack, 7.75, 'one box');
   assert.equal(comparison.winner, 'combined');
@@ -938,8 +938,8 @@ test('break-even combined charge and postage match separate labels', () => {
 test('a $4 combine-cheap invoice flips separate labels ahead', () => {
   const comparison = compareCombinedShipping({ ...agBase, combinedShippingCharged: 4 });
   assert.equal(comparison.winner, 'separate');
-  near(comparison.combined.expectedProfit, 35.313, '$4 combined after returns');
-  near(comparison.extraKeptOnCombined, 35.313 - 36.689, 'cheap-combine gap');
+  near(comparison.combined.expectedProfit, 35.223, '$4 combined after returns');
+  near(comparison.extraKeptOnCombined, 35.223 - 36.689, 'cheap-combine gap');
 });
 
 test('combined-shipping note reports both paths without telling the seller which to use', () => {
@@ -951,8 +951,8 @@ test('combined-shipping note reports both paths without telling the seller which
   assert.match(note, /Combining into one box/);
   assert.match(note, /\$8\.00/);
   assert.match(note, /\$7\.75 postage and pack/);
-  assert.match(note, /\$38\.44/);
-  assert.match(note, /\$5\.76/);
+  assert.match(note, /\$38\.35/);
+  assert.match(note, /\$5\.88/);
   assert.doesNotMatch(note, /should combine|must ship separately/i);
 });
 
@@ -1296,8 +1296,8 @@ test('rejects a missing price, a fractional click count, and a missing Advanced 
 
 test('compares 10% off two units against two singles on the default listing', () => {
   // Two singles: completed $43.21; 10% mix → $36.689 packed; 55% → $20.17895.
-  // 10% off ($36) in one $6 / $5.50 / $1.25 box: completed $36.615;
-  // packed $31.7285; 70% take → $22.20995. Discount is ahead after
+  // 10% off ($36) in one $6 / $5.50 / $1.25 box: completed $36.515;
+  // packed $31.6385; 70% take → $22.14695. Discount is ahead after
   // sell-through and behind on leftover.
   const comparison = compareQuantityDiscount(agBase);
   assert.equal(comparison.units, DEFAULT_QTY_DISCOUNT_UNITS);
@@ -1314,13 +1314,13 @@ test('compares 10% off two units against two singles on the default listing', ()
   near(comparison.singles.completedProfit, 43.21, 'two completed singles');
   near(comparison.singles.soldExpectedProfit, 36.689, 'two packed singles');
   near(comparison.singles.expectedProfit, 36.689 * 0.55, 'singles after 55%');
-  near(comparison.discount.completedProfit, 36.615, 'discount completed');
-  near(comparison.discount.soldExpectedProfit, 31.7285, 'discount packed leftover');
-  near(comparison.discount.expectedProfit, 31.7285 * 0.70, 'discount after 70%');
-  near(comparison.extraPackedOnDiscount, 31.7285 - 36.689, 'packed gap');
-  near(comparison.extraKeptOnDiscount, 31.7285 * 0.70 - 36.689 * 0.55, 'ST gap');
-  near(comparison.monthlyExtraOnDiscount, (31.7285 * 0.70 - 36.689 * 0.55) * 20, 'twenty orders');
-  near(comparison.breakEvenTakePct, (36.689 * 0.55) / 31.7285 * 100, 'take floor');
+  near(comparison.discount.completedProfit, 36.515, 'discount completed');
+  near(comparison.discount.soldExpectedProfit, 31.6385, 'discount packed leftover');
+  near(comparison.discount.expectedProfit, 31.6385 * 0.70, 'discount after 70%');
+  near(comparison.extraPackedOnDiscount, 31.6385 - 36.689, 'packed gap');
+  near(comparison.extraKeptOnDiscount, 31.6385 * 0.70 - 36.689 * 0.55, 'ST gap');
+  near(comparison.monthlyExtraOnDiscount, (31.6385 * 0.70 - 36.689 * 0.55) * 20, 'twenty orders');
+  near(comparison.breakEvenTakePct, (36.689 * 0.55) / 31.6385 * 100, 'take floor');
   assert.equal(comparison.winner, 'discount');
   assert.equal(comparison.discountPays, true);
 });
@@ -1339,22 +1339,22 @@ test('break-even discount percent and take rate match selling separately', () =>
   near(atTake.discount.expectedProfit, atTake.singles.expectedProfit, 'ceiling take ties sell-through');
   assert.ok(comparison.breakEvenDiscountPercent < 10, 'default 10% off is above the leftover ceiling');
   assert.ok(comparison.breakEvenTakePct < 70, 'default 70% take is above the floor');
-  near(comparison.breakEvenDiscountPercent, 2.0581171950048014, 'leftover ceiling');
+  near(comparison.breakEvenDiscountPercent, 1.914024975984624, 'leftover ceiling');
 });
 
 test('a 20% quantity discount loses even at the default take rate', () => {
   const comparison = compareQuantityDiscount({ ...agBase, qtyDiscountPercent: 20 });
   assert.equal(comparison.winner, 'singles');
   near(comparison.discount.unitPrice, 32, '20% of $40');
-  near(comparison.discount.soldExpectedProfit, 25.4825, '20% packed leftover');
-  near(comparison.discount.expectedProfit, 25.4825 * 0.70, '20% after 70%');
+  near(comparison.discount.soldExpectedProfit, 25.3925, '20% packed leftover');
+  near(comparison.discount.expectedProfit, 25.3925 * 0.70, '20% after 70%');
   assert.equal(comparison.discountPays, false);
 });
 
 test('matching the singles sell-through already loses on a 10% discount', () => {
   const comparison = compareQuantityDiscount({ ...agBase, qtyTakePct: 55 });
   assert.equal(comparison.winner, 'singles');
-  near(comparison.discount.expectedProfit, 31.7285 * 0.55, 'matched take');
+  near(comparison.discount.expectedProfit, 31.6385 * 0.55, 'matched take');
   near(comparison.singles.expectedProfit, 36.689 * 0.55, 'unchanged singles');
 });
 
@@ -1371,15 +1371,15 @@ test('quantity-discount note reports both frames without telling the seller whic
   assert.match(note, /\$36\.69/);
   assert.match(note, /10% off/);
   assert.match(note, /\$36\.00/);
-  assert.match(note, /\$31\.73/);
-  assert.match(note, /\$4\.96/);
+  assert.match(note, /\$31\.64/);
+  assert.match(note, /\$5\.05/);
   assert.match(note, /55%/);
   assert.match(note, /70%/);
   assert.match(note, /\$20\.18/);
-  assert.match(note, /\$22\.21/);
-  assert.match(note, /\$2\.03/);
-  assert.match(note, /63\.6%/);
-  assert.match(note, /2\.1%/);
+  assert.match(note, /\$22\.15/);
+  assert.match(note, /\$1\.97/);
+  assert.match(note, /63\.8%/);
+  assert.match(note, /1\.9%/);
   assert.doesNotMatch(note, /should offer the discount|must sell separately/i);
 });
 

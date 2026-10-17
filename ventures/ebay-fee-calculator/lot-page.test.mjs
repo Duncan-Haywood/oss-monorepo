@@ -78,8 +78,8 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareLotVsSingles({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
@@ -99,18 +99,18 @@ test('default inputs on the page match the worked example', () => {
     lotListingWage: 18,
     monthlyLotDecisions: 6,
   });
-  assert.ok(Math.abs(comparison.lot.expectedProfit - 12.2756) < 1e-6, 'default lot');
-  assert.ok(Math.abs(comparison.singles.expectedProfit - 5.2366875) < 1e-6, 'default singles');
-  assert.ok(Math.abs(comparison.breakEvenSinglePrice - 17.278391989054818) < 1e-6, 'default single-price ceiling');
-  assert.match(html, /\$12\.28/);
-  assert.match(html, /\$5\.24/);
-  assert.match(html, /\$7\.04/);
-  assert.match(html, /−\$7\.04|-\$7\.04/);
-  assert.match(html, /−\$42\.23|-\$42\.23/);
-  assert.match(html, /\$17\.28/);
-  assert.match(html, /75\.4%/);
-  assert.match(html, /\$42\.37/);
-  assert.match(html, /\$30\.09/);
+  assert.ok(Math.abs(comparison.lot.expectedProfit - 12.08768) < 1e-6, 'default lot');
+  assert.ok(Math.abs(comparison.singles.expectedProfit - 4.8246) < 1e-6, 'default singles');
+  assert.ok(Math.abs(comparison.breakEvenSinglePrice - 17.396502057613173) < 1e-6, 'default single-price ceiling');
+  assert.match(html, /\$12\.09/);
+  assert.match(html, /\$4\.82/);
+  assert.match(html, /\$7\.26/);
+  assert.match(html, /−\$7\.26|-\$7\.26/);
+  assert.match(html, /−\$43\.58|-\$43\.58/);
+  assert.match(html, /\$17\.40/);
+  assert.match(html, /76\.5%/);
+  assert.match(html, /\$41\.68/);
+  assert.match(html, /\$29\.59/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

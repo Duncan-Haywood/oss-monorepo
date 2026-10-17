@@ -20,11 +20,11 @@ const preset = (id) => CHANNEL_PRESETS.find((channel) => channel.id === id);
 test("eBay: final value fee applies to item plus shipping", () => {
   const result = calculateChannel(preset("ebay"), shared);
   close(result.revenue, 54, "revenue");
-  close(result.fees.commission, 54 * 0.1325, "final value fee");
-  close(result.fees.payment, 0.3, "fixed fee only, processing is bundled");
-  close(result.feeTotal, 54 * 0.1325 + 0.3, "fee total");
+  close(result.fees.commission, 54 * 0.136, "final value fee");
+  close(result.fees.payment, 0.4, "fixed fee only, processing is bundled");
+  close(result.feeTotal, 54 * 0.136 + 0.4, "fee total");
   close(result.cashInvested, 20, "cash invested");
-  close(result.profit, 54 - (54 * 0.1325 + 0.3) - 20, "profit");
+  close(result.profit, 54 - (54 * 0.136 + 0.4) - 20, "profit");
   close(result.margin, (result.profit / 54) * 100, "margin");
   close(result.roi, (result.profit / 20) * 100, "roi");
 });
@@ -450,13 +450,13 @@ test("a zero return rate leaves expected profit equal to the sold sale", () => {
 
 test("eBay worked example: 8% returns with refunded FVF and $6 return postage", () => {
   const result = calculateChannel(preset("ebay"), shared);
-  close(result.profit, 26.545, "sold keep");
-  // Completed sale $26.545; a return costs outbound $5 + pack $1 + return $6
+  close(result.profit, 26.256, "sold keep");
+  // Completed sale $26.256; a return costs outbound $5 + pack $1 + return $6
   // + 10% of the $14 item that cannot be listed again = −$13.40. At 8%:
-  // 0.92 × 26.545 + 0.08 × (−13.40) = 23.3494.
+  // 0.92 × 26.256 + 0.08 × (−13.40) = 23.0835.
   close(result.returnedProfit, -13.4, "cash on a returned order");
-  close(result.expectedProfit, 23.3494, "expected keep after returns");
-  close(result.returnDrag, 3.1956, "returns cost $3.20 versus a perfect sale");
+  close(result.expectedProfit, 23.0835, "expected keep after returns");
+  close(result.returnDrag, 3.1725, "returns cost $3.17 versus a perfect sale");
 });
 
 test("Amazon's higher return rate can flip a sold-sale win against eBay", () => {
@@ -639,13 +639,13 @@ test("shelf-time worked example: eBay leads on turnover at the shipped defaults"
   const etsy = comparison.results.find((result) => result.id === "etsy");
 
   // eBay: 65% sell-through in 21 days, 35% still listed at day 90.
-  //   sold  = $23.3494 expected keep − 12%/yr on $14 for 21 days = $23.2528
+  //   sold  = $23.0835 expected keep − 12%/yr on $14 for 21 days = $22.9869
   //   unsold = −12%/yr on $14 for 90 days = −$0.4142 (no listing fee on eBay)
-  //   listed = .65 × 23.2528 + .35 × (−0.4142) = $14.97
-  //   shelf days = .65 × 21 + .35 × 90 = 45.15 → $9.95 per 30 days
-  close(ebay.velocity.listedValue, 14.9694, "eBay listing value");
-  close(ebay.velocity.valuePer30Days, 9.9464, "eBay per 30 days of shelf");
-  close(etsy.expectedProfit, 26.7085, "Etsy keeps more per completed sale");
-  close(etsy.velocity.valuePer30Days, 3.5859, "Etsy earns far less per month of shelf");
-  close(etsy.sellThroughToMatchBest, 72.4427, "Etsy needs 72.4% sell-through to match eBay");
+  //   listed = .65 × 22.9869 + .35 × (−0.4142) = $14.80
+  //   shelf days = .65 × 21 + .35 × 90 = 45.15 → $9.83 per 30 days
+  close(ebay.velocity.listedValue, 14.7965, "eBay listing value");
+  close(ebay.velocity.valuePer30Days, 9.8315, "eBay per 30 days of shelf");
+  close(etsy.expectedProfit, 26.7112, "Etsy keeps more per completed sale");
+  close(etsy.velocity.valuePer30Days, 3.5867, "Etsy earns far less per month of shelf");
+  close(etsy.sellThroughToMatchBest, 71.9179, "Etsy needs 71.9% sell-through to match eBay");
 });

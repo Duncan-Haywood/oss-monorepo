@@ -19,3 +19,15 @@ variable "app_dir" {
   type        = string
   default     = "../app"
 }
+
+variable "billing_account" {
+  description = "Billing account id (XXXXXX-XXXXXX-XXXXXX) for a monthly budget on this project. Empty: no budget is created."
+  type        = string
+  default     = ""
+}
+
+variable "budget_amount" {
+  description = "Monthly budget for this project, in the billing account's currency."
+  type        = number
+  default     = 10
+}

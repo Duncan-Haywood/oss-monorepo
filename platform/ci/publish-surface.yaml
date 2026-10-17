@@ -494,6 +494,9 @@ workflows:
 - workflow: dns-configuration-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: doc-refs-ci.yml
+  classification: none
+  publishes: []
 - workflow: docker-base-image-eol-check-ci.yml
   classification: none
   publishes: []
@@ -845,6 +848,9 @@ workflows:
 - workflow: league-schedule-generator-ci.yml
   classification: none
   publishes: []
+- workflow: liability-audit-ci.yml
+  classification: none
+  publishes: []
 - workflow: license-compat-check-ci.yml
   classification: none
   publishes: []
@@ -861,6 +867,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: llm-output-regression-diff-ci.yml
+  classification: none
+  publishes: []
+- workflow: llm-spend-guard-ci.yml
   classification: none
   publishes: []
 - workflow: llm-usage-log-analyzer-ci.yml
@@ -1494,6 +1503,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: ubuntu-agent-server-ci.yml
+  classification: none
+  publishes: []
+- workflow: uitest-ci.yml
   classification: none
   publishes: []
 - workflow: upstash-redis-bill-estimator-ci.yml

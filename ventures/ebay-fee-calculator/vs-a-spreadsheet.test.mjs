@@ -56,8 +56,8 @@ test('the base-case worked numbers match calculateOrder on the index page defaul
     price: 40,
     quantity: 1,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     promotedRate: 0,
     intlFeeRate: 0,
     costOfGoods: 12,
@@ -69,10 +69,10 @@ test('the base-case worked numbers match calculateOrder on the index page defaul
     returnShippingCost: 5,
     feeRefundOnReturnPercent: 100,
   });
-  assert.ok(Math.abs(base.profit - 21.605) < 1e-6);
-  assert.ok(Math.abs(base.expectedProfit - 18.3445) < 1e-6);
-  assert.match(html, /\$21\.61/);
-  assert.match(html, /\$18\.34/);
+  assert.ok(Math.abs(base.profit - 21.344) < 1e-6);
+  assert.ok(Math.abs(base.expectedProfit - 18.1096) < 1e-6);
+  assert.match(html, /\$21\.34/);
+  assert.match(html, /\$18\.11/);
 });
 
 test('the stacked-fee worked numbers (Promoted + international) match calculateOrder', () => {
@@ -80,8 +80,8 @@ test('the stacked-fee worked numbers (Promoted + international) match calculateO
     price: 40,
     quantity: 1,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     promotedRate: 8,
     intlFeeRate: 1.65,
     costOfGoods: 12,
@@ -93,9 +93,9 @@ test('the stacked-fee worked numbers (Promoted + international) match calculateO
     returnShippingCost: 5,
     feeRefundOnReturnPercent: 100,
   });
-  assert.ok(Math.abs(stacked.profit - 17.166) < 1e-6);
-  assert.match(html, /\$17\.17/);
+  assert.ok(Math.abs(stacked.profit - 16.905) < 1e-6);
+  assert.match(html, /\$16\.91/);
   assert.match(html, /\$4\.44/);
-  const noReturnBase = 21.605;
+  const noReturnBase = 21.344;
   assert.ok(Math.abs(noReturnBase - stacked.profit - 4.439) < 1e-3);
 });

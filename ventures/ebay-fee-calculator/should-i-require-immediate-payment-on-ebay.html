@@ -31,7 +31,7 @@
         "name": "Should I require immediate payment on eBay?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Immediate payment stops unpaid checkouts. It also turns away buyers who will not pay now. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 8% unpaid, 55% later-pay sell-through, 45% immediate-pay sell-through, $0.35 relist, 20 minutes at $18) allowing later checkout expects $9.00 and requiring immediate payment expects $8.26. Immediate payment keeps $0.75 less after sell-through. On leftover — if a checkout starts — later mix leaves $16.37 and immediate payment leaves $18.34, $1.98 more, because unpaid cases never ship. Unpaid checkouts have to reach about 13.5%, or immediate payment has to convert about 49.1%, before those paths match. That is arithmetic on your inputs, not advice to flip the listing setting."
+          "text": "Immediate payment stops unpaid checkouts. It also turns away buyers who will not pay now. On the calculator defaults ($40 item, $6 shipping charged, 13.6% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 8% unpaid, 55% later-pay sell-through, 45% immediate-pay sell-through, $0.35 relist, 20 minutes at $18) allowing later checkout expects $8.88 and requiring immediate payment expects $8.15. Immediate payment keeps $0.73 less after sell-through. On leftover — if a checkout starts — later mix leaves $16.15 and immediate payment leaves $18.11, $1.96 more, because unpaid cases never ship. Unpaid checkouts have to reach about 13.5%, or immediate payment has to convert about 49.1%, before those paths match. That is arithmetic on your inputs, not advice to flip the listing setting."
         }
       },
       {
@@ -39,7 +39,7 @@
         "name": "When does requiring immediate payment beat unpaid checkouts?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "When unpaid cases eat more leftover than the conversion hit returns. On the same $40 listing, matching the 45% immediate sell-through already loses on later checkout ($7.37 vs $8.26). A 20% unpaid rate expects $7.37 against $8.26 immediate even at a 55% later-pay lift. A 50% immediate-pay sell-through flips require-now ahead ($9.17 vs $9.00)."
+          "text": "When unpaid cases eat more leftover than the conversion hit returns. On the same $40 listing, matching the 45% immediate sell-through already loses on later checkout ($7.27 vs $8.15). A 20% unpaid rate expects $7.27 against $8.15 immediate even at a 55% later-pay lift. A 50% immediate-pay sell-through flips require-now ahead ($9.05 vs $8.88)."
         }
       },
       {
@@ -116,8 +116,8 @@
       <div class="fields">
         <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
         <label>Shipping charged to buyer <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
-        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
-        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.6"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.40"></label>
         <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
         <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
         <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
@@ -179,28 +179,28 @@
       the unpaid cases you avoided.
     </p>
     <p>
-      On the defaults — $40 item, $6 shipping charged, 13.25%
-      final value fee, $0.30 fixed, $12 cost, $5 outbound, $1 pack,
+      On the defaults — $40 item, $6 shipping charged, 13.6%
+      final value fee, $0.40 fixed, $12 cost, $5 outbound, $1 pack,
       $5 return label, 10% returns, 8% unpaid, 55% later-pay
       sell-through, 45% immediate-pay sell-through, $0.35 relist,
       20 minutes at $18, forty listings — allowing later checkout
-      expects $9.00 and requiring immediate payment expects $8.26.
-      Immediate payment keeps $0.75 less on this decision and
-      −$29.92 across forty listings. Unpaid checkouts have to
+      expects $8.88 and requiring immediate payment expects $8.15.
+      Immediate payment keeps $0.73 less on this decision and
+      −$29.39 across forty listings. Unpaid checkouts have to
       reach about 13.5%, or immediate payment has to convert
       about 49.1%, before those paths match. If a checkout
-      starts, leftover on the later mix is $16.37 versus $18.34
-      when they pay now — $1.98 more — because an unpaid case
+      starts, leftover on the later mix is $16.15 versus $18.11
+      when they pay now — $1.96 more — because an unpaid case
       never buys a label and keeps the item. That unpaid case
       still costs $6.35 ($0.35 relist plus $6.00 of time).
     </p>
     <p>
       Matching conversion already flips. Keep the same listing
       and hold later-pay sell-through at 45%. Immediate payment
-      still expects $8.26; later checkout expects $7.37 — $0.89
-      less. A 20% unpaid rate expects $7.37 even at a 55%
+      still expects $8.15; later checkout expects $7.27 — $0.88
+      less. A 20% unpaid rate expects $7.27 even at a 55%
       later-pay lift. A 50% immediate-pay sell-through flips
-      require-now ahead ($9.17 vs $9.00). The unpaid cases you
+      require-now ahead ($9.05 vs $8.88). The unpaid cases you
       thought you avoided did not cover the checkouts you never
       started.
     </p>
@@ -224,9 +224,9 @@
   </section>
   <h2>Common questions</h2>
   <h3>Should I require immediate payment on eBay?</h3>
-  <p>Immediate payment stops unpaid checkouts. It also turns away buyers who will not pay now. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 8% unpaid, 55% later-pay sell-through, 45% immediate-pay sell-through, $0.35 relist, 20 minutes at $18) allowing later checkout expects $9.00 and requiring immediate payment expects $8.26. Immediate payment keeps $0.75 less after sell-through. On leftover — if a checkout starts — later mix leaves $16.37 and immediate payment leaves $18.34, $1.98 more, because unpaid cases never ship. Unpaid checkouts have to reach about 13.5%, or immediate payment has to convert about 49.1%, before those paths match. That is arithmetic on your inputs, not advice to flip the listing setting.</p>
+  <p>Immediate payment stops unpaid checkouts. It also turns away buyers who will not pay now. On the calculator defaults ($40 item, $6 shipping charged, 13.6% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 8% unpaid, 55% later-pay sell-through, 45% immediate-pay sell-through, $0.35 relist, 20 minutes at $18) allowing later checkout expects $8.88 and requiring immediate payment expects $8.15. Immediate payment keeps $0.73 less after sell-through. On leftover — if a checkout starts — later mix leaves $16.15 and immediate payment leaves $18.11, $1.96 more, because unpaid cases never ship. Unpaid checkouts have to reach about 13.5%, or immediate payment has to convert about 49.1%, before those paths match. That is arithmetic on your inputs, not advice to flip the listing setting.</p>
   <h3>When does requiring immediate payment beat unpaid checkouts?</h3>
-  <p>When unpaid cases eat more leftover than the conversion hit returns. On the same $40 listing, matching the 45% immediate sell-through already loses on later checkout ($7.37 vs $8.26). A 20% unpaid rate expects $7.37 against $8.26 immediate even at a 55% later-pay lift. A 50% immediate-pay sell-through flips require-now ahead ($9.17 vs $9.00).</p>
+  <p>When unpaid cases eat more leftover than the conversion hit returns. On the same $40 listing, matching the 45% immediate sell-through already loses on later checkout ($7.27 vs $8.15). A 20% unpaid rate expects $7.27 against $8.15 immediate even at a 55% later-pay lift. A 50% immediate-pay sell-through flips require-now ahead ($9.05 vs $8.88).</p>
   <h3>Is immediate payment the same as local pickup or a seller coupon?</h3>
   <p>No. Local pickup is a no-show after they committed to a meetup. A seller coupon changes the price for redeemers. A seller-initiated offer is a private sent price. Immediate payment keeps the listed price and changes who can start a checkout.</p>
 

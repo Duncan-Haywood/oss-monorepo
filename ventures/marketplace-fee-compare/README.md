@@ -56,7 +56,7 @@ schedule; a seller's own statement wins, and the page says so.
 Three modelling decisions worth knowing about:
 
 - **Percentages are charged on the whole order**, item price plus any shipping
-  the buyer paid. That is how all seven actually bill, and it is the most common
+  the buyer paid. That is how every modelled channel actually bills, and it is the most common
   way a "free shipping" margin quietly goes negative.
 - **Subscriptions are spread over the seller's own monthly order count**, not
   ignored. Ignoring them is what makes a $39.99 Amazon plan look free at three
@@ -74,7 +74,7 @@ Shopify plan tiers, Walmart WFS.
 
 **Faire is excluded from the ranking on purpose.** It is wholesale: the buyer is
 a shop paying roughly half retail, and the economics turn on order size and
-reorder rate rather than one retail order. Ranking it beside seven retail
+reorder rate rather than one retail order. Ranking it beside the ten retail
 channels would produce a number that looks comparable and is not. It gets a
 pointer instead of a row.
 

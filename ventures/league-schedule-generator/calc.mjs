@@ -1234,6 +1234,149 @@ export function decodeFields(text) {
   } catch { return null; }
 }
 
+// ---------------------------------------------------------------- swiss system
+
+/** Rounds that decide a clear winner among n players: ceil(log2 n), at least 1. */
+export function swissRounds(n) {
+  return Math.max(1, Math.ceil(Math.log2(Math.max(2, n))));
+}
+
+/**
+ * Read finished Swiss games. One per line: `Ana 1 - 0 Ben` (equal numbers are a draw) or `Cy bye`.
+ * Returns { games: [{a, b, ga, gb}], byes: [index], errors }.
+ */
+export function parseSwissResults(text, players) {
+  const games = [];
+  const byes = [];
+  const errors = [];
+  const rest = [];
+  for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^(.*?)\s+bye$/i);
+    if (m) {
+      const idx = teamIndex(players, m[1]);
+      if (idx < 0) errors.push(`Result line ${i + 1}: "${m[1]}" is not one of the players.`);
+      else byes.push(idx);
+      continue;
+    }
+    rest.push(line);
+  }
+  const parsed = parseResults(rest.join("\n"), players);
+  games.push(...parsed.results);
+  errors.push(...parsed.errors);
+  return { games, byes, errors };
+}
+
+/** Score table: win 1, draw 0.5, bye counts as a win. Buchholz = sum of opponents' scores. */
+export function swissStandings(players, games, byes = [], { win = 1, draw = 0.5 } = {}) {
+  const rows = players.map((name, i) => ({ index: i, name, score: 0, played: 0, opponents: [], whites: 0, blacks: 0, last: [] }));
+  for (const g of games) {
+    const A = rows[g.a];
+    const B = rows[g.b];
+    A.played++; B.played++;
+    A.opponents.push(g.b); B.opponents.push(g.a);
+    A.whites++; B.blacks++;
+    A.last.push("W"); B.last.push("B");
+    if (g.ga > g.gb) A.score += win;
+    else if (g.ga < g.gb) B.score += win;
+    else { A.score += draw; B.score += draw; }
+  }
+  for (const i of byes) rows[i].score += win;
+  for (const r of rows) r.buchholz = r.opponents.reduce((s, o) => s + rows[o].score, 0);
+  const byeSet = new Map();
+  for (const i of byes) byeSet.set(i, (byeSet.get(i) ?? 0) + 1);
+  for (const r of rows) r.byes = byeSet.get(r.index) ?? 0;
+  rows.sort((x, y) => y.score - x.score || y.buchholz - x.buchholz || x.index - y.index);
+  rows.forEach((r, i) => { r.rank = i + 1; });
+  return rows;
+}
+
+/**
+ * Pair the next Swiss round (Dutch style): players in the same score group meet top half against
+ * bottom half, nobody meets twice, the bye goes to the lowest-ranked player without one, and colours
+ * alternate. Games are `{a, b}` with a = white. `players` are in seed order (strongest first).
+ * Returns { pairs: [{white, black}], bye: index | null, floaters: number }.
+ */
+export function swissPairings(players, games, byes = []) {
+  const n = players.length;
+  if (n < 2) throw new Error("Swiss pairing needs at least 2 players.");
+  const table = swissStandings(players, games, byes);
+  const order = table.map((r) => r.index);
+  const info = new Map(table.map((r) => [r.index, r]));
+  const met = new Set();
+  for (const g of games) { met.add(`${g.a}|${g.b}`); met.add(`${g.b}|${g.a}`); }
+  let bye = null;
+  let pool = order.slice();
+  if (n % 2 === 1) {
+    for (let k = order.length - 1; k >= 0; k--) {
+      if (info.get(order[k]).byes === 0) { bye = order[k]; break; }
+    }
+    if (bye === null) bye = order[order.length - 1];
+    pool = order.filter((i) => i !== bye);
+  }
+  const scoreOf = (i) => info.get(i).score;
+  let budget = 200000;
+  const solve = (left) => {
+    if (!left.length) return [];
+    if (--budget < 0) return null;
+    const p = left[0];
+    const rest = left.slice(1);
+    const group = rest.filter((q) => scoreOf(q) === scoreOf(p));
+    const ideal = Math.floor((group.length + 1) / 2);
+    const cands = rest
+      .map((q, k) => {
+        const g = group.indexOf(q);
+        return { q, k, d: Math.abs(scoreOf(p) - scoreOf(q)), r: g < 0 ? 0 : Math.abs(g + 1 - ideal) };
+      })
+      .filter((c) => !met.has(`${p}|${c.q}`))
+      .sort((x, y) => x.d - y.d || x.r - y.r || x.k - y.k);
+    for (const c of cands) {
+      const tail = solve(rest.filter((q) => q !== c.q));
+      if (tail) return [[p, c.q], ...tail];
+    }
+    return null;
+  };
+  const matching = solve(pool);
+  if (!matching) throw new Error("No pairing without a rematch exists. Stop here: every player has met everyone they can.");
+  let floaters = 0;
+  const pairs = matching.map(([x, y]) => {
+    if (scoreOf(x) !== scoreOf(y)) floaters++;
+    const [hi, lo] = order.indexOf(x) < order.indexOf(y) ? [x, y] : [y, x];
+    const colourNeed = (i) => {
+      const r = info.get(i);
+      const run = r.last.slice(-2);
+      if (run.length === 2 && run[0] === run[1]) return run[0] === "W" ? -3 : 3;
+      return r.blacks - r.whites;
+    };
+    const needHi = colourNeed(hi);
+    const needLo = colourNeed(lo);
+    return needHi >= needLo ? { white: hi, black: lo } : { white: lo, black: hi };
+  });
+  return { pairs, bye, floaters };
+}
+
+/** Check a pairing: everyone placed once, no rematches, bye unused. Returns a list of problems. */
+export function validateSwiss(players, games, byes, round) {
+  const problems = [];
+  const seen = new Set();
+  for (const { white, black } of round.pairs) {
+    for (const i of [white, black]) { if (seen.has(i)) problems.push(`${players[i]} is paired twice.`); seen.add(i); }
+    if (games.some((g) => (g.a === white && g.b === black) || (g.a === black && g.b === white))) problems.push(`${players[white]} and ${players[black]} already played.`);
+  }
+  if (round.bye !== null) { if (seen.has(round.bye)) problems.push(`${players[round.bye]} has a bye and a game.`); seen.add(round.bye); if (byes.includes(round.bye) && byes.length < players.length) problems.push(`${players[round.bye]} already had a bye.`); }
+  if (seen.size !== players.length) problems.push("Not every player is paired.");
+  return problems;
+}
+
+/** Plain-text pairing sheet for pasting into a group chat. */
+export function swissText(players, round, roundNumber) {
+  const lines = [`Round ${roundNumber}`];
+  round.pairs.forEach((p, i) => lines.push(`  Board ${i + 1}: ${players[p.white]} (white) vs ${players[p.black]} (black)`));
+  if (round.bye !== null) lines.push(`  Bye: ${players[round.bye]}`);
+  return lines.join("\n");
+}
+
 // ---------------------------------------------------------------- example
 
 export function sampleFields() {

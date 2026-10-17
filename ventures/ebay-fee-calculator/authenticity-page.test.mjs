@@ -78,8 +78,8 @@ test('default inputs on the page match the worked example', () => {
   const comparison = compareAuthenticity({
     price: 40,
     shippingCharged: 6,
-    finalValueRate: 13.25,
-    fixedFee: 0.3,
+    finalValueRate: 13.6,
+    fixedFee: 0.4,
     costOfGoods: 12,
     shippingCost: 5,
     packagingCost: 1,
@@ -93,16 +93,16 @@ test('default inputs on the page match the worked example', () => {
     authenticityReturnRatePercent: 4,
     monthlyAgListings: 8,
   });
-  assert.ok(Math.abs(comparison.skip.expectedProfit - 10.089475) < 1e-6, 'default skip-AG');
-  assert.ok(Math.abs(comparison.authenticity.expectedProfit - 8.91904) < 1e-6, 'default AG');
-  assert.ok(Math.abs(comparison.breakEvenExtraShip - 6.53695625) < 1e-6, 'default hub ceiling');
-  assert.match(html, /\$10\.09/);
-  assert.match(html, /\$8\.92/);
-  assert.match(html, /\$1\.17/);
-  assert.match(html, /−\$9\.36|-\$9\.36/);
-  assert.match(html, /\$6\.54/);
-  assert.match(html, /\$15\.32/);
-  assert.match(html, /\$5\.23/);
+  assert.ok(Math.abs(comparison.skip.expectedProfit - 9.96028) < 1e-6, 'default skip-AG');
+  assert.ok(Math.abs(comparison.authenticity.expectedProfit - 8.718592) < 1e-6, 'default AG');
+  assert.ok(Math.abs(comparison.breakEvenExtraShip - 6.44789) < 1e-6, 'default hub ceiling');
+  assert.match(html, /\$9\.96/);
+  assert.match(html, /\$8\.72/);
+  assert.match(html, /\$1\.24/);
+  assert.match(html, /−\$9\.93|-\$9\.93/);
+  assert.match(html, /\$6\.45/);
+  assert.match(html, /\$15\.12/);
+  assert.match(html, /\$5\.16/);
 });
 
 test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {

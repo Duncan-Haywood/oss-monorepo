@@ -10,6 +10,7 @@ export GOOGLE_CREDENTIALS="$(cat service-account-key.json)"
 export TF_ENCRYPTION="$(sed 's/__PASSPHRASE__/choose-a-long-passphrase/' encryption.hcl.tmpl)"
 tofu init
 tofu apply -var name=my-site -var project=my-gcp-project -state=../state/terraform.tfstate
+# optional: -var billing_account=XXXXXX-XXXXXX-XXXXXX -var budget_amount=10   (a monthly budget alert, see budget.tf)
 tofu destroy -var name=my-site -var project=my-gcp-project -state=../state/terraform.tfstate   # tear down
 ```
 
