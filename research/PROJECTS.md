@@ -847,7 +847,7 @@ Census Survey of Construction for where a house's price goes.
    produces a framing takeoff, a bill of materials and an IFC model through IfcOpenShell. Then
    the loop: optimise a plan for cost per square foot of living space, under room-size and
    layout rules written as checks, against a random-search or CMA-ES baseline.
-4. `house-cost`: where a new home's price goes. An open quantity-based cost model (materials
+4. `house-cost` (share-anchored version done 2026-10-17; the priced takeoff and Census reconciliation are next steps): where a new home's price goes. An open quantity-based cost model (materials
    from the takeoff, labour hours, land, fees, financing and margin), reconciled with NAHB's
    survey and the Census Survey of Construction, with every price sourced and dated. Which
    levers move the price most: size, shape, storeys, foundation type, finish level, fees?
