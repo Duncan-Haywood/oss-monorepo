@@ -71,6 +71,9 @@
       <div><label for="seats">Seats per table</label><input id="seats" inputmode="numeric" value="8"></div>
       <div><label for="tcount">Number of tables (blank = fewest that fit)</label><input id="tcount" inputmode="numeric"></div>
     </div>
+    <label for="sizes">Different-sized tables (optional)</label>
+    <input id="sizes" spellcheck="false" placeholder="1: 12, 5: 6">
+    <p class="note">A head table of 12 and a kids table of 6? Write <code>1: 12, 5: 6</code> (table number, then seats). Every other table keeps the seats-per-table figure above.</p>
     <label for="balance" class="check"><input type="checkbox" id="balance" checked aria-label="Fill tables evenly"> Fill tables evenly (untick to fill each table to its full capacity)</label>
     <label for="mix">Groups (the third column): <select id="mix"><option value="off">Ignore groups</option><option value="spread">Spread each group across tables (mingle)</option><option value="cluster">Seat each group together</option></select></label>
     <button type="button" id="analyze">Seat my guests</button>
@@ -151,7 +154,7 @@
   </footer>
 
   <script type="module">
-    import { parseGuests, parseRules, validateSpec, optimize, reseat, parsePlanCsv, verifyPlan, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, sampleSpec, setupJson, parseSetup, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount } from "./calc.mjs";
+    import { parseGuests, parseRules, parseTableSizes, validateSpec, optimize, reseat, parsePlanCsv, verifyPlan, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, sampleSpec, setupJson, parseSetup, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -164,8 +167,9 @@
       const g = parseGuests($("#guests").value);
       const r = parseRules($("#rules").value, g.guests);
       const tc = $("#tcount").value.trim();
-      const spec = { guests: g.guests, rules: r.rules, seatsPerTable: Number($("#seats").value), tableCount: tc === "" ? "" : Number(tc), balance: $("#balance").checked, mix: $("#mix").value, seed };
-      return { spec, errors: [...g.errors, ...r.errors] };
+      const sz = parseTableSizes($("#sizes").value);
+      const spec = { tableSizes: sz.sizes, guests: g.guests, rules: r.rules, seatsPerTable: Number($("#seats").value), tableCount: tc === "" ? "" : Number(tc), balance: $("#balance").checked, mix: $("#mix").value, seed };
+      return { spec, errors: [...g.errors, ...r.errors, ...sz.errors] };
     }
 
     function run() {
@@ -195,7 +199,7 @@
       $("#verdict").textContent = res.rulesTotal === 0
         ? "No pair wishes were entered, so only parties and pins shaped this plan."
         : res.broken.length === 0 ? "Every wish is met." : `${res.broken.length} wish${res.broken.length === 1 ? " is" : "es are"} not met; they are listed below.`;
-      $("#tables").innerHTML = res.tables.map((t) => `<div class="tbl"><h4>Table ${t.number} · ${t.size} guest${t.size === 1 ? "" : "s"}</h4><ul>${t.guests.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></div>`).join("");
+      $("#tables").innerHTML = res.tables.map((t) => `<div class="tbl"><h4>Table ${t.number} · ${t.size} of ${t.seats} seats</h4><ul>${t.guests.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></div>`).join("");
       const lines = res.broken.map((b) => `${esc(b.aName)} ${{ want: "+", must: "++", avoid: "!", never: "!!" }[b.kind]} ${esc(b.bName)} (${b.kind === "want" || b.kind === "must" ? "not together" : "at the same table"})`);
       for (const p of res.partySplits) lines.push(`Party "${esc(p.party)}" (${p.size}) is split across tables ${p.tables.join(", ")}`);
       $("#groupmix").hidden = res.groupMix.length === 0;
@@ -237,11 +241,11 @@
     $("#another").addEventListener("click", () => later(() => { seed += 1; if (run()) record("plan_run"); }));
     $("#load-example").addEventListener("click", () => {
       $("#guests").value = SAMPLE_GUESTS; $("#rules").value = SAMPLE_RULES;
-      $("#seats").value = "8"; $("#tcount").value = "3"; $("#balance").checked = true; seed = 1;
+      $("#seats").value = "8"; $("#tcount").value = "3"; $("#sizes").value = ""; $("#balance").checked = true; seed = 1;
       later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample data: invented guests, not a real event."; } });
     });
     $("#clear-all").addEventListener("click", () => {
-      $("#guests").value = ""; $("#rules").value = ""; $("#tcount").value = ""; last = null; $("#report").hidden = true;
+      $("#guests").value = ""; $("#rules").value = ""; $("#tcount").value = ""; $("#sizes").value = ""; last = null; $("#report").hidden = true;
       status.textContent = "Cleared."; persist();
     });
     $("#download").addEventListener("click", () => {
@@ -278,7 +282,7 @@
     });
 
     const KEY = "event-seating-setup-v1";
-    const FIELDS = { guests: "#guests", rules: "#rules", seats: "#seats", tcount: "#tcount", mix: "#mix", prevplan: "#prevplan" };
+    const FIELDS = { guests: "#guests", rules: "#rules", seats: "#seats", tcount: "#tcount", sizes: "#sizes", mix: "#mix", prevplan: "#prevplan" };
     function snapshot() {
       const st = { balance: $("#balance").checked };
       for (const [k, sel] of Object.entries(FIELDS)) st[k] = $(sel).value;

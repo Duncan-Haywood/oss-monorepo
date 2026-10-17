@@ -62,6 +62,33 @@ export function parseRules(text, guests) {
 
 export function tablesNeeded(n, seats) { return Math.ceil(n / seats); }
 
+/**
+ * Parse the optional table-size box: "1: 12, 4: 6" or "Table 1 = 12" (one or more per line or comma-separated)
+ * gives table 1 twelve seats and table 4 six; every other table keeps the "Seats per table" figure.
+ * Returns { sizes: { [tableIndex]: seats }, errors }.
+ */
+export function parseTableSizes(text) {
+  const sizes = {};
+  const errors = [];
+  for (const raw of String(text || "").split(/[\r\n,;]+/)) {
+    const part = raw.trim();
+    if (!part || part.startsWith("#")) continue;
+    const m = /^(?:table\s*)?(\d+)\s*[:=]\s*(\d+)$/i.exec(part);
+    if (!m) { errors.push(`Table size "${part}" should look like "1: 12" (table number, then seats).`); continue; }
+    const t = Number(m[1]), seats = Number(m[2]);
+    if (t < 1) { errors.push(`Table size "${part}": table numbers start at 1.`); continue; }
+    if (seats < 1) { errors.push(`Table size "${part}": a table needs at least 1 seat.`); continue; }
+    if (sizes[t - 1] !== undefined && sizes[t - 1] !== seats) { errors.push(`Table ${t} is given two different sizes.`); continue; }
+    sizes[t - 1] = seats;
+  }
+  return { sizes, errors };
+}
+
+function sizeOverrides(spec) {
+  const o = spec.tableSizes;
+  return o && typeof o === "object" ? o : {};
+}
+
 export function validateSpec(spec) {
   const errors = [];
   const n = spec.guests.length;
@@ -69,15 +96,20 @@ export function validateSpec(spec) {
   if (!Number.isInteger(spec.seatsPerTable) || spec.seatsPerTable < 1) errors.push("Seats per table must be a whole number of at least 1.");
   const T = resolveTableCount(spec);
   if (spec.tableCount !== "" && spec.tableCount != null && (!Number.isInteger(Number(spec.tableCount)) || Number(spec.tableCount) < 1)) errors.push("Number of tables must be a whole number of at least 1, or blank to use the fewest that fit.");
-  if (n >= 1 && Number.isInteger(spec.seatsPerTable) && spec.seatsPerTable >= 1 && T * spec.seatsPerTable < n) errors.push(`${T} tables of ${spec.seatsPerTable} seat ${T * spec.seatsPerTable}, but there are ${n} guests.`);
-  const cap = capacityPerTable(spec, T);
+  const custom = Object.keys(sizeOverrides(spec)).length > 0;
+  if (n >= 1 && Number.isInteger(spec.seatsPerTable) && spec.seatsPerTable >= 1) {
+    const full = Array.from({ length: T }, (_, t) => (sizeOverrides(spec)[t] !== undefined ? sizeOverrides(spec)[t] : spec.seatsPerTable)).reduce((a, b) => a + b, 0);
+    if (full < n) errors.push(custom ? `${T} tables with your sizes seat ${full}, but there are ${n} guests.` : `${T} tables of ${spec.seatsPerTable} seat ${full}, but there are ${n} guests.`);
+  }
+  for (const k of Object.keys(sizeOverrides(spec))) if (Number(k) >= T) errors.push(`Table ${Number(k) + 1} is given a size, but there are only ${T} tables.`);
+  const caps = capacitiesOf(spec, T);
   const pinCount = new Array(T).fill(0);
   for (const r of spec.rules) {
     if (r.kind !== "pin") continue;
     if (r.table >= T) { errors.push(`${spec.guests[r.a].name} is pinned to table ${r.table + 1}, but there are only ${T} tables.`); continue; }
     pinCount[r.table]++;
   }
-  pinCount.forEach((c, t) => { if (c > cap) errors.push(`Table ${t + 1} has ${c} pinned guests but holds ${cap}.`); });
+  pinCount.forEach((c, t) => { if (c > caps[t]) errors.push(`Table ${t + 1} has ${c} pinned guests but holds ${caps[t]}.`); });
   const pinned = new Map();
   for (const r of spec.rules) if (r.kind === "pin") {
     if (pinned.has(r.a) && pinned.get(r.a) !== r.table) errors.push(`${spec.guests[r.a].name} is pinned to two different tables.`);
@@ -91,13 +123,37 @@ export function resolveTableCount(spec) {
   const given = spec.tableCount === "" || spec.tableCount == null ? null : Number(spec.tableCount);
   const s = spec.seatsPerTable;
   if (given && Number.isInteger(given) && given >= 1) return given;
-  return Math.max(1, tablesNeeded(Math.max(n, 1), Math.max(s, 1)));
+  const o = sizeOverrides(spec);
+  const keys = Object.keys(o).map(Number);
+  if (!keys.length) return Math.max(1, tablesNeeded(Math.max(n, 1), Math.max(s, 1)));
+  // Custom sizes: the fewest tables, at least up to the highest sized one, whose full seat counts hold everyone.
+  let T = Math.max(1, ...keys.map((k) => k + 1)), seats = 0;
+  const seatsAt = (t) => (o[t] !== undefined ? o[t] : Math.max(s, 1));
+  for (let t = 0; t < T; t++) seats += seatsAt(t);
+  while (seats < n) seats += seatsAt(T++);
+  return T;
 }
 
 /** Seats a table may use. With balance on, tables are filled evenly. */
 export function capacityPerTable(spec, T = resolveTableCount(spec)) {
   const n = spec.guests.length;
   return spec.balance ? Math.min(spec.seatsPerTable, Math.ceil(n / T)) : spec.seatsPerTable;
+}
+
+/**
+ * Seats each table may use, as an array of length T. Tables with a custom size
+ * (spec.tableSizes) use exactly that; the rest follow capacityPerTable, and with
+ * "fill evenly" on they share what the custom tables leave over.
+ */
+export function capacitiesOf(spec, T = resolveTableCount(spec)) {
+  const o = sizeOverrides(spec);
+  if (!Object.keys(o).length) return new Array(T).fill(capacityPerTable(spec, T));
+  const n = spec.guests.length;
+  let custom = 0, customCount = 0;
+  for (let t = 0; t < T; t++) if (o[t] !== undefined) { custom += o[t]; customCount++; }
+  const rest = T - customCount;
+  const plain = !spec.balance || rest === 0 ? spec.seatsPerTable : Math.max(1, Math.min(spec.seatsPerTable, Math.ceil(Math.max(0, n - custom) / rest)));
+  return Array.from({ length: T }, (_, t) => (o[t] !== undefined ? o[t] : plain));
 }
 
 function mulberry32(seed) {
@@ -149,7 +205,7 @@ function pinsOf(spec) {
 export function baselinePlan(spec) {
   const n = spec.guests.length;
   const T = resolveTableCount(spec);
-  const cap = capacityPerTable(spec, T);
+  const cap = capacitiesOf(spec, T);
   const pin = pinsOf(spec);
   const table = new Array(n).fill(-1);
   const load = new Array(T).fill(0);
@@ -157,7 +213,7 @@ export function baselinePlan(spec) {
   let t = 0;
   for (let g = 0; g < n; g++) {
     if (table[g] !== -1) continue;
-    while (load[t] >= cap) t = (t + 1) % T;
+    while (load[t] >= cap[t]) t = (t + 1) % T;
     table[g] = t; load[t]++;
   }
   return table;
@@ -166,7 +222,7 @@ export function baselinePlan(spec) {
 function anneal(spec, W, seed, iters) {
   const n = spec.guests.length;
   const T = resolveTableCount(spec);
-  const cap = capacityPerTable(spec, T);
+  const cap = capacitiesOf(spec, T);
   const pin = pinsOf(spec);
   const rnd = mulberry32(seed);
   const free = [];
@@ -179,7 +235,7 @@ function anneal(spec, W, seed, iters) {
   const order = free.slice();
   for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
   let tt = 0;
-  for (const g of order) { while (load[tt] >= cap) tt = (tt + 1) % T; table[g] = tt; load[tt]++; }
+  for (const g of order) { while (load[tt] >= cap[tt]) tt = (tt + 1) % T; table[g] = tt; load[tt]++; }
 
   // A[g*T + t] = sum of W[g][h] over guests h (h != g) at table t
   const A = new Float64Array(n * T);
@@ -216,7 +272,7 @@ function anneal(spec, W, seed, iters) {
     const g = free[Math.floor(rnd() * free.length)];
     if (rnd() < 0.5) {
       const to = Math.floor(rnd() * T);
-      if (to === table[g] || load[to] >= cap) continue;
+      if (to === table[g] || load[to] >= cap[to]) continue;
       const d = A[g * T + to] - A[g * T + table[g]];
       if (d >= 0 || rnd() < Math.exp(d / temp)) { move(g, to); score += d; }
     } else {
@@ -235,7 +291,7 @@ function anneal(spec, W, seed, iters) {
 function polish(spec, W, table0) {
   const n = spec.guests.length;
   const T = resolveTableCount(spec);
-  const cap = capacityPerTable(spec, T);
+  const cap = capacitiesOf(spec, T);
   const pin = pinsOf(spec);
   const table = table0.slice();
   const load = new Array(T).fill(0);
@@ -248,7 +304,7 @@ function polish(spec, W, table0) {
       if (pin.has(g)) continue;
       const here = aff(g, table[g]);
       for (let t = 0; t < T; t++) {
-        if (t === table[g] || load[t] >= cap) continue;
+        if (t === table[g] || load[t] >= cap[t]) continue;
         if (aff(g, t) - here > 1e-9) { load[table[g]]--; load[t]++; table[g] = t; improved = true; break; }
       }
       for (let g2 = g + 1; g2 < n; g2++) {
@@ -308,7 +364,7 @@ export function describe(spec, W, table, baseline) {
   return {
     errors: [],
     table,
-    tables: tables.map((members, i) => ({ number: i + 1, guests: members.map((g) => spec.guests[g].name), size: members.length })),
+    tables: tables.map((members, i) => ({ number: i + 1, guests: members.map((g) => spec.guests[g].name), size: members.length, seats: capacitiesOf(spec, T)[i] })),
     score, baseScore,
     rulesTotal: pairRules.length,
     rulesMet: pairRules.length - broken.length,
@@ -320,7 +376,8 @@ export function describe(spec, W, table, baseline) {
     partySplits,
     groupMix,
     meals: mealTally(spec, table, T),
-    capacity: capacityPerTable(spec, T),
+    capacity: Math.max(...capacitiesOf(spec, T)),
+    capacities: capacitiesOf(spec, T),
   };
 }
 
@@ -341,10 +398,11 @@ export function verifyPlan(spec, result) {
   const problems = [];
   const n = spec.guests.length;
   const T = resolveTableCount(spec);
-  const cap = capacityPerTable(spec, T);
+  const caps = capacitiesOf(spec, T);
   const seen = new Set();
   let total = 0;
   result.tables.forEach((t) => {
+    const cap = caps[t.number - 1];
     if (t.guests.length > cap) problems.push(`Table ${t.number} holds ${t.guests.length}, capacity ${cap}.`);
     for (const name of t.guests) { if (seen.has(name)) problems.push(`${name} is seated twice.`); seen.add(name); total++; }
   });
@@ -527,6 +585,8 @@ export function reseat(spec, prev, stickiness = "medium") {
     if (!pinned.has(i)) rules.push({ kind: "stay", a: i, b: anchorIdx[t], weight: stay });
   });
   const ext = { ...spec, guests, rules, seatsPerTable: spec.seatsPerTable + 1, tableCount: T };
+  // Anchors take one seat at every table, so custom sizes (and the evened-out rest) each grow by one.
+  if (Object.keys(sizeOverrides(spec)).length) ext.tableSizes = Object.fromEntries(capacitiesOf(spec, T).map((c, t) => [t, c + 1]));
   const raw = optimize(ext);
   if (raw.errors?.length) return { errors: raw.errors };
   const table = raw.table.slice(0, n);
@@ -549,7 +609,7 @@ export function reseat(spec, prev, stickiness = "medium") {
 // a planner can come back over the weeks RSVPs trickle in. The page keeps it
 // in this browser's local storage and in a downloadable file; nothing leaves
 // the device.
-export const SETUP_FIELDS = ["guests", "rules", "seats", "tcount", "balance", "mix", "prevplan"];
+export const SETUP_FIELDS = ["guests", "rules", "seats", "tcount", "sizes", "balance", "mix", "prevplan"];
 const MIX_VALUES = ["off", "spread", "cluster"];
 
 export function setupJson(state) {
@@ -567,7 +627,7 @@ export function parseSetup(text) {
     return { state: null, error: "That is not a seating setup saved by this tool." };
   }
   const state = {};
-  for (const k of ["guests", "rules", "prevplan"]) if (typeof raw[k] === "string") state[k] = raw[k].slice(0, 200000);
+  for (const k of ["guests", "rules", "sizes", "prevplan"]) if (typeof raw[k] === "string") state[k] = raw[k].slice(0, 200000);
   for (const k of ["seats", "tcount"]) if (typeof raw[k] === "string" || typeof raw[k] === "number") state[k] = String(raw[k]).slice(0, 8);
   if (typeof raw.balance === "boolean") state.balance = raw.balance;
   if (MIX_VALUES.includes(raw.mix)) state.mix = raw.mix;

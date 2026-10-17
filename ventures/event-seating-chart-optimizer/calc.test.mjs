@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   parseGuests, parseRules, validateSpec, optimize, verifyPlan, weightMatrix, planScore,
-  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, WEIGHTS,
+  setupJson, parseSetup, baselinePlan, sampleSpec, planCsv, tableSignsHtml, escortBoardHtml, catererSheetHtml, mealTally, reseat, parsePlanCsv, SAMPLE_GUESTS, SAMPLE_RULES, resolveTableCount, capacityPerTable, capacitiesOf, parseTableSizes, WEIGHTS,
 } from "./calc.mjs";
 
 function specFrom(guestText, ruleText, extra = {}) {
@@ -302,4 +302,61 @@ test("setup parser rejects other JSON and non-JSON", () => {
   assert.match(parseSetup("not json").error, /not valid JSON/);
   assert.match(parseSetup("[]").error, /not a seating setup/);
   assert.match(parseSetup('{"app":"shift-roster-builder"}').error, /not a seating setup/);
+});
+
+test("parseTableSizes reads table: seats pairs and flags bad or conflicting ones", () => {
+  assert.deepEqual(parseTableSizes("1: 12, Table 5 = 6\n3:10").sizes, { 0: 12, 4: 6, 2: 10 });
+  assert.deepEqual(parseTableSizes("").sizes, {});
+  const bad = parseTableSizes("x, 0: 4, 2: 0, 1: 5, 1: 6");
+  assert.equal(bad.errors.length, 4);
+  assert.match(bad.errors[3], /two different sizes/);
+});
+
+test("custom table sizes: head table and kids table are honoured, everyone is seated", () => {
+  const names = Array.from({ length: 24 }, (_, i) => `Guest ${i + 1}`).join("\n");
+  const spec = specFrom(names, "", { seatsPerTable: 8, tableSizes: parseTableSizes("1: 12, 3: 4").sizes });
+  assert.equal(resolveTableCount(spec), 3);
+  assert.deepEqual(capacitiesOf(spec), [12, 8, 4]);
+  const res = optimize(spec);
+  assert.deepEqual(res.errors, []);
+  assert.deepEqual(verifyPlan(spec, res), []);
+  assert.deepEqual(res.tables.map((t) => t.size), [12, 8, 4]);
+  assert.deepEqual(res.tables.map((t) => t.seats), [12, 8, 4]);
+});
+
+test("custom sizes add default tables when the sized ones cannot hold everyone", () => {
+  const names = Array.from({ length: 20 }, (_, i) => `G${i + 1}`).join("\n");
+  const spec = specFrom(names, "", { seatsPerTable: 6, tableSizes: { 0: 4 } });
+  assert.equal(resolveTableCount(spec), 4);
+  assert.deepEqual(validateSpec(spec), []);
+});
+
+test("custom sizes: wished pairs land together at the big table; pins and overflow are checked", () => {
+  const names = Array.from({ length: 14 }, (_, i) => `P${i + 1}`).join("\n");
+  const spec = specFrom(names, "P1 ++ P2\nP1 ++ P3\nP2 ++ P3\nP4 ++ P5", { seatsPerTable: 4, tableSizes: { 0: 6 }, balance: false });
+  const res = optimize(spec);
+  assert.deepEqual(verifyPlan(spec, res), []);
+  assert.equal(res.wantsMet, res.wantsTotal);
+  const over = specFrom(names, "P1 @ 2\nP2 @ 2\nP3 @ 2\nP4 @ 2\nP5 @ 2", { seatsPerTable: 4, tableSizes: { 0: 6 }, tableCount: 4, balance: false });
+  assert.match(validateSpec(over).join(" "), /Table 2 has 5 pinned guests but holds 4/);
+  const tooMany = specFrom(names, "", { seatsPerTable: 2, tableSizes: { 0: 3, 5: 3 }, tableCount: 3 });
+  assert.match(validateSpec(tooMany).join(" "), /Table 6 is given a size, but there are only 3 tables/);
+});
+
+test("custom sizes: fill-evenly shares what the custom tables leave over; reseat keeps sizes", () => {
+  const names = Array.from({ length: 22 }, (_, i) => `G${i + 1}`).join("\n");
+  const spec = specFrom(names, "", { seatsPerTable: 10, tableCount: 3, tableSizes: { 0: 12 } });
+  assert.deepEqual(capacitiesOf(spec), [12, 5, 5]);
+  const first = optimize(spec);
+  const prev = new Map(first.tables.flatMap((t) => t.guests.map((g) => [g.toLowerCase(), t.number - 1])));
+  const more = specFrom(names + "\nLate Guest", "", { seatsPerTable: 10, tableCount: 3, tableSizes: { 0: 12 } });
+  const re = reseat(more, prev, "high");
+  assert.deepEqual(re.errors, []);
+  assert.deepEqual(verifyPlan(more, re), []);
+  assert.ok(re.tables[0].size <= 12);
+});
+
+test("setup file carries the table sizes box", () => {
+  const out = parseSetup(setupJson({ guests: "A\nB", rules: "", seats: "8", tcount: "", sizes: "1: 12", balance: true, mix: "off", prevplan: "" }));
+  assert.equal(out.state.sizes, "1: 12");
 });
