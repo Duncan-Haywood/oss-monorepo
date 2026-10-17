@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Round Robin With An Odd Number Of Teams: How Byes Work</title>
+  <meta name="description" content="How to schedule a round robin with 5, 7 or 9 teams: why every round has a bye, how many rounds and games you need, and a worked five-team example. Then build yours free.">
+  <meta property="og:title" content="Round Robin With An Odd Number Of Teams: How Byes Work">
+  <meta property="og:description" content="Byes, rounds and game counts for 5, 7 or 9 teams, with a worked five-team example. Free, private, in your browser.">
+  <link rel="canonical" href="./how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many rounds does a round robin with an odd number of teams have?", "acceptedAnswer": {"@type": "Answer", "text": "As many as there are teams: 5 teams need 5 rounds, 7 teams need 7. An even number of teams needs one fewer round than teams, because nobody sits out; an odd number adds a dummy team, and whoever is paired with it has the bye."}}, {"@type": "Question", "name": "How many byes does each team get?", "acceptedAnswer": {"@type": "Answer", "text": "Exactly one in a single round robin, whatever the size. With 5 teams that is one idle round each across 5 rounds, with two games played in every round."}}, {"@type": "Question", "name": "How many games are played in total?", "acceptedAnswer": {"@type": "Answer", "text": "n \u00d7 (n \u2212 1) \u00f7 2, odd or even. Five teams play 10 games and seven teams play 21, because each team plays every other team once: 4 games each for 5 teams."}}, {"@type": "Question", "name": "Is a bye fair when teams play on different dates?", "acceptedAnswer": {"@type": "Answer", "text": "Only if the bye falls in a different round for each team, which the circle method guarantees. If a team needs a particular week off, give them the round where they have the bye by choosing which team takes which line of the list before dates are set."}}, {"@type": "Question", "name": "What do I do for a double round robin with an odd number of teams?", "acceptedAnswer": {"@type": "Answer", "text": "Repeat the same rounds with home and away reversed. Each team then has two byes, one in each half, and meets every opponent twice."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to schedule a round robin with an odd number of teams, with a worked example</h1>
+  <p>With 6 or 8 teams everyone plays every round. With 5, 7 or 9 someone has to sit out each round, and doing that by hand usually ends with one team idle twice while another never rests. The fix is the circle method: add an imaginary extra team, schedule as if it were real, and whoever is paired with it has the bye.</p>
+  <p><a class="cta" href="./">Open the free schedule tool</a> (paste the teams, pick a start date and weekday; byes are marked for you)</p>
+  <h2>A worked example: 5 teams, 5 rounds, 10 games</h2>
+  <p>Five invented teams play a single round robin. Each round has two games and one team on a bye, and every team has its bye in a different round. Home team is listed first.</p>
+  <table>
+    <thead><tr><th>Round</th><th>Games</th><th>Bye</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Owls v Lynx, Bears v Foxes</td><td>Hawks</td></tr>
+      <tr><td>2</td><td>Foxes v Hawks, Lynx v Bears</td><td>Owls</td></tr>
+      <tr><td>3</td><td>Bears v Owls, Hawks v Lynx</td><td>Foxes</td></tr>
+      <tr><td>4</td><td>Lynx v Foxes, Owls v Hawks</td><td>Bears</td></tr>
+      <tr><td>5</td><td>Hawks v Bears, Foxes v Owls</td><td>Lynx</td></tr>
+    </tbody>
+  </table>
+  <p>Each team plays 4 games and rests once. If a team must be off in a particular week (a holiday, a venue clash), decide which team takes which line of the list before dates are attached, rather than moving single games afterwards.</p>
+  <p>The rounds come from the same code the page runs and a test recomputes this table from it, so it cannot drift from the tool.</p>
+  <p><a class="cta" href="./">Build your own schedule</a></p>
+  <h2>Questions</h2>
+  <h3>How many rounds does a round robin with an odd number of teams have?</h3>
+  <p>As many as there are teams: 5 teams need 5 rounds, 7 teams need 7. An even number of teams needs one fewer round than teams, because nobody sits out; an odd number adds a dummy team, and whoever is paired with it has the bye.</p>
+  <h3>How many byes does each team get?</h3>
+  <p>Exactly one in a single round robin, whatever the size. With 5 teams that is one idle round each across 5 rounds, with two games played in every round.</p>
+  <h3>How many games are played in total?</h3>
+  <p>n × (n − 1) ÷ 2, odd or even. Five teams play 10 games and seven teams play 21, because each team plays every other team once: 4 games each for 5 teams.</p>
+  <h3>Is a bye fair when teams play on different dates?</h3>
+  <p>Only if the bye falls in a different round for each team, which the circle method guarantees. If a team needs a particular week off, give them the round where they have the bye by choosing which team takes which line of the list before dates are set.</p>
+  <h3>What do I do for a double round robin with an odd number of teams?</h3>
+  <p>Repeat the same rounds with home and away reversed. Each team then has two byes, one in each half, and meets every opponent twice.</p>
+  <p>Related: <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a>, <a href="./round-robin-schedule-by-number-of-teams.html">rounds and games for 3 to 16 teams</a>, and <a href="./round-robin-schedule-template.html">ready-made fixture lists</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing and date before you announce it; your event's own rules and tie-breaks apply. The example teams are invented.</p>
+    <p>Everything the tool does runs in your browser; team names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

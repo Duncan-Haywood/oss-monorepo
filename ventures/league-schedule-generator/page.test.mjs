@@ -295,3 +295,28 @@ test("the single-elimination guide's worked example matches playoffBracket() and
   assert.match(page("sitemap.xml"), /how-to-run-a-single-elimination-bracket\.html/);
   assert.match(page("index.html"), /href="\.\/how-to-run-a-single-elimination-bracket\.html"/);
 });
+
+test("the odd-team round robin guide's worked example matches roundRobin() and is linked and in the sitemap", () => {
+  const html = page("how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-schedule-a-round-robin-with-an-odd-number-of-teams\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const names = ["Hawks", "Owls", "Foxes", "Bears", "Lynx"];
+  const rounds = roundRobin(5);
+  assert.equal(rounds.length, 5);
+  assert.equal(new Set(rounds.map((r) => r.bye)).size, 5);
+  rounds.forEach((r, i) => {
+    const row = `<tr><td>${i + 1}</td><td>${r.matches.map(([h, a]) => `${names[h]} v ${names[a]}`).join(", ")}</td><td>${names[r.bye]}</td></tr>`;
+    assert.ok(html.includes(row), row);
+  });
+  for (const n of [3, 5, 7, 9, 11]) {
+    const rr = roundRobin(n);
+    assert.equal(rr.length, n);
+    assert.equal(rr.reduce((s, r) => s + r.matches.length, 0), (n * (n - 1)) / 2);
+    assert.equal(new Set(rr.map((r) => r.bye)).size, n);
+  }
+  assert.match(page("sitemap.xml"), /how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html"/);
+});
