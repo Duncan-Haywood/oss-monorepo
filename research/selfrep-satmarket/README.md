@@ -17,9 +17,12 @@ Follow-up to `selfrep-reinvest` in the self-replicating manufacturing track (`PR
 cd research/selfrep-satmarket
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, <1 s (needs ../selfrep-reinvest)
 python3 experiments/run.py                                # about 40 s; writes experiments/results.txt
+python3 experiments/figure.py                             # redraws experiments/policies_vs_capacity.svg from results.txt
 ```
 
 ## Results (from `experiments/results.txt`; percentages are of the simulated DP policy's goods value)
+![Four simple policies as a percentage of the DP policy's value against market capacity](experiments/policies_vs_capacity.svg)
+
 - **The linear case is bang-bang, as before.** At `c` = infinity the DP policy copies until t = 550 h with a one-step interior control, and the best bang-bang switch (549 h) equals it to the printed precision. The best smooth ramp is 99.7%.
 - **Saturation spreads the switch out.** Fleet size without any switch would reach about 163 000 units. For `c` = 10^6 and 10^5 the optimum is still nearly bang-bang (bang-bang 99.99% and 99.4%, with 3 and 21 h of interior control). From `c` = 10^4 downward the DP policy ramps the copy share down over 90 to 300 h (e.g. at `c` = 1000, u = 1.00 at t = 300 h, 0.95 at 350 h, 0.46 at 400 h, 0.30 at 450 h, 0.15 at 500 h, 0.00 at 550 h), and the best bang-bang reaches 93 to 95.5% of the DP policy's value. The switch comes earlier too: copying below half time from t = 492 h at `c` = 10^4 and from 287 h at `c` = 100.
 - **A smooth ramp recovers most of the gap, a fixed ramp shape does not recover all of it.** The best logistic ramp reaches 98.5 to 99.1% for `c` between 100 and 10^4; the 20-segment local search 99.3 to 99.7%. The best constant split is 24% of the DP value at `c` = 10^4, 57% at 1000 and 78% at 100: less bad as the market saturates, still far behind.
