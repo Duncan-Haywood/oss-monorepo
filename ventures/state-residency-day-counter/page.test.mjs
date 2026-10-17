@@ -18,7 +18,7 @@ test("index page carries the disclaimer, privacy line, and sponsor link", () => 
 });
 
 test("JSON-LD blocks parse and every FAQ question is on the page", () => {
-  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html"]) {
+  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html"]) {
     const html = page(name);
     const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
     const faq = blocks.find((b) => b["@type"] === "FAQPage");
@@ -97,7 +97,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
 });
 
 test("related-tool links point at ventures that exist", () => {
-  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html"]) {
+  for (const name of ["index.html", "183-day-rule-by-state.html", "remote-work-convenience-of-the-employer-rule.html", "snowbird-days-in-new-york.html"]) {
     for (const m of page(name).matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)) assert.ok(existsSync(new URL(`../${m[1]}/index.html`, import.meta.url)), m[1]);
   }
 });
@@ -142,4 +142,27 @@ test("the employer-rule guide's figures match the counter", async () => {
   assert.match(guide, /No warranty/);
   assert.match(page("index.html"), /href="\.\/remote-work-convenience-of-the-employer-rule\.html"/);
   assert.match(page("sitemap.xml"), /remote-work-convenience-of-the-employer-rule\.html/);
+});
+
+test("the snowbird guide's figures match the counter", async () => {
+  const { analyze, parseStays, toDay } = await import("./calc.mjs");
+  const guide = page("snowbird-days-in-new-york.html");
+  const ny = (text, convention = "inclusive") => {
+    const stays = parseStays(text, 2025);
+    return analyze({ year: 2025, stays: stays.stays ?? stays, homeState: "FL", abode: { NY: true, FL: true }, asOf: toDay(2025, 12, 31), convention, wages: 0, overrides: {}, homeWorks: true }).states.find((x) => x.code === "NY");
+  };
+  const may = ny("2025-05-01 to 2025-10-31 NY");
+  assert.equal(may.days, 184);
+  assert.ok(guide.includes(`<td class="n">${may.days}</td><td>Over by ${-may.room}</td>`));
+  assert.equal(ny("2025-05-01 to 2025-10-31 NY", "nights").days, 183);
+  const sep = ny("2025-05-01 to 2025-09-30 NY");
+  assert.ok(guide.includes(`<td class="n">${sep.days}</td><td>${sep.room} days of room</td>`));
+  const hol = ny("2025-05-15 to 2025-10-10 NY\n2025-12-20 to 2025-12-31 NY");
+  const base = ny("2025-05-15 to 2025-10-10 NY");
+  assert.ok(guide.includes(`<td class="n">${hol.days}</td><td>${hol.room} days of room</td>`));
+  assert.ok(guide.includes(`costs ${hol.days - base.days} days of the ${base.room} the person`));
+  assert.match(guide, /<link rel="canonical" href="\.\/snowbird-days-in-new-york\.html">/);
+  assert.match(guide, /No warranty/);
+  assert.match(page("index.html"), /href="\.\/snowbird-days-in-new-york\.html"/);
+  assert.match(page("sitemap.xml"), /snowbird-days-in-new-york\.html/);
 });
