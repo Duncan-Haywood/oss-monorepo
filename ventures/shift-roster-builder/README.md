@@ -41,7 +41,7 @@ shuffling on Sunday night.
 
 ## Limits
 
-Not modelled: predictive-scheduling and fair-workweek notice rules, meal and rest breaks, minor-labor limits, split-shift
+Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), meal and rest breaks, minor-labor limits, split-shift
 premiums, tips, union rules, seniority, time-off across weeks. A
 heuristic search, not a proof of optimality on large problems. Verified only against exhaustive search and invented data.
 Not legal, tax, or financial advice.
@@ -67,3 +67,5 @@ Provided free and as-is, without warranty of any kind. Not legal, tax, or financ
 **Getting under budget.** When you give projected sales and a target labor %, and the roster is over it, the report lists the biggest single payroll savings from dropping one assignment, safe cuts first (another person still works that shift), flagging cuts that leave a shift empty or put someone under their minimum hours (`trimOptions` in `calc.mjs`). Savings are per cut and do not add up exactly, because overtime is priced across the week. It lists options; it does not re-run the roster.
 
 **Who gets the tough shifts.** The report counts each person's weekend, closing (10pm or later, or past midnight) and opening (6am or earlier) shifts and says so when the spread is 3 or more, so one person is not quietly handed every close. A report only; the search does not balance it (`fairnessReport` in `calc.mjs`).
+
+**Changes since you posted it.** Choose the roster CSV you posted, give the Monday and when you made the change, and the report lists every shift that was added, cancelled or moved, the notice each got, and the premium pay under a rule you enter yourself (notice window in hours, premium in hours of pay, names of employee-requested changes left out). Fair-workweek laws differ by city and change, so the tool ships no jurisdiction presets and states no legal requirement; it does the arithmetic on your numbers (`parseRosterCsv`, `scheduleChanges` in `calc.mjs`).

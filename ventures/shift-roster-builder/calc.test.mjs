@@ -631,6 +631,56 @@ test("fairnessReport counts weekend, closing and opening shifts per person and f
   assert.equal(fairnessReport({ people: [], assignments: [] }).flag, false);
 });
 
+import { parseRosterCsv, scheduleChanges } from "./calc.mjs";
+
+const POSTED = [
+  "day,start,end,hours,label,assigned_to,role",
+  "Mon,9:00 AM,5:00 PM,8.00,open,Ana,",
+  "Tue,9:00 AM,5:00 PM,8.00,open,Ana,",
+  "Wed,5:00 PM,11:00 PM,6.00,close,Ben,",
+  "Thu,9:00 AM,1:00 PM,4.00,open,UNFILLED,",
+].join("\n") + "\n";
+
+test("parseRosterCsv reads minutes from Monday and skips unfilled rows", () => {
+  const rows = parseRosterCsv(POSTED);
+  assert.equal(rows.length, 3);
+  assert.deepEqual([rows[0].person, rows[0].start, rows[0].end], ["Ana", 540, 1020]);
+  assert.equal(rows[2].start, 2 * 1440 + 17 * 60);
+});
+
+test("scheduleChanges finds moved, cancelled and added shifts and prices short notice", () => {
+  const revised = [
+    "day,start,end,hours,label,assigned_to,role",
+    "Mon,9:00 AM,5:00 PM,8.00,open,Ana,",
+    "Tue,11:00 AM,5:00 PM,6.00,open,Ana,",
+    "Thu,9:00 AM,1:00 PM,4.00,open,Cleo,",
+  ].join("\n") + "\n";
+  // Changed Monday 8:00 AM: Tuesday's move is 25 h out, Wednesday's cancel is 57 h out, Thursday's add is 73 h out.
+  const r = scheduleChanges(POSTED, revised, { changedAt: 8 * 60, noticeHours: 48, premiumHours: 1, wages: { Ana: 20, Ben: 15, Cleo: 12 } });
+  assert.deepEqual(r.changes.map((c) => c.kind + ":" + c.person), ["moved:Ana", "cancelled:Ben", "added:Cleo"]);
+  assert.equal(r.changes[0].hoursDelta, -2);
+  assert.equal(Math.round(r.changes[0].noticeHours), 25);
+  assert.equal(r.changes[0].shortNotice, true);
+  assert.equal(r.changes[1].shortNotice, false);
+  assert.equal(r.owed, 20);
+  assert.equal(r.shortNotice, 1);
+});
+
+test("scheduleChanges leaves out exempt people and says when notice is unknown", () => {
+  const revised = POSTED.replace("Ana,\nWed", "Ana,\nWed").replace("Ben", "Cleo");
+  const a = scheduleChanges(POSTED, revised, { changedAt: 17 * 60 + 2 * 1440 - 60, noticeHours: 48, wages: { Ben: 15, Cleo: 12 }, exempt: ["ben"] });
+  assert.equal(a.changes.find((c) => c.person === "Ben").exempt, true);
+  assert.equal(a.owed, 12);
+  const b = scheduleChanges(POSTED, revised, {});
+  assert.equal(b.noticeKnown, false);
+  assert.equal(b.owed, 0);
+  assert.equal(b.changes[0].noticeHours, null);
+});
+
+test("scheduleChanges reports nothing for identical rosters", () => {
+  assert.equal(scheduleChanges(POSTED, POSTED, { changedAt: 0 }).changes.length, 0);
+});
+
 test("trimOptions: ranks drops by payroll saved, safe ones first, and prices overtime from the whole week", () => {
   const staff = staffOf("Ana, 10, 40, 0\nBen, 20, 40, 0");
   const slots = slotsOf("Mon, 8, 16, 2, open\nTue, 8, 16, 1, close");
