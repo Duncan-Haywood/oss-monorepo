@@ -158,3 +158,10 @@ test("index links one hop to the tiktok-shop-fee-calculator sibling", () => {
   );
   assert.match(html, /TikTok Shop fee calculator/i);
 });
+
+test('footer hands the listing to the where-to-sell calculator and counts only the click', () => {
+  assert.match(html, /id="whereToSellLink" href="\.\.\/where-to-sell-calculator\/"/);
+  assert.match(html, /import \{ whereToSellUrl \} from "\.\/to-where-to-sell\.mjs"/);
+  assert.match(html, /getElementById\("whereToSellLink"\)\.href = whereToSellUrl\(readInput\(\)\)/);
+  assert.match(html, /"handoff_where_to_sell"/);
+});
