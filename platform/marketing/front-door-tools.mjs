@@ -683,6 +683,7 @@ export const WHY_CATEGORY_WORD = {
   services: 'services',
   evidence: 'evidence',
   backoffice: 'back-office',
+  'uk-tax': 'uk-tax',
   logistics: 'logistics',
   ci: 'ci',
   'solo-earner': 'solo-earner',
