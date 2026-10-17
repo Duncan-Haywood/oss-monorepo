@@ -188,3 +188,24 @@ test("overtime page's table is what the engine returns for the sample cafe", asy
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("labor-cost page's figures are what the engine returns for the sample cafe", async () => {
+  const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts, laborPercent, dailyLabor } = await import("./calc.mjs");
+  const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
+  const r = buildRoster(staff, slots, {});
+  const html = page("labor-cost-percentage-by-day.html");
+  assert.equal(r.cost, 3622);
+  assert.equal(laborPercent(r.cost, 14000, 30).pct.toFixed(1), "25.9");
+  assert.equal(laborPercent(r.cost, 12000, 30).pct.toFixed(1), "30.2");
+  const d = dailyLabor(r, staff, "1500 1600 1700 1900 2600 3200 2400");
+  for (const day of d.days) {
+    assert.ok(html.includes(`<td class="n">${day.pct.toFixed(1)}%</td>`), day.day);
+    assert.ok(html.includes("$" + day.cost.toLocaleString("en-US")), day.day + " cost");
+  }
+  assert.equal(d.worst.day, "Tue");
+  assert.match(page("sitemap.xml"), /labor-cost-percentage-by-day\.html/);
+  assert.match(page("index.html"), /labor-cost-percentage-by-day\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
