@@ -37,11 +37,15 @@
     {
       "file": "research/swe-orgs/README.md",
       "issue": "counts (sources, practices, ledger rows, shares) are hand-edited in README, projects.json and research/README.md each batch; easy to miss one"
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "swe-orgs is a standing milestone with no claim mechanism; two runs built batch 11 at the same time"
     }
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Batch 11 of swe-orgs: 2 sources, 2 practices, ledger rescored at 751 rows; no proposal clears the 5% bar.",
+  "notes": "Batch 12 of swe-orgs: 1 source (Segment), 1 practice. Built a batch 11 in parallel that a sibling run (#7674) landed first; resolved by taking main's and re-adding only the Segment row.",
   "corrections": [],
   "redteam": null
 }

@@ -1,17 +1,18 @@
-sources 41, practices 42, validation problems 0
-ledger rows 751; rows with any reported error 152
+sources 43, practices 44, validation problems 0
+ledger rows 755; rows with any reported error 153
 
 failure class: rows matching / rows (Wilson 95%)
-  coordination   12/751 =  1.6%  ( 0.9% to  2.8%)
-  unlanded        8/751 =  1.1%  ( 0.5% to  2.1%)
-  unverified      8/751 =  1.1%  ( 0.5% to  2.1%)
-  tooling        19/751 =  2.5%  ( 1.6% to  3.9%)
-  rework         10/751 =  1.3%  ( 0.7% to  2.4%)
-  duplicate      17/751 =  2.3%  ( 1.4% to  3.6%)
+  coordination   12/755 =  1.6%  ( 0.9% to  2.8%)
+  unlanded        8/755 =  1.1%  ( 0.5% to  2.1%)
+  unverified      8/755 =  1.1%  ( 0.5% to  2.1%)
+  tooling        19/755 =  2.5%  ( 1.6% to  3.9%)
+  rework         10/755 =  1.3%  ( 0.7% to  2.4%)
+  duplicate      17/755 =  2.3%  ( 1.4% to  3.6%)
 
 practice  transfer  status                                   target        ceiling  priority
   P23  yes      not adopted (batch 4 found a ledger layo tooling        2.5%    2.5%
   P36  yes      adopted (CLAUDE.md: merge when CI is gre tooling        2.5%    2.5%
+  P43  yes      partly adopted (CLAUDE.md says a second  tooling        2.5%    2.5%
   P27  yes      partly adopted (regen.mjs and sync_tree_ coordination   1.6%    1.6%
   P28  yes      adopted (CLAUDE.md: merge when CI is gre rework         1.3%    1.3%
   P30  yes      adopted (prompt.md: quality beats volume rework         1.3%    1.3%
@@ -21,7 +22,7 @@ practice  transfer  status                                   target        ceili
   P29  partial  partly adopted (research projects are pu tooling        2.5%    1.3%
   P32  partial  not adopted (the red-team track, about 7 tooling        2.5%    1.3%
   P34  partial  partly adopted (the verification block a tooling        2.5%    1.3%
-  P42  partial  adopted (the portfolio is one repository tooling        2.5%    1.3%
+  P44  partial  adopted (the portfolio is one repository tooling        2.5%    1.3%
   P10  partial  adopted (track 10 metric has three terms duplicate      2.3%    1.1%
   P18  partial  partly adopted (runs claim one milestone duplicate      2.3%    1.1%
   P21  partial  partly adopted (a project README opens w duplicate      2.3%    1.1%
@@ -35,18 +36,19 @@ practice  transfer  status                                   target        ceili
   P16  yes      adopted (the two copies were merged into unlanded       1.1%    1.1%
   P22  yes      adopted (.github/prompts/land-your-work. unlanded       1.1%    1.1%
   P33  yes      partly adopted (goals.md and CLAUDE.md f unverified     1.1%    1.1%
-  P41  yes      adopted (land-your-work.md and the resea unlanded       1.1%    1.1%
   P4   partial  adopted (mirror under way)               coordination   1.6%    0.8%
   P11  partial  not adopted                              coordination   1.6%    0.8%
   P24  partial  partly adopted (_homepage/build.py fails coordination   1.6%    0.8%
   P35  partial  partly adopted (research/CLAUDE.md: clai coordination   1.6%    0.8%
   P38  partial  not adopted (the shared files are the kn coordination   1.6%    0.8%
   P40  partial  partly adopted (the tracks are stream-al coordination   1.6%    0.8%
+  P42  partial  partly adopted (each project is self-con coordination   1.6%    0.8%
   P2   partial  not adopted                              rework         1.3%    0.7%
   P3   partial  partly adopted (audit pass exists, not p rework         1.3%    0.7%
   P14  partial  not adopted                              rework         1.3%    0.7%
   P20  partial  adopted (prompts/runs records ask each r rework         1.3%    0.7%
   P39  partial  not adopted (the ledger records no per-f rework         1.3%    0.7%
+  P41  partial  partly adopted (merge on green CI is the rework         1.3%    0.7%
   P13  partial  not adopted                              unverified     1.1%    0.5%
   P25  partial  partly adopted (CLAUDE.md says not to ma unlanded       1.1%    0.5%
   P37  partial  partly adopted (land-before-build and on unlanded       1.1%    0.5%
