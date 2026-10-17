@@ -2,6 +2,8 @@
 
 Follow-up to `osrobot-uavnogo` (track 9, open-source purpose-built robots), taking its "put a value on a completed observation and optimise limit and mass together" next step, in the direction of the RECUV and Autonomous Systems IRT interest in UAV simulation and targeted observation. Worth doing because `osrobot-uavnogo` scored a rule only by failure and scrub rates, so it could not say which limit to pick; money does. Produced with AI assistance (Claude). Pure Python standard library; it imports `osrobot-uavnogo` and its siblings. **Every technology constant comes from those projects and every money figure ($/kg, $ per scrub, value of an observation) is an assumed round number, not a price or market data; no UAV was designed for flight or flown.** All numbers below are from `experiments/results.txt`. Simulation only; a stylised, preliminary study.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-uavvalue/
+
 ![Design limit and launch threshold against the value of an observation](experiments/limit_vs_threshold.svg)
 
 Model: per attempted mission the operator earns V for a completed observation, loses the aircraft (price P per kg times its mass) on a failure, pays $10 for a scrubbed day, and carries the aircraft price spread over 100 attempts. Two knobs are searched on a 3 to 16 m/s grid in 1 m/s steps: the **design limit L** (airframe sized for wind L) and the **launch threshold T** (launch if the forecast is at most T). `osrobot-uavnogo` tied T = L.
