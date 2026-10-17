@@ -72,6 +72,9 @@
       <div><label for="year">Tax year</label><select id="year"><option value="">Latest year with sales</option></select></div>
       <div><label for="shortRate">Short-term rate (%)</label><input id="shortRate" inputmode="decimal" value="24"></div>
       <div><label for="longRate">Long-term rate (%)</label><input id="longRate" inputmode="decimal" value="15"></div>
+      <div><label for="carryShort">Short-term loss carried in ($)</label><input id="carryShort" inputmode="decimal" value="0"></div>
+      <div><label for="carryLong">Long-term loss carried in ($)</label><input id="carryLong" inputmode="decimal" value="0"></div>
+      <div><label for="lossLimit">Annual loss deduction</label><select id="lossLimit"><option value="3000">$3,000 (single, joint, head of household)</option><option value="1500">$1,500 (married filing separately)</option></select></div>
     </div>
     <label for="perWallet" class="check"><input type="checkbox" id="perWallet" aria-label="Match lots wallet by wallet"> Match lots wallet by wallet (uses the wallet column)</label>
     <button type="button" id="analyze">Match my lots</button>
@@ -87,7 +90,11 @@
     <p id="verdict"></p>
     <h3>The same year under each method</h3>
     <div class="scroll"><table id="ct"><thead><tr><th>Method</th><th class="n">Short-term gain</th><th class="n">Long-term gain</th><th class="n">Total gain</th><th class="n">Estimated tax</th></tr></thead><tbody></tbody></table></div>
-    <p class="note">Estimated tax nets short against long results and applies the two rates you entered. It ignores the net investment income tax, the annual loss deduction limit, carryforwards, state tax and your other income. It is a comparison between methods, not a tax bill.</p>
+    <p class="note">Estimated tax nets short against long results and applies the two rates you entered. It ignores the net investment income tax, state tax and your other income; the loss-limit table below applies the annual deduction limit and carryforwards. It is a comparison between methods, not a tax bill.</p>
+    <h3>Loss limit and carryforward</h3>
+    <p id="netting-verdict"></p>
+    <div class="scroll"><table id="nt"><thead><tr><th>Year</th><th class="n">Loss carried in</th><th class="n">Short-term gain</th><th class="n">Long-term gain</th><th class="n">Net after carry-in</th><th class="n">Deductible against other income</th><th class="n">Carried to next year</th><th class="n">Estimated tax</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">Years run in order from the earliest sale in your file, so a loss in an early year reduces later gains. Enter any loss you carried in from before the file starts. Net losses deduct up to the annual limit and the rest carries forward with its short or long character. The deduction is shown, not valued, and the table ignores the net investment income tax, state tax and your other income. Check it against your own Capital Loss Carryover Worksheet.</p>
     <h3>Form 8949 style rows</h3>
     <div class="scroll"><table id="rt"><thead><tr><th>Description</th><th>Acquired</th><th>Sold</th><th class="n">Proceeds</th><th class="n">Basis</th><th class="n">Gain / loss</th><th>Term</th></tr></thead><tbody></tbody></table></div>
     <h3>Totals for Form 8949 and Schedule D</h3>
@@ -162,9 +169,12 @@
       const year = $("#year").value ? Number($("#year").value) : null;
       const pre = convertMany([{ name: "pasted text", text: $("#csv").value }]);
       if (pre.formats[0] !== "generic") $("#csv").value = pre.csv;
-      const r = analyze($("#csv").value, { method: $("#method").value, year, perWallet: $("#perWallet").checked, shortRate, longRate });
+      const money = (id) => { const v = Number($(id).value || 0); return Number.isFinite(v) && v >= 0 ? v : null; };
+      const carryShort = money("#carryShort"), carryLong = money("#carryLong");
+      if (carryShort === null || carryLong === null) { status.textContent = "Enter carried-in losses as positive dollar amounts, or 0."; return false; }
+      const r = analyze($("#csv").value, { method: $("#method").value, year, perWallet: $("#perWallet").checked, shortRate, longRate, carryShort, carryLong, lossLimit: Number($("#lossLimit").value) });
       const notices = [...(pre.formats[0] !== "generic" ? pre.notes : []), ...r.errors, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`);
-      if (!r.summary) { $("#notices").innerHTML = notices.join(""); report.hidden = false; $("#big").innerHTML = ""; $("#verdict").textContent = ""; for (const t of ["#ct", "#rt", "#tt", "#ht"]) $(t + " tbody").innerHTML = ""; status.textContent = "Fix the rows listed in the result and run it again."; return false; }
+      if (!r.summary) { $("#notices").innerHTML = notices.join(""); report.hidden = false; $("#big").innerHTML = ""; $("#verdict").textContent = ""; for (const t of ["#ct", "#nt", "#rt", "#tt", "#ht"]) $(t + " tbody").innerHTML = ""; status.textContent = "Fix the rows listed in the result and run it again."; return false; }
       last = r;
       const years = r.years.map((y) => `<option value="${y}"${y === r.year ? " selected" : ""}>${y}</option>`).join("");
       $("#year").innerHTML = '<option value="">Latest year with sales</option>' + years;
@@ -181,6 +191,11 @@
         ? `${METHOD_LABELS[r.method]} gives the lowest estimated tax of the five methods for ${r.year} on these rows.`
         : `${METHOD_LABELS[best.method]} would have given an estimated tax of ${usd(best.tax)} for ${r.year}, ${usd(mine.tax - best.tax)} less than ${r.method}. Whether you may use it depends on how your coins were identified and recorded at the time of sale.` + (r.income ? ` Income received in ${r.year}: ${usd(r.income)} (not included in these gains).` : "");
       $("#ct tbody").innerHTML = r.comparison.map((c) => `<tr${c.method === r.bestMethod ? ' class="rec"' : ""}><td>${esc(c.method)} — ${esc(c.label)}${c.method === r.method ? ' <span class="pill info">shown below</span>' : ""}</td><td class="n">${usd(c.shortGain)}</td><td class="n">${usd(c.longGain)}</td><td class="n">${usd(c.totalGain)}</td><td class="n">${usd(c.tax)}</td></tr>`).join("");
+      const n = r.netting;
+      $("#netting-verdict").textContent = !n ? "" : n.totalNet < 0
+        ? `${r.year}: net capital loss ${usd(-n.totalNet)}. ${usd(n.deduction)} can be deducted against other income this year${n.carryShortOut + n.carryLongOut ? ` and ${usd(n.carryShortOut + n.carryLongOut)} carries to ${r.year + 1}` : ""}.`
+        : `${r.year}: net capital gain ${usd(n.totalNet)} after ${usd(n.carryShortIn + n.carryLongIn)} of carried-in loss; estimated tax ${usd(n.tax)}.`;
+      $("#nt tbody").innerHTML = r.carryChain.map((c) => `<tr${c.year === r.year ? ' class="rec"' : ""}><td>${c.year}</td><td class="n">${usd(c.carryShortIn + c.carryLongIn)}</td><td class="n">${usd(c.shortGain)}</td><td class="n">${usd(c.longGain)}</td><td class="n">${usd(c.totalNet)}</td><td class="n">${usd(c.deduction)}</td><td class="n">${usd(c.carryShortOut + c.carryLongOut)}</td><td class="n">${usd(c.tax)}</td></tr>`).join("");
       $("#rt tbody").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.description)}${x.missingBasis ? ' <span class="pill high">no basis</span>' : ""}</td><td>${x.acquired || "VARIOUS"}</td><td>${x.sold}</td><td class="n">${usd(x.proceeds)}</td><td class="n">${usd(x.basis)}</td><td class="n">${usd(x.gain)}</td><td><span class="pill ${x.term === "Long" ? "good" : "info"}">${x.term}</span></td></tr>`).join("") || '<tr><td colspan="7">No sales in this year.</td></tr>';
       const ft = form8949Totals(r.rows);
       $("#tt tbody").innerHTML = [["Part I · short-term", ft.short], ["Part II · long-term", ft.long], ["Total", ft.total]].map(([n, v]) => `<tr><td>${n}${v.noBasis ? ` <span class="pill high">${v.noBasis} no basis</span>` : ""}</td><td class="n">${v.rows}</td><td class="n">${usd(v.proceeds)}</td><td class="n">${usd(v.basis)}</td><td class="n">${usd(v.gain)}</td></tr>`).join("");

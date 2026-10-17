@@ -26,6 +26,9 @@ Options:
   --method <m>        FIFO (default), LIFO, HIFO, LOFO or TAXMIN
   --year <yyyy>       tax year of the sales (default: the latest year with a sale)
   --per-wallet        match each sale only against lots in the same wallet
+  --carry-short <usd>  short-term loss carried in from before the file starts
+  --carry-long <usd>   long-term loss carried in from before the file starts
+  --mfs                $1,500 annual loss deduction (married filing separately)
   --short-rate <pct>  short-term rate for the tax estimate (default 24)
   --long-rate <pct>   long-term rate for the tax estimate (default 15)
   --form8949 <file>   also write Form 8949 style rows to this file
@@ -40,7 +43,7 @@ prices, and rows an export gives no USD value for are flagged, never zero.
 `;
 
 export function parseArgs(argv) {
-  const opts = { files: [], method: "FIFO", year: null, perWallet: false, shortRate: 0.24, longRate: 0.15, form8949: null, json: false, example: false, help: false };
+  const opts = { files: [], method: "FIFO", year: null, perWallet: false, shortRate: 0.24, longRate: 0.15, form8949: null, carryShort: 0, carryLong: 0, lossLimit: 3000, json: false, example: false, help: false };
   const need = (i, arg) => { if (i >= argv.length) throw new Error(`${arg} needs a value`); return argv[i]; };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
@@ -60,7 +63,12 @@ export function parseArgs(argv) {
       const v = Number(need(++i, arg));
       if (!Number.isFinite(v) || v < 0 || v > 100) throw new Error(`${arg} needs a percent between 0 and 100`);
       opts[arg === "--short-rate" ? "shortRate" : "longRate"] = v / 100;
-    } else if (arg === "--form8949") opts.form8949 = need(++i, arg);
+    } else if (arg === "--carry-short" || arg === "--carry-long") {
+      const v = Number(need(++i, arg));
+      if (!Number.isFinite(v) || v < 0) throw new Error(`${arg} needs a positive dollar amount`);
+      opts[arg === "--carry-short" ? "carryShort" : "carryLong"] = v;
+    } else if (arg === "--mfs") opts.lossLimit = 1500;
+    else if (arg === "--form8949") opts.form8949 = need(++i, arg);
     else if (arg.startsWith("-") && arg !== "-") throw new Error(`unknown option: ${arg}`);
     else opts.files.push(arg);
   }
@@ -72,7 +80,7 @@ const usd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { 
 // files: [{ name, text }]. Returns { result, formats, notes, csv, error }.
 export function run(files, opts = {}) {
   const { formats, csv, notes } = convertMany(files);
-  const result = analyze(csv, { method: opts.method || "FIFO", year: opts.year ?? null, perWallet: !!opts.perWallet, shortRate: opts.shortRate ?? 0.24, longRate: opts.longRate ?? 0.15 });
+  const result = analyze(csv, { method: opts.method || "FIFO", year: opts.year ?? null, perWallet: !!opts.perWallet, shortRate: opts.shortRate ?? 0.24, longRate: opts.longRate ?? 0.15, carryShort: opts.carryShort || 0, carryLong: opts.carryLong || 0, lossLimit: opts.lossLimit || 3000 });
   const error = result.errors.length && result.rows.length === 0 ? result.errors.join("; ") : null;
   return { result, formats, notes, csv, error };
 }
@@ -89,6 +97,10 @@ export function render({ result, formats, notes }, opts = {}) {
   out.push(`  short-term ${usd(s.shortGain)}   long-term ${usd(s.longGain)}   total ${usd(s.totalGain)}   income received ${usd(result.income)}`);
   out.push(`  estimated tax ${usd(result.tax)} at ${(opts.shortRate ?? 0.24) * 100}% short / ${(opts.longRate ?? 0.15) * 100}% long`);
   if (t) out.push(`  ${t}`);
+  if (result.carryChain.length) {
+    out.push("", `Loss limit and carryforward (${usd(opts.lossLimit || 3000)} a year; years chained from the first sale in the file):`);
+    for (const c of result.carryChain) out.push(`  ${c.year}  carried in ${usd(c.carryShortIn + c.carryLongIn).padStart(12)}   net ${usd(c.totalNet).padStart(13)}   deductible ${usd(c.deduction).padStart(10)}   carried out ${usd(c.carryShortOut + c.carryLongOut).padStart(12)}   tax ${usd(c.tax).padStart(11)}${c.year === result.year ? "   <- shown year" : ""}`);
+  }
   out.push("", "Method comparison (same sales):");
   for (const c of result.comparison) out.push(`  ${c.label.padEnd(24)} gain ${usd(c.totalGain).padStart(14)}   tax ${usd(c.tax).padStart(12)}${c.method === result.bestMethod ? "   <- lowest estimated tax" : ""}`);
   if (result.holdings.length) {
