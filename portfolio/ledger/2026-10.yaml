@@ -4032,3 +4032,24 @@ entries:
         author's reading and not lawyer-reviewed; the page says so and the first wrong-deadline report is the priority
         fix. Published the gh-pages snapshot first (it was stale against main).
     mrr_end: 0
+  - venture: aid-award-letter-comparator
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built aid-award-letter-comparator: a browser-only tool for families holding college
+        financial aid award letters. Pasted label: amount blocks (cost of attendance, grants, one-time
+        first-year grant, work-study, subsidized, unsubsidized, Parent PLUS and private loans) give each
+        offer's multi-year net price, loans with accrued interest and an amortised payment, origination
+        fees as cash, and a total cost to the family (cash plus repayment) that ranks the offers. It flags
+        a year-2 net-price jump from first-year-only aid, federal dependent loan limits, borrowing beyond
+        the bill, heavy work-study loads and payment-to-salary squeeze, and bisects the extra yearly grant
+        that would make a dearer offer match the cheapest, the figure for a financial aid appeal. 15
+        hand-checked unit tests (annuity formula, simple-interest accrual, parser, bisection) plus page,
+        usage and guide tests whose worked example is recomputed from the calculator; run in headless
+        Chromium. Screened with duplicate_check.py (best match 0.21, a single-school discount tool); no
+        FAFSA, scholarship or award-letter venture existed. First visitor: seniors' families searching
+        "compare financial aid offers" in the October to April peak; volume unmeasured. Rates default to
+        2025-26 federal values and the page tells the user to replace them. Also refreshed the gh-pages
+        snapshot, which the session gate reported stale.
+    mrr_end: 0
