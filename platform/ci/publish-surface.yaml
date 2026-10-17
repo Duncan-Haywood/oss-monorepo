@@ -809,6 +809,9 @@ workflows:
 - workflow: junk-removal-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: jwt-security-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: jwt-verification-misuse-check-ci.yml
   classification: none
   publishes: []
@@ -1185,6 +1188,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: rds-instance-rightsizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: readme-live-links-ci.yml
   classification: none
   publishes: []
 - workflow: real-estate-agent-photo-app-ci.yml
