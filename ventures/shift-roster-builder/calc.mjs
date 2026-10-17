@@ -1279,6 +1279,76 @@ export function hoursCsv(r) {
   return rows.join("\n") + "\n";
 }
 
+// ---- Collecting availability from the team -------------------------------------------------
+// availability.html has each person fill a week grid and sends the manager one line of text
+// back; mergeAvailabilityReplies drops those lines into the staff list. Nothing is uploaded:
+// the reply travels by whatever the manager already uses (text, email, chat).
+
+const clockText = (m) => (m % 60 === 0 ? String(m / 60) : `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`);
+
+// grid: seven entries Mon..Sun, each { mode: "any" | "off" | "range", from, to } (minutes from midnight).
+// Adjacent days with the same window are written as a range ("Mon-Fri 9-17"). Days off are written out
+// ("Sat-Sun off") so an all-off week is not mistaken for the blank cell that means "any time".
+export function availabilityFromGrid(grid) {
+  const keyOf = (g) => (!g || g.mode === "off" ? "off" : g.mode === "any" ? "0-24" : `${clockText(g.from)}-${clockText(g.to)}`);
+  const parts = [];
+  for (let d = 0; d < 7;) {
+    const k = keyOf(grid[d]);
+    let e = d;
+    while (e + 1 < 7 && keyOf(grid[e + 1]) === k) e++;
+    parts.push(`${d === e ? DAYS[d] : `${DAYS[d]}-${DAYS[e]}`} ${k}`);
+    d = e + 1;
+  }
+  return parts.join("; ");
+}
+
+// One reply per line: "Name | availability | max: 30 | off: Wed | avoid: Fri 5pm-close".
+export function parseAvailabilityReply(line) {
+  const cells = String(line).split("|").map((c) => c.trim());
+  const name = cells[0];
+  if (!name || cells.length < 2 || !cells[1]) return { error: `"${String(line).trim().slice(0, 40)}" is not a reply line; write Name | availability | optional max: hours` };
+  const av = parseAvailability(cells[1]);
+  if (av.errors.length) return { error: `${name}: ${av.errors[0]}` };
+  const out = { name, availability: cells[1], max: null, extras: [] };
+  for (const c of cells.slice(2)) {
+    if (/^max(imum)?(\s*hours)?\s*:/i.test(c)) {
+      const n = Number(c.replace(/^[^:]*:/, "").replace(/h(ours?)?$/i, "").trim());
+      if (!Number.isFinite(n) || n < 0) return { error: `${name}: could not read "${c}"` };
+      out.max = n;
+    } else if (OFF_CELL.test(c) || AVOID_CELL.test(c) || PREFER_CELL.test(c)) out.extras.push(c);
+    else if (c) return { error: `${name}: could not read "${c}"` };
+  }
+  return out;
+}
+
+export function mergeAvailabilityReplies(staffText, repliesText) {
+  const lines = String(staffText || "").split(/\r?\n/);
+  const errors = [], updated = [], added = [];
+  const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x);
+  const rowOf = (name) => lines.findIndex((l) => { const t = l.trim(); return t && !t.startsWith("#") && splitLine(t)[0].toLowerCase() === name.toLowerCase(); });
+  for (const raw of String(repliesText || "").split(/\r?\n/)) {
+    if (!raw.trim() || raw.trim().startsWith("#")) continue;
+    const r = parseAvailabilityReply(raw);
+    if (r.error) { errors.push(r.error); continue; }
+    const i = rowOf(r.name);
+    if (i < 0) {
+      lines.push([r.name, "", r.max ?? 40, 0, r.availability, ...r.extras].join(", "));
+      added.push(r.name);
+      continue;
+    }
+    const c = splitLine(lines[i].trim());
+    while (c.length < 4) c.push("");
+    const replaced = (re) => r.extras.some((x) => re.test(x));
+    const keep = c.slice(4).filter((x) => isExtra(x) && !(OFF_CELL.test(x) && replaced(OFF_CELL)) && !(AVOID_CELL.test(x) && replaced(AVOID_CELL)) && !(PREFER_CELL.test(x) && replaced(PREFER_CELL)));
+    const was = c[2] === "" ? 40 : Number(c[2]);
+    if (r.max !== null && (!Number.isFinite(was) || r.max < was)) c[2] = String(r.max);
+    if (Number(c[3]) > Number(c[2])) c[3] = c[2];
+    lines[i] = [...c.slice(0, 4), r.availability, ...r.extras, ...keep].join(", ");
+    updated.push(r.name);
+  }
+  return { text: lines.join("\n"), updated, added, errors };
+}
+
 export function sampleStaff() {
   return [
     "name, wage, max hours, min hours, availability",

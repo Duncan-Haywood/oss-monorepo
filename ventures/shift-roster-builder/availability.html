@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Send Your Work Availability To Your Manager</title>
+  <meta name="description" content="Fill in the hours you can work each day and get one short message to send your manager by text or email. Free, no account, nothing is uploaded.">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="./availability.html">
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 640px; margin: auto; padding: 22px; }
+    a { color: #1f5f86; }
+    h1 { font-size: 1.7rem; line-height: 1.12; margin: 0 0 8px; color: #1f4a5d; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 18px; margin: 16px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { font: 14px ui-monospace, monospace; min-height: 90px; }
+    .day { display: grid; grid-template-columns: 3rem 1fr; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid #ece7f2; }
+    .day .times { grid-column: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .day .times[hidden] { display: none; }
+    .day strong { font-size: .95rem; }
+    button, a.btn { display: inline-block; border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 12px 8px 0 0; text-decoration: none; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    footer { margin-top: 22px; }
+    .err { background: #f8d9d6; color: #6b1a12; border-radius: 10px; padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <h1 id="title">Send your work availability</h1>
+  <p id="intro">Say which hours you can work each day. You get one short message to send your manager. Nothing is uploaded and there is no account.</p>
+
+  <section class="card">
+    <label for="who">Your name (as your manager knows you)</label>
+    <input id="who" autocomplete="name">
+    <div id="days"></div>
+    <label for="maxh">Most hours you want in a week (optional)</label>
+    <input id="maxh" inputmode="decimal" placeholder="e.g. 25">
+    <label for="offs">Days or hours you are away this week (optional)</label>
+    <input id="offs" placeholder="e.g. Wed; Fri 5pm-close">
+    <p class="note">Write days as Mon, Tue and so on, with hours if only part of a day, like <code>Fri 5pm-close</code>.</p>
+  </section>
+
+  <section class="card">
+    <h2 style="font-size:1.05rem;margin:0 0 6px">Your message</h2>
+    <label for="out">Copy this, or use a button to send it</label>
+    <textarea id="out" readonly></textarea>
+    <p id="problem" class="err" hidden></p>
+    <button type="button" id="copy">Copy message</button>
+    <a class="btn" id="sms" href="#">Text it</a>
+    <a class="btn" id="mail" href="#">Email it</a>
+    <p id="status" role="status" class="note"></p>
+  </section>
+
+  <footer>
+    <p>Part of the free <a href="./">Shift Roster Builder</a>. This page works in your browser only: what you type here is never sent anywhere. The buttons open your own messaging app; your manager's number or address stays with you. Not legal, tax, or financial advice; availability you send is a request to your employer, not an agreement. No warranty. Not affiliated with any scheduling, payroll or point-of-sale vendor.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support the project</a> (optional) · <a href="LICENSE" rel="noopener">MIT licence</a></p>
+  </footer>
+
+  <script type="module">
+    import { availabilityFromGrid, parseAvailability, DAYS } from "./calc.mjs";
+    const $ = (s) => document.querySelector(s);
+    const params = new URLSearchParams(location.hash.replace(/^#/, ""));
+    const biz = (params.get("b") || "").slice(0, 60), week = (params.get("w") || "").slice(0, 10), pre = (params.get("n") || "").slice(0, 40);
+    if (biz) { $("#title").textContent = `Send your availability to ${biz}`; document.title = `Availability for ${biz}`; }
+    if (/^\d{4}-\d{2}-\d{2}$/.test(week)) $("#intro").textContent += ` This is for the week starting ${week}.`;
+    $("#who").value = pre;
+    const hhmm = (m) => String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
+    $("#days").innerHTML = DAYS.map((d, i) => `<div class="day"><strong>${d}</strong>
+      <div><label for="m${i}" style="position:absolute;left:-9999px">${d} availability</label><select id="m${i}"><option value="any">Free all day</option><option value="range">Free between</option><option value="off">Not available</option></select></div>
+      <div class="times" id="t${i}" hidden><div><label for="f${i}" style="position:absolute;left:-9999px">${d} from</label><input id="f${i}" type="time" value="09:00"></div><div><label for="e${i}" style="position:absolute;left:-9999px">${d} until</label><input id="e${i}" type="time" value="17:00"></div></div></div>`).join("");
+    const mins = (v) => { const [h, m] = String(v).split(":").map(Number); return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : NaN; };
+    function build() {
+      const grid = DAYS.map((_, i) => {
+        const mode = $("#m" + i).value;
+        $("#t" + i).hidden = mode !== "range";
+        return { mode, from: mins($("#f" + i).value), to: mins($("#e" + i).value) };
+      });
+      const bad = grid.findIndex((g) => g.mode === "range" && !(g.to > g.from));
+      const problem = $("#problem");
+      problem.hidden = bad < 0;
+      if (bad >= 0) { problem.textContent = `${DAYS[bad]}: the end time must be after the start time. For a late finish, choose "Free all day" or end at 23:59.`; }
+      const name = $("#who").value.replace(/[|\n\r]/g, " ").trim();
+      const cells = [name || "Your name", bad >= 0 ? "" : availabilityFromGrid(grid)];
+      const mx = $("#maxh").value.trim(); if (mx !== "" && Number.isFinite(Number(mx)) && Number(mx) >= 0) cells.push(`max: ${Number(mx)}`);
+      const off = $("#offs").value.replace(/[|\n\r]/g, " ").trim(); if (off) cells.push(`off: ${off}`);
+      const line = cells.join(" | ");
+      $("#out").value = bad >= 0 ? "" : line;
+      const ok = bad < 0 && name && !parseAvailability(cells[1]).errors.length;
+      const body = encodeURIComponent(line);
+      $("#sms").href = ok ? `sms:?&body=${body}` : "#";
+      $("#mail").href = ok ? `mailto:?subject=${encodeURIComponent("My availability" + (week ? " for week of " + week : ""))}&body=${body}` : "#";
+    }
+    document.addEventListener("input", build); document.addEventListener("change", build);
+    $("#copy").addEventListener("click", async () => {
+      const t = $("#out").value; if (!t) return;
+      try { await navigator.clipboard.writeText(t); $("#status").textContent = "Copied. Paste it into a message to your manager."; }
+      catch { $("#out").select(); $("#status").textContent = "Select the text above and copy it."; }
+    });
+    build();
+  </script>
+</body>
+</html>
