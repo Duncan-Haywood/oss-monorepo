@@ -1,0 +1,51 @@
+coverage from 2026-10-16T11:20:31Z; research merges joined to a same-repo PR: 122; with commit times: 122 (missing 0)
+  first commit dated after the PR was opened (clock or rewrite; start moved back to creation): 1
+  PRs whose commit list was truncated at 100: 0
+
+minutes, n=122
+  branch (1st commit->merge) median     1.1  p25     0.5  p75     3.8  p90    16.1  max     298
+  PR (creation->merge)   median     0.9  p25     0.3  p75     3.7  p90    16.0  max     206
+  commits per PR: median 2, max 9; single-commit PRs 1/122
+  branch merged within   5 min of its first commit: 96/122 (79%)
+  branch merged within  10 min of its first commit: 107/122 (88%)
+  branch merged within  30 min of its first commit: 116/122 (95%)
+  branch merged within  60 min of its first commit: 119/122 (98%)
+  branch merged within 240 min of its first commit: 121/122 (99%)
+  work done before the PR was opened: median 0.2 min, p90 0.3
+
+PRs touching a shared index file: 58 of 122
+  branch lifetime: median 1.9  p75 6.1  p90 19.2 min
+shared-file merges landing while each such PR existed
+  from first commit : mean 0.43; at least one 13/58 (22%)
+  from PR creation  : mean 0.40; at least one 12/58 (21%)
+
+replay: PR diff applied to main as of the branch start, then merged with main just before the real merge
+  conflict anywhere: 3/58 (5.2%)
+  conflict in a shared index file: 3/58 (5.2%, Wilson 95% 1.8-14.1%)
+  among PRs that saw at least one shared-file landing: 3/13
+  among PRs that saw none: 0/45
+  conflicting PRs (number, branch min, PR min, shared landings from first commit, files):
+    #7657  branch    1.6  PR    1.4  landings 1  ['research/README.md', 'research/_homepage/projects.json']
+    #7673  branch   16.6  PR   16.4  landings 1  ['research/README.md', 'research/_homepage/projects.json', 'research/swe-orgs/LOG.md', 'research/swe-orgs/README.md', 'research/swe-orgs/data/practices.csv', 'research/swe-orgs/data/sources.csv', 'research/swe-orgs/experiments/failure_classes.svg', 'research/swe-orgs/experiments/results.txt']
+    #7727  branch    5.6  PR    5.6  landings 1  ['research/_homepage/projects.json']
+  same PRs replayed from PR creation instead (swe-prlifetime method): 2/58 conflict
+
+by branch-lifetime band (PRs touching a shared file): n, mean shared landings, conflict anywhere
+     0-  10 min: n= 47  mean landings 0.15  conflict 2/47
+    10-  30 min: n=  7  mean landings 0.57  conflict 1/7
+    30- 120 min: n=  4  mean landings 3.50  conflict 0/4
+
+all research PRs (not only shared-file ones): replay from branch start, conflict anywhere
+  10/122 (8.2%, Wilson 95% 4.5-14.4%)
+  conflicting PRs that do not touch a shared index file (number, files):
+    #7427  ['research/PROJECTS.md']
+    #7453  ['research/PROJECTS.md']
+    #7568  ['research/PROJECTS.md']
+    #7626  ['research/PROJECTS.md']
+    #7636  ['research/PROJECTS.md']
+    #7632  ['gitops/prod/front-door/ (61 files)', 'platform/devstats/devstats.test.mjs', 'platform/pages/build.mjs', 'platform/pages/build.test.mjs']
+    #7678  ['prompts/experiments.md']
+
+PRs that edit research/PROJECTS.md: 44 of 122; replay conflict in it: 5/44
+  conflicts among the 78 that do not: 4
+  PRs per top-level research file (all PRs): {'research/README.md': 56, 'research/PROJECTS.md': 44, 'research/CLAUDE.md': 3, 'research/CITATIONS.bib': 1}

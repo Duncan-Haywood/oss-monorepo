@@ -795,3 +795,31 @@ test("tipPool splits by hours in whole cents and always adds back to the pot", (
   assert.equal(tipPool(r, 0).rows.length, 0);
   assert.equal(tipPool({}, 50).rows.length, 0);
 });
+
+test("messages: dates roll over month ends using the real year (leap Feb 29)", () => {
+  const r = buildRoster(staffOf("Ana, 15, 40, 0, any"), slotsOf("Thu, 9, 17, 1, open"));
+  const ana = rosterMessages(r, "2024-02-26").find((x) => x.person === "Ana");
+  assert.match(ana.text, /Thu 29 Feb: /);
+});
+
+test("carry over: a row with an unreadable start or end time is skipped, not read as NaN", async () => {
+  const { lastShiftEnds } = await import("./calc.mjs");
+  const e = lastShiftEnds([
+    "day,start,end,hours,label,assigned_to,role",
+    "Fri,5pm,??,6.00,,Sam,",
+    "Sat,??,5pm,8.00,,Alex,",
+    "Sat,9am,5pm,8.00,,Pat,",
+  ].join("\n"));
+  assert.deepEqual([...e.keys()], ["pat"]);
+});
+
+test("toughBalance spreads weekend, closing and opening shifts without leaving shifts open", () => {
+  const staff = staffOf("Ann,10,40,0,any\nBo,10,40,0,any\nCy,10,40,0,any");
+  const slots = slotsOf("Sat,9,17,1\nSun,9,17,1\nMon,9,17,1\nTue,9,17,1\nWed,9,17,1\nThu,9,17,1");
+  const spread = (r) => fairnessReport(r).spread;
+  const off = buildRoster(staff, slots, { balance: 0, toughBalance: 0 });
+  const on = buildRoster(staff, slots, { balance: 0, toughBalance: 100 });
+  assert.equal(on.unfilled.length, 0);
+  assert.ok(spread(on) <= spread(off));
+  assert.ok(spread(on) <= 1);
+});

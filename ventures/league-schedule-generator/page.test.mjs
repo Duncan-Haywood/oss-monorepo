@@ -206,3 +206,24 @@ test("the Americano guide's worked example matches americano() and is linked and
   assert.match(page("sitemap.xml"), /how-to-run-an-americano-tournament\.html/);
   assert.match(page("index.html"), /href="\.\/how-to-run-an-americano-tournament\.html"/);
 });
+
+test("the double-elimination guide's worked example matches doubleEliminationBracket() and is linked and in the sitemap", async () => {
+  const { doubleEliminationBracket } = await import("./calc.mjs");
+  const html = page("how-to-run-a-double-elimination-tournament.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-run-a-double-elimination-tournament\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const s = (x) => (x.none ? "BYE" : x.loserOf ? `loser of ${x.loserOf}` : x.from ? `winner of ${x.from}` : `#${x.seed} ${x.name}`);
+  const b = doubleEliminationBracket(["Hawks", "Owls", "Foxes", "Bears", "Lynx", "Wolves"]);
+  assert.equal(b.games, 10);
+  assert.equal(b.maxGames, 11);
+  for (const r of b.rounds) for (const m of r.matches) {
+    if (m.bye || m.dead) continue;
+    const row = `<tr><td>${r.name}</td><td>${m.id}</td><td>${s(m.a)} vs ${s(m.b)}</td></tr>`;
+    assert.ok(html.includes(row), row);
+  }
+  assert.match(page("sitemap.xml"), /how-to-run-a-double-elimination-tournament\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-run-a-double-elimination-tournament\.html"/);
+});

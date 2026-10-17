@@ -1,0 +1,68 @@
+name: sales-call-notes-desk
+description: >-
+  Free browser tool for salespeople, founders and account managers: paste
+  discovery-call notes or a transcript and get the CRM fields (pain, quantified
+  impact, budget, decision maker, timeline, decision process and criteria,
+  alternatives, dated next step), each with the sentence it came from, the
+  qualification gaps (BANT and MEDDIC) with the question to ask next, deal-risk
+  flags, a CRM-ready CSV row, and a follow-up email checked against the notes
+  so it never states a number you did not hear. Optional AI polish on the
+  seller's own key. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-10-17 in a scheduled session. duplicate_check.py: closest rows
+# were LinkedIn Content Engine 0.21 (idea list) and incident-postmortem-timeline
+# 0.18 (a different reader); nothing near the 0.45 line. Fills the "meeting
+# notes to CRM fields" and "follow-up" rows of portfolio/sales-tools/README.md
+# that no venture covered.
+#
+# Why this niche: call-intelligence products (Gong, Chorus, Fireflies, Avoma,
+# Grain) charge per seat per month for recording and summarising; the part a
+# one-person sales team, founder or consultant needs is smaller: did this call
+# answer the qualification questions, what goes in the CRM, what do I send. A
+# free, private, no-recording tool covers that, and works on notes typed by hand
+# or a transcript exported from any recorder.
+#
+# First visitor: people searching "sales call notes template", "discovery call
+# follow-up email", "BANT vs MEDDIC", "what to put in the CRM after a call",
+# "how to write a follow-up email after a sales call"; r/sales, r/startups
+# founder-led-sales threads. Volume not measured with an external tool.
+#
+# Liability boundary: keyword rules over text the user pastes; every item cites
+# its sentence and a field with no evidence stays blank (nothing invented).
+# Drafts only: it never sends email or touches a CRM. The page says the user is
+# responsible for CAN-SPAM, GDPR and call-recording consent. AI output is
+# rejected if it contains a dollar figure absent from the notes. Notes never
+# leave the browser except, on the user's own key, to the provider they chose.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; a natural
+# front end for a paid team tier (shared call library, CRM write-back through
+# the deployer's own API keys, coaching reports across calls); not built.
+
+hypotheses:
+  - claim: >-
+      Founders and small sales teams will paste call notes into a private,
+      no-signup tool after discovery calls and use the gap list and the checked
+      follow-up email, and will come back after the next call.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a follow-up email the checker passed that stated a price, discount or commitment that was not in their notes.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sales-call-notes-desk/
+  analytics: null

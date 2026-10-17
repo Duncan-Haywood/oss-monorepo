@@ -105,6 +105,7 @@
       <div><label for="tippot">Tip pot to split this week ($, optional)</label><input id="tippot" inputmode="decimal" placeholder="e.g. 1450"></div>
       <div><label for="labortarget">Target labor cost (% of sales)</label><input id="labortarget" inputmode="decimal" placeholder="e.g. 30"></div>
       <div><label for="balance">Balance hours across people (0–100)</label><input id="balance" inputmode="decimal" value="25"></div>
+      <div><label for="tough">Spread weekend, closing and opening shifts (0–100)</label><input id="tough" inputmode="decimal" value="0"></div>
     </div>
     <button type="button" id="analyze">Build the roster</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
@@ -234,7 +235,7 @@
       const r = buildRoster(st.staff, sh.slots, {
         minRestHours: val("rest", 10), maxConsecDays: val("consec", 6), maxDailyHours: val("daily", 0), otAfter: val("otafter", 40), otMult: val("otmult", 1.5),
         mealAfter: val("mealafter", 0), mealMin: val("mealmin", 30), splitPremium: val("splitprem", 0), splitGap: val("splitgap", 1), dailyOtAfter: val("dotafter", 0), dailyDtAfter: val("ddtafter", 0),
-        burdenPct: val("burden", 0), balance: Math.min(100, Math.max(0, val("balance", 25))),
+        burdenPct: val("burden", 0), balance: Math.min(100, Math.max(0, val("balance", 25))), toughBalance: Math.min(100, Math.max(0, val("tough", 0))),
       });
       if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
       last = r; lastIn = { staff: st.staff, slots: sh.slots };
@@ -286,7 +287,7 @@
       const dl = dailyLabor(r, st.staff, $("#dailysales").value);
       $("#daily-box").innerHTML = `<h3>Each day against sales</h3><p class="note">Scheduled hours and payroll at base wage (plus extras) per day${dl.hasSales ? ", with each day's labor share of the sales you gave" : "; add sales by day above to see each day's labor share"}. Overtime premiums are priced across the week, so they are not spread over days here.</p><div class="scroll"><table><thead><tr><th>Day</th><th class="n">Hours</th><th class="n">Payroll</th>${dl.hasSales ? '<th class="n">Sales</th><th class="n">Labor share</th>' : ""}</tr></thead><tbody>${dl.days.map((d) => `<tr><td>${d.day}</td><td class="n">${num(d.hours)}</td><td class="n">${money(d.cost)}</td>${dl.hasSales ? `<td class="n">${d.sales ? money(d.sales) : "—"}</td><td class="n">${d.pct === null ? "—" : num(d.pct) + "%" + (d === dl.worst ? " (highest)" : "")}</td>` : ""}</tr>`).join("")}</tbody></table></div>`;
       const fr = fairnessReport(r);
-      $("#fair-box").innerHTML = fr.rows.length ? `<h3>Who gets the tough shifts</h3><p class="note">Weekend, closing (10pm or later, or past midnight) and opening (6am or earlier) shifts per person.${fr.flag ? ` <strong>${esc(fr.most.name)} has ${fr.most.tough} and ${esc(fr.least.name)} has ${fr.least.tough}.</strong> Check this is what people agreed to; the builder does not balance it and cannot know who asked for what.` : " The spread is small."}</p><div class="scroll"><table><thead><tr><th>Person</th><th class="n">Shifts</th><th class="n">Weekend</th><th class="n">Closing</th><th class="n">Opening</th></tr></thead><tbody>${fr.rows.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${x.shifts}</td><td class="n">${x.weekend}</td><td class="n">${x.closing}</td><td class="n">${x.opening}</td></tr>`).join("")}</tbody></table></div>` : "";
+      $("#fair-box").innerHTML = fr.rows.length ? `<h3>Who gets the tough shifts</h3><p class="note">Weekend, closing (10pm or later, or past midnight) and opening (6am or earlier) shifts per person.${fr.flag ? ` <strong>${esc(fr.most.name)} has ${fr.most.tough} and ${esc(fr.least.name)} has ${fr.least.tough}.</strong> Check this is what people agreed to; raise \u201cSpread weekend, closing and opening shifts\u201d to have the search even it out; it cannot know who asked for what.` : " The spread is small."}</p><div class="scroll"><table><thead><tr><th>Person</th><th class="n">Shifts</th><th class="n">Weekend</th><th class="n">Closing</th><th class="n">Opening</th></tr></thead><tbody>${fr.rows.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${x.shifts}</td><td class="n">${x.weekend}</td><td class="n">${x.closing}</td><td class="n">${x.opening}</td></tr>`).join("")}</tbody></table></div>` : "";
       const ht = val("hoursline", 0) > 0 ? hoursThresholds(r, { threshold: val("hoursline", 0) }) : null;
       const tp = val("tippot", 0) > 0 ? tipPool(r, val("tippot", 0)) : null;
       $("#tip-box").innerHTML = tp && tp.rows.length ? `<h3>Tip pool by hours</h3><p class="note">${money2(tp.pot)} split in proportion to scheduled hours, to the cent, so the shares add back to the pot. A planning aid: who may share in a pool, and any limits, depend on where you are and are yours to apply.</p><div class="scroll"><table><thead><tr><th>Person</th><th class="n">Hours</th><th class="n">Share</th><th class="n">Per hour</th></tr></thead><tbody>${tp.rows.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${num(x.hours)}</td><td class="n">${money2(x.share)}</td><td class="n">${money2(x.perHour)}</td></tr>`).join("")}</tbody></table></div>` : "";
@@ -359,7 +360,7 @@
     });
 
     // Remember the team on this device only; nothing is sent anywhere.
-    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "splitprem", "splitgap", "burden", "balance", "sales", "dailysales", "labortarget", "hoursline", "tippot"];
+    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "splitprem", "splitgap", "burden", "balance", "tough", "sales", "dailysales", "labortarget", "hoursline", "tippot"];
     const KEY = "shift-roster-builder:setup:v1";
     const snapshot = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]));
     const apply = (o) => { for (const f of FIELDS) if (o && typeof o[f] === "string") $("#" + f).value = o[f]; };
