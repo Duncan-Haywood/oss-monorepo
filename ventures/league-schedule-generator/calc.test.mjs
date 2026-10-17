@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -879,6 +879,18 @@ test("restReport: weekly league has 7-day gaps; adjacent weekdays show back-to-b
   assert.equal(d.back_to_back, count);
 });
 
+test("restReport: longest is the largest gap across all teams, not the last team's", () => {
+  const sch = { teams: ["A", "B", "C"], rounds: [
+    { day: 0, matches: [{ home: 0, away: 1 }] },
+    { day: 10, matches: [{ home: 0, away: 2 }] },
+    { day: 12, matches: [{ home: 1, away: 2 }] },
+  ] };
+  const r = restReport(sch);
+  assert.deepEqual(r.rows.map((x) => x.longest), [10, 12, 2]);
+  assert.equal(r.longest, 12);
+  assert.equal(r.shortest, 2);
+});
+
 test("restReport: a single round gives null gaps", () => {
   const r = restReport(buildSchedule(baseSpec(2)));
   assert.equal(r.shortest, null);
@@ -975,6 +987,13 @@ test("americano: 8 players on 2 courts, 7 rounds never repeat a partner and is d
   assert.ok(st.games.every((g) => g === 7));
 });
 
+test("americano: default round count is n-1 only when every player plays each round", () => {
+  const names = (n) => Array.from({ length: n }, (_, i) => `P${i}`);
+  assert.equal(americano(names(8), { courts: 2 }).rounds.length, 7);
+  assert.equal(americano(names(20), { courts: 4 }).rounds.length, 20);
+  assert.equal(americano(names(8), { courts: 1 }).rounds.length, 8);
+});
+
 test("americano: input errors and text sheet", () => {
   assert.throws(() => americano(["a", "b", "c"]), /at least 4/);
   assert.throws(() => americano(["a", "b", "c", "d"], { courts: 0 }), /court/);
@@ -1025,6 +1044,15 @@ test("mexicano: every round places each player once, top four play together, nob
   }
 });
 
+test("mexicano: round one byes go to the lowest random draws among players with equal games", () => {
+  const players = Array.from({ length: 7 }, (_, i) => `P${i}`);
+  const seed = 11;
+  const rng = mulberry32(seed);
+  const jitter = players.map(() => rng());
+  const expected = [...players.keys()].sort((x, y) => jitter[x] - jitter[y]).slice(0, 3).sort((x, y) => x - y);
+  assert.deepEqual(mexicanoNextRound(players, [], { courts: 1, seed }).byes, expected);
+});
+
 test("mexicano: after scores, the leaders meet and the standard 1&4 vs 2&3 split is used first", () => {
   const players = ["A", "B", "C", "D", "E", "F", "G", "H"];
   const { games } = parseMexicanoScores("A & B 21-5 C & D\nE & F 5-21 G & H", players);
@@ -1039,4 +1067,20 @@ test("mexicano: after scores, the leaders meet and the standard 1&4 vs 2&3 split
   assert.match(txt, /^Round 2/);
   assert.match(txt, /Standings/);
   assert.throws(() => mexicanoNextRound(["a", "b", "c"], []), /at least 4/);
+});
+
+test("pool play spreads clubmates across pools without changing sizes or the seed rows", () => {
+  const teams = names(8);
+  const clubs = [["Team 1", "Team 4"], ["Team 2", "Team 3"]];
+  const plain = splitPools(teams, 2);
+  assert.equal(clubPairsInPools(plain, clubs), 2);
+  const apart = splitPools(teams, 2, clubs);
+  assert.equal(clubPairsInPools(apart, clubs), 0);
+  assert.deepEqual(apart.map((p) => p.teams.length), [4, 4]);
+  assert.deepEqual(apart.flatMap((p) => p.teams).sort(), teams.slice().sort());
+  assert.deepEqual(splitPools(teams, 2, clubs), apart, "deterministic");
+  // a club bigger than the number of pools cannot be fully separated, but is never made worse
+  const big = [["Team 1", "Team 2", "Team 3"]];
+  assert.ok(clubPairsInPools(splitPools(teams, 2, big), big) <= clubPairsInPools(splitPools(teams, 2), big));
+  assert.deepEqual(splitPools(teams, 2, []), plain);
 });

@@ -22,6 +22,7 @@
     .note { background:#fbf0dc; border:1px solid #e3c98f; border-radius:8px; padding:10px 12px; font-size:.9rem; margin-top:10px; }
     .summary { display:flex; gap:18px; flex-wrap:wrap; font-size:.95rem; }
     .summary[hidden] { display:none; }
+    .actions[hidden] { display:none; }
     .summary strong { font-size:1.3rem; display:block; }
     @media(max-width:900px) { .row { grid-template-columns:repeat(2,1fr); } .row button { grid-column:span 2; } table { font-size:.86rem; } th:nth-child(3),td:nth-child(3) { display:none; } }
   </style>
@@ -31,6 +32,15 @@
   <p class="intro">A private tracker for online and multi-channel sellers. Every state that levies a sales tax sets its own "economic nexus" threshold — a level of sales into that state past which the state can require you to register and collect its sales tax, no physical presence required. Enter your trailing-12-month sales into each state you sell into and get a per-state answer against that state's own published figure.</p>
   <p class="value"><strong>After using this, you can now</strong> see exactly which states you've crossed a registration threshold in and which you haven't, per state, against each one's own dollar and transaction-count rule — which used to mean cross-referencing fifty-one separate sets of figures by hand. See <a href="why-does-economic-nexus-differ-by-state.html">why the rule differs so much state to state</a>, <a href="vs-paid-nexus-monitoring-software.html">how this compares to an ongoing paid nexus-monitoring platform</a>, or <a href="vs-tracking-it-in-a-spreadsheet.html">how this compares to tracking it in a spreadsheet yourself</a>.</p>
   <p class="privacy">Selling on eBay, Etsy, Venmo, or a similar marketplace or payment app too? A crossed sales-tax threshold here is a separate question from whether a platform will send you a Form 1099-K — the <a href="../1099-k-threshold-checker/">1099-K threshold checker</a> answers that one.</p>
+
+  <section class="card" id="import-card"><h2>Or import your orders (CSV)</h2>
+    <p class="privacy">Drop in an order export from Shopify, Etsy, Amazon or WooCommerce. The page finds the ship-to state, amount and date columns, keeps the last 12 months, totals each state, and estimates the date each uncrossed state would cross if your last 90 days of selling continued. The file is read in this browser and never uploaded.</p>
+    <div class="actions"><input type="file" id="orders-file" accept=".csv,text/csv" aria-label="Orders CSV file"> <button class="secondary" type="button" id="orders-sample">Try a sample file</button></div>
+    <p id="orders-note" class="privacy" role="status" hidden></p>
+    <div style="overflow:auto"><table hidden id="orders-table"><thead><tr><th>State</th><th>Sales, 12 mo</th><th>Orders</th><th>Of threshold</th><th>Status</th><th>Projected crossing</th></tr></thead><tbody></tbody></table></div>
+    <div class="actions" id="orders-actions" hidden><button type="button" id="orders-use">Use these states in the tracker</button> <button class="secondary" type="button" id="orders-export">Export plan (CSV)</button></div>
+    <p class="privacy">Projection is a straight-line estimate from your last 90 days, not a forecast, and it uses a trailing 12-month window; several states measure the prior or current calendar year instead. Amounts use the order subtotal where the file has one, so tax you collected is not counted as a sale. Refunds, rows with an unreadable state or date, and repeated order ids are skipped and counted above.</p>
+  </section>
 
   <section class="card"><h2>Add a state</h2><p class="privacy">Each state is checked on its own — sales in one state are never added to another's total, because that is not how the threshold works. Use a trailing-12-month figure; a few states measure differently — see the FAQ below.</p><form id="entry-form"><div class="row">
     <label>State<select name="state" id="stateSelect" required></select></label>
@@ -43,7 +53,7 @@
     <p id="summary" class="summary" hidden></p>
     <p id="empty" class="privacy">No states yet. Add the first one above, or load sample states to see how the results read.</p>
     <p id="sample-note" class="privacy" role="status" hidden></p>
-    <div style="overflow:auto"><table hidden id="table"><thead><tr><th>State</th><th>Sales</th><th>Transactions</th><th>Status</th><th></th></tr></thead><tbody></tbody></table></div>
+    <div style="overflow:auto"><table hidden id="table"><thead><tr><th>State</th><th>Sales</th><th>Transactions</th><th>Of threshold</th><th>Status</th><th></th></tr></thead><tbody></tbody></table></div>
   </section>
 
   <section class="card privacy"><label><input type="checkbox" id="usage"> Count anonymous local feature use in this browser (off by default)</label><p>Sales figures and state selections stay on this device. Nothing is uploaded. Usage counts contain only feature names and are never sent anywhere.</p></section>
@@ -87,7 +97,8 @@
       });
     })();
   import { checkAll, removeEntry, sampleEntries, toCsv, loadEntries, STATE_OPTIONS } from './calc.mjs';
-  const form=document.querySelector('#entry-form'), tbody=document.querySelector('tbody'), table=document.querySelector('#table'), empty=document.querySelector('#empty'); const storageKey='economic-nexus-threshold-tracker-entries';
+  import { percentUsed } from './orders.mjs';
+  const form=document.querySelector('#entry-form'), tbody=document.querySelector('#table tbody'), table=document.querySelector('#table'), empty=document.querySelector('#empty'); const storageKey='economic-nexus-threshold-tracker-entries';
   const stateSelect=document.querySelector('#stateSelect');
   stateSelect.innerHTML = STATE_OPTIONS.map(s=>`<option value="${s.value}">${s.label}</option>`).join('');
   const readEntries=()=>{try{return loadEntries(localStorage.getItem(storageKey));}catch{return [];}};
@@ -97,9 +108,10 @@
   const escapeHtml=(v)=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const statusClass=(row)=>row.crossed===null?'unknown':row.crossed?'crossed':'not-crossed';
   const summary=document.querySelector('#summary');
+  const pctCell=(r)=>r.threshold&&!r.threshold.noSalesTax&&r.grossSales!=null?percentUsed(r.threshold,r.grossSales,r.transactionCount??0)+'%':'—';
   const render=()=>{
     const rows=checkAll(entries);
-    tbody.innerHTML=rows.map(r=>`<tr><td>${escapeHtml(r.threshold?r.threshold.label:r.state||'')}</td><td>${r.grossSales==null?'—':Number(r.grossSales).toFixed(2)}</td><td>${r.transactionCount==null?'—':r.transactionCount}</td><td class="status ${statusClass(r)}">${escapeHtml(r.status)}</td><td><button type="button" class="danger" data-remove="${r.entryIndex}">Remove</button></td></tr>`).join('');
+    tbody.innerHTML=rows.map(r=>`<tr><td>${escapeHtml(r.threshold?r.threshold.label:r.state||'')}</td><td>${r.grossSales==null?'—':Number(r.grossSales).toFixed(2)}</td><td>${r.transactionCount==null?'—':r.transactionCount}</td><td>${pctCell(r)}</td><td class="status ${statusClass(r)}">${escapeHtml(r.status)}</td><td><button type="button" class="danger" data-remove="${r.entryIndex}">Remove</button></td></tr>`).join('');
     table.hidden=!rows.length; empty.hidden=!!rows.length;
     if (rows.length) {
       const crossedCount=rows.filter(r=>r.crossed===true).length;
@@ -116,4 +128,57 @@
   document.querySelector('#export').onclick=()=>{const rows=checkAll(entries);const blob=new Blob([toCsv(rows)],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='economic-nexus-threshold-check.csv';a.click();URL.revokeObjectURL(a.href);track('exported');};
   tbody.addEventListener('click',event=>{const button=event.target.closest('[data-remove]');if(!button)return;entries=removeEntry(entries,Number(button.dataset.remove));saveEntries();render();track('entry_removed');});
   render();
-</script></body></html>
+</script><script type="module">
+  import { readOrders, analyzeOrders, toEntries, planToCsv, sampleCsv } from './orders.mjs';
+  const $ = (q) => document.querySelector(q);
+  const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const usd = (n) => '$' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
+  const entriesKey = 'economic-nexus-threshold-tracker-entries';
+  const eventsKey = 'economic-nexus-threshold-tracker-events';
+  const track = (event) => {
+    if (!$('#usage').checked || navigator.doNotTrack === '1' || navigator.globalPrivacyControl) return;
+    try { const d = JSON.parse(localStorage.getItem(eventsKey) || '{}'); d[event] = (d[event] || 0) + 1; localStorage.setItem(eventsKey, JSON.stringify(d)); } catch { /* storage refused */ }
+  };
+  let analysis = null;
+  const show = (text, plain) => {
+    const note = $('#orders-note');
+    note.textContent = text; note.hidden = !text;
+    if (plain) note.removeAttribute('role');
+  };
+  const render = () => {
+    const body = $('#orders-table tbody');
+    body.innerHTML = analysis.rows.map((r) => `<tr><td>${esc(r.label)}</td><td>${usd(r.sales)}</td><td>${r.transactions}</td><td>${r.percentOfThreshold == null ? '—' : r.percentOfThreshold + '%'}</td><td>${esc(r.status)}</td><td>${r.crossed === true ? 'Already crossed' : esc(r.crossesOn || '—')}</td></tr>`).join('');
+    $('#orders-table').hidden = !analysis.rows.length;
+    $('#orders-actions').hidden = !analysis.rows.length;
+  };
+  const load = (text, source) => {
+    const read = readOrders(text);
+    if (!read.ok) { analysis = null; $('#orders-table').hidden = true; $('#orders-actions').hidden = true; show(read.error); return; }
+    analysis = analyzeOrders(read.orders);
+    const skipped = Object.entries(read.skipped).filter(([, n]) => n).map(([k, n]) => `${n} ${({ noState: 'without a state', unknownState: 'with a non-US state', noAmount: 'without an amount', badDate: 'with an unreadable date', refund: 'refunds', duplicateLine: 'repeat lines' })[k]}`);
+    show(`${source}: ${analysis.orderCount} orders from ${analysis.windowStart} to ${analysis.asOf}, ${usd(analysis.totalSales)} in total.` + (analysis.outsideWindow ? ` ${analysis.outsideWindow} older orders ignored.` : '') + (skipped.length ? ` Skipped: ${skipped.join(', ')}.` : ''), true);
+    render();
+    track('orders_imported');
+  };
+  $('#orders-file').addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    load(await file.text(), file.name);
+  });
+  $('#orders-sample').addEventListener('click', () => load(sampleCsv(), 'Sample file (made up)'));
+  $('#orders-use').addEventListener('click', () => {
+    if (!analysis) return;
+    try { localStorage.setItem(entriesKey, JSON.stringify(toEntries(analysis))); } catch { /* storage refused */ }
+    track('orders_applied');
+    location.reload();
+  });
+  $('#orders-export').addEventListener('click', () => {
+    if (!analysis) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([planToCsv(analysis)], { type: 'text/csv' }));
+    a.download = 'nexus-plan.csv';
+    a.click();
+    track('plan_exported');
+  });
+</script>
+</body></html>

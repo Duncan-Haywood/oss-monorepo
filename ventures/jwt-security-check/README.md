@@ -10,6 +10,8 @@ traversal or SQL injection, missing or excessive expiration/issued-at/
 not-before claims, and sensitive-looking field names in the (unencrypted)
 payload.
 
+**Live tool:** https://duncan-haywood.github.io/monorepo-projects/jwt-security-check/
+
 After using this, you can now **spot the JWT misconfigurations that read as
 perfectly ordinary JSON to a human reviewer**, which used to mean knowing the
 whole documented failure list by heart and checking for each one by hand.

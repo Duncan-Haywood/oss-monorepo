@@ -1486,6 +1486,11 @@
      "summary": "A follow-up to the variability-sweep project: mean value analysis with the printer demand increased by the arm&rsquo;s load and unload time, compared with plain MVA and two utilisation bounds against the simulated cell (cv 0.3 and 1.0, 4&ndash;16 printers, four loads, 20 seeds, 32 settings; illustrative times). The repair helps only at saturation (mean absolute error 2.9% against 8.2% for plain MVA) and hurts elsewhere (7.3% against 3.6%), so over all settings plain MVA is better (4.7% against 6.2%). A mixed result: no single demand setting is right across loads. Stylised and simulation-only."
     },
     {
+     "slug": "robofab-cell-blocking",
+     "title": "Can a blocking-aware correction to queueing analysis predict a robot-printer cell across loads?",
+     "summary": "A follow-up to the held-printer project: held demand plus a fitted stall (printers waiting for the arm to unload them) helps only at saturation (1.4% mean error) and double-counts load and unload time elsewhere (8.5%). A predictor that keeps latency (plain demand plus stall) apart from capacity (held demand plus stall) scores 3.6% against 4.7% for plain MVA on 32 design settings, but ties plain MVA on a held-out job mix (3.4% against 3.5%) and still underestimates by up to 8% at moderate load. Stylised; illustrative times; 20 seeds."
+    },
+    {
      "slug": "robofab-selfparts",
      "title": "Can a parallel-jaw arm assemble its own gripper?",
      "summary": "Exhaustive search over assembly orders of a seven-part toy gripper (axis-aligned boxes) by a modelled arm with a parallel-jaw grasp check, three approach-direction models and a swept jaw opening. No complete order exists below a 30&nbsp;mm opening, the width of the widest part; above it, 384 of 720 orderings are valid when parts may be slid sideways and 120 when strictly top-down. Jaw-pad thickness from 2 to 10&nbsp;mm changes nothing (a negative result for this geometry). <em>Stylised single design, no reach, force or fasteners; simulation only.</em>"
@@ -2317,6 +2322,11 @@
      "slug": "garment-wearmix",
      "title": "Does a fabric lever still pay once you weight it by where the garment is worn?",
      "summary": "Weights the comfort benefit of fabric levers by wearing time across a warm room, sunny outdoors and a cool room, and adds an idealised gated infrared lever. A fixed infrared-transparent shell has positive expected benefit only if the warm room takes more than 75.5% of wearing time (against the cool room); white never harms and has the best benefit per dollar in all four mixes tried. Across 66 wearing mixes the best garment changes with the mix, and the gate is chosen in 65 of 66 mixes at the fixed shell's premium but in 18 of 66 at twice it and none at four times. Stylised: premiums, gate cost and wearing shares are assumed, and the gate is an upper bound."
+    },
+    {
+     "slug": "garment-wearpair",
+     "title": "Is a second garment better than a dearer single one?",
+     "summary": "Lets the wearer own two garments (a shell and a layer) and wear whichever is most comfortable in each of three scenarios, searching all lever pairs under one total added-retail budget on the replica trench. With thin cloth allowed the pair beats the best single garment in 58 of 66 wearing mixes at $50, but the apparent $20 gain is an artefact: thin cloth has a negative assumed cost that funds the second garment. With thin cloth removed the gain is 0 at $20, +0.49&nbsp;&deg;C (54 of 66 mixes) at $50 and +1.02&nbsp;&deg;C at $100, usually a warm-weather infrared-transparent shell plus a cold-weather thick low-emissivity coat. Stylised: premiums, wearing shares and fabric properties are assumed, garments are not stacked, and no real garment was measured."
     },
     {
      "slug": "garment-optics",

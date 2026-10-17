@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Mean gain in expected comfort in degrees C from owning two garments instead of one, over 66 wearing mixes, against total added-retail budget, with and without thin cloth">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Gain from a second garment vs total budget</text>
+<rect x="64" y="40" width="560" height="284" fill="none" stroke="#999"/>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#eee"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">-0.0934</text>
+<line x1="64" x2="624" y1="267.2" y2="267.2" stroke="#eee"/><text x="58" y="271.2" text-anchor="end" font-family="sans-serif" font-size="11">0.178</text>
+<line x1="64" x2="624" y1="210.4" y2="210.4" stroke="#eee"/><text x="58" y="214.4" text-anchor="end" font-family="sans-serif" font-size="11">0.449</text>
+<line x1="64" x2="624" y1="153.6" y2="153.6" stroke="#eee"/><text x="58" y="157.6" text-anchor="end" font-family="sans-serif" font-size="11">0.719</text>
+<line x1="64" x2="624" y1="96.8" y2="96.8" stroke="#eee"/><text x="58" y="100.8" text-anchor="end" font-family="sans-serif" font-size="11">0.99</text>
+<line x1="64" x2="624" y1="40.0" y2="40.0" stroke="#eee"/><text x="58" y="44.0" text-anchor="end" font-family="sans-serif" font-size="11">1.26</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="274.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="344.0" y="372" text-anchor="middle" font-family="sans-serif" font-size="12">total added-retail budget (USD, replica)</text>
+<text x="14" y="182.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 182.0)">mean gain over 66 wearing mixes (C)</text>
+<polyline fill="none" stroke="#1f6fb2" stroke-width="2" points="64.0,59.6 274.0,163.6 624.0,84.1"/>
+<circle cx="64.0" cy="59.6" r="3" fill="#1f6fb2"/>
+<circle cx="274.0" cy="163.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="84.1" r="3" fill="#1f6fb2"/>
+<rect x="74" y="48" width="12" height="10" fill="#1f6fb2"/><text x="92" y="57" font-family="sans-serif" font-size="11">thin cloth allowed (section B)</text>
+<polyline fill="none" stroke="#c0392b" stroke-width="2" points="64.0,304.4 274.0,202.8 624.0,91.4"/>
+<circle cx="64.0" cy="304.4" r="3" fill="#c0392b"/>
+<circle cx="274.0" cy="202.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="91.4" r="3" fill="#c0392b"/>
+<rect x="74" y="63" width="12" height="10" fill="#c0392b"/><text x="92" y="72" font-family="sans-serif" font-size="11">thin cloth removed (section F)</text>
+</svg>
