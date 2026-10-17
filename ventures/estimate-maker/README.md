@@ -16,6 +16,8 @@ estimates are stored in `localStorage` on your device and never uploaded.
 - "To invoice" on a won estimate downloads a file that restores into [Invoice Maker](../invoice-maker/)
 - All money maths in integer cents (`calc.mjs`); CSV and JSON export
 
+- [Free bid calculators by trade](trade-bid-calculators.html): a searchable index of the 121 trade-specific job-pricing calculators (`node build-trades.mjs` regenerates it)
+
 Run the tests: `node --test`. Serve `index.html` from any static host.
 
 Not legal, tax or financial advice; see the disclaimer on the page. MIT licensed.
