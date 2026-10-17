@@ -7,7 +7,7 @@ checks them against the commonly published statutory residency tests (more than
 Massachusetts, Pennsylvania, Minnesota, Rhode Island, Virginia, Maryland (183 days or more) and Maine; more than 200 days in
 Oregon; the nine-month presumption in California), shows the room left and the
 date you would cross a limit, splits remote-work wages by workdays, draws a
-year calendar coloured by state, imports stays from a calendar (.ics) export or Google Timeline (Takeout) history, and exports a day-range CSV. Nothing is uploaded.
+year calendar coloured by state, imports stays from a calendar (.ics) export or Google Timeline (Takeout) history, and exports a day-range CSV and a day-by-day log (one row per date, with a blank evidence column). Nothing is uploaded.
 
 **Live tool:** https://duncan-haywood.github.io/monorepo-projects/state-residency-day-counter/
 
@@ -16,7 +16,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `calc.mjs` - tolerant stay parser (ISO, US and month-name dates, state codes
   or names), day-grid analysis with travel-day and overlap handling, gap
   assumption, nights-vs-inclusive counting, crossing-date search, workday wage
-  split, Google Timeline import (`timelineToStays`), CSV export, and an independent brute-force recount.
+  split, Google Timeline import (`timelineToStays`), CSV export, the day-by-day log (`dayLog`, `dayLogCsv`), and an independent brute-force recount.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `183-day-rule-by-state.html` - guide with a worked example that the test
   suite recomputes.

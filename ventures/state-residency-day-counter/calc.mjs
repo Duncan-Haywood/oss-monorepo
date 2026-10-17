@@ -477,3 +477,44 @@ export function reportCsv(result) {
   }
   return rows.map((r) => r.map(csvCell).join(",")).join("\n") + "\n";
 }
+
+// ---- day-by-day log ----------------------------------------------------------
+
+// One row per calendar day of the year: the contemporaneous log an auditor asks
+// for. Uses the same counting convention and home-state assumption as analyze().
+export function dayLog(spec) {
+  const errs = validateSpec(spec);
+  if (errs.length) throw new Error(errs.join(" "));
+  const { start: y0, end: y1 } = yearBounds(spec.year);
+  const nights = spec.convention === "nights";
+  const home = spec.homeState && /^[A-Z]{2}$/.test(spec.homeState) ? spec.homeState : null;
+  const rows = [];
+  for (let d = y0; d <= y1; d++) {
+    const hits = [];
+    for (const s of spec.stays) {
+      const last = nights && s.end > s.start ? s.end - 1 : s.end;
+      if (d >= s.start && d <= last) hits.push({ state: s.state, work: s.work !== false, boundary: d === s.start || d === s.end });
+    }
+    const states = [...new Set(hits.map((h) => h.state))];
+    let note = "";
+    let counted = states;
+    if (!hits.length) {
+      if (home) { counted = [home]; note = "assumed (no stay listed)"; } else note = "no stay listed";
+    } else if (states.length > 1) {
+      note = hits.every((h) => h.boundary) ? "travel day" : "overlap, check dates";
+    }
+    const dow = dayOfWeek(d);
+    const working = hits.length ? hits.some((h) => h.work) : !!(home && spec.homeWorks !== false);
+    rows.push({
+      date: dayIso(d), weekday: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dow],
+      states: counted, workday: dow !== 0 && dow !== 6 && working && counted.length > 0, note,
+    });
+  }
+  return rows;
+}
+
+export function dayLogCsv(spec) {
+  const rows = [["Date", "Weekday", "State(s) counted", "Workday", "Note", "Evidence you hold (fill in)"]];
+  for (const r of dayLog(spec)) rows.push([r.date, r.weekday, r.states.join("+"), r.workday ? "yes" : "no", r.note, ""]);
+  return rows.map((r) => r.map(csvCell).join(",")).join("\n") + "\n";
+}

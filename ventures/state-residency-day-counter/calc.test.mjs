@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, timelineToStays, EMPLOYER_RULES, fmtNum, fmtMoney } from "./calc.mjs";
+import { toDay, dayIso, dayOfWeek, parseDate, parseStays, analyze, bruteForceCounts, sampleSpec, reportCsv, validateSpec, yearBounds, RULES, icsToStays, timelineToStays, EMPLOYER_RULES, fmtNum, fmtMoney, dayLog, dayLogCsv } from "./calc.mjs";
 
 const Y = 2025;
 const spec = (lines, extra = {}) => ({ year: Y, stays: parseStays(lines.join("\n"), Y).stays, abode: {}, overrides: {}, ...extra });
@@ -264,4 +264,38 @@ test("timelineToStays: Takeout placeVisits resolve addresses, skip travel and no
   assert.equal(parseStays(r.lines.join("\n"), 2025).errors.length, 0);
   assert.equal(timelineToStays("not json", 2025).error, "Not a JSON file.");
   assert.equal(timelineToStays(JSON.stringify([doc, doc]), 2025).lines.length, 2);
+});
+
+test("day log has one row per day and its state counts match analyze and the brute-force recount", () => {
+  const sp = { ...sampleSpec(), asOf: undefined };
+  const rows = dayLog(sp);
+  assert.equal(rows.length, 365);
+  const tally = {};
+  for (const r of rows) for (const st of r.states) tally[st] = (tally[st] || 0) + 1;
+  const res = analyze(sp);
+  for (const s of res.states) assert.equal(tally[s.code], s.days, s.code);
+  for (const [k, v] of Object.entries(bruteForceCounts(sp))) assert.equal(tally[k], v, k);
+});
+
+test("day log marks travel days, assumed days and workdays", () => {
+  const sp = spec(["2025-01-01 to 2025-01-10 NY", "2025-01-10 to 2025-01-12 NJ off"], { homeState: "FL" });
+  const rows = dayLog(sp);
+  const on = (iso) => rows.find((r) => r.date === iso);
+  assert.deepEqual(on("2025-01-10").states, ["NY", "NJ"]);
+  assert.equal(on("2025-01-10").note, "travel day");
+  assert.equal(on("2025-01-11").workday, false); // Saturday and a day off
+  assert.equal(on("2025-01-06").workday, true); // Monday
+  assert.equal(on("2025-03-05").note, "assumed (no stay listed)");
+  assert.deepEqual(on("2025-03-05").states, ["FL"]);
+  const csv = dayLogCsv(sp);
+  assert.equal(csv.trim().split("\n").length, 366);
+  assert.match(csv, /^Date,Weekday,State\(s\) counted/);
+});
+
+test("day log without a home state leaves gaps unassigned and nights drops the departure day", () => {
+  const sp = spec(["2025-02-03 to 2025-02-05 NY"], { convention: "nights" });
+  const rows = dayLog(sp);
+  assert.deepEqual(rows.find((r) => r.date === "2025-02-05").states, []);
+  assert.equal(rows.find((r) => r.date === "2025-02-05").note, "no stay listed");
+  assert.deepEqual(rows.find((r) => r.date === "2025-02-04").states, ["NY"]);
 });

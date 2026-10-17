@@ -105,6 +105,8 @@
     <canvas id="view" role="img" aria-label="Calendar of the year coloured by state"></canvas>
     <div class="legend" id="legend"></div>
     <button type="button" id="download">Download the day record (CSV)</button>
+    <button type="button" class="secondary" id="download-log">Download the day-by-day log (CSV)</button>
+    <p class="note">The day-by-day log has one row for every date, with the state counted, workday flag and a blank column for the receipt, card statement or calendar entry that backs each day, the contemporaneous record an auditor asks for.</p>
   </section>
 
   <section class="card">
@@ -139,19 +141,20 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial or construction advice, does not state anyone's tax residency, and does not replace a tax professional or the state's own guidance. The rules are summarised from commonly published tests and may be out of date or incomplete. Counts are a record of the dates you typed.</p>
     <p><strong>Independent.</strong> Not affiliated with any state, tax authority, payroll or tax software company, and none is named or ranked here. The example year is invented.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere, so download the CSV.</p>
-    <p>Everything runs in your browser. Your dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>count_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>count_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>daylog_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../economic-nexus-threshold-tracker/">economic nexus threshold tracker</a> for sellers, the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>, the <a href="../self-employment-tax-calculator/">self-employment tax calculator</a> and, for US expats, the <a href="../feie-physical-presence-calculator/">FEIE physical presence calculator</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { CONVENTIONS, icsToStays, timelineToStays, parseStays, analyze, sampleSpec, reportCsv, statusText, dayIso, parseDate, toDay, fmtNum, fmtMoney, yearBounds, STATE_NAMES } from "./calc.mjs";
+    import { CONVENTIONS, icsToStays, timelineToStays, parseStays, analyze, sampleSpec, reportCsv, dayLogCsv, statusText, dayIso, parseDate, toDay, fmtNum, fmtMoney, yearBounds, STATE_NAMES } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
     const status = $("#form-status");
     let last = null;
+    let lastSpec = null;
     const PALETTE = ["#1b5e7a", "#b5532a", "#5b7f2b", "#7a4a8f", "#a08b1c", "#2a8a7a", "#a02f4f", "#566074", "#8a5a2a", "#3d6fb0"];
 
     $("#conv").innerHTML = Object.entries(CONVENTIONS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
@@ -286,7 +289,7 @@
     function run() {
       const r = readSpec();
       if (r.error) { status.textContent = r.error; return false; }
-      try { render(analyze(r.spec)); status.textContent = "Done. Scroll down for the result."; return true; }
+      try { lastSpec = r.spec; render(analyze(r.spec)); status.textContent = "Done. Scroll down for the result."; return true; }
       catch (e) { status.textContent = e.message; return false; }
     }
 
@@ -295,7 +298,7 @@
       fill(sampleSpec());
       later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample data: an invented year, not a real person."; } });
     });
-    $("#clear-all").addEventListener("click", () => { for (const id of ["asof", "home", "employer", "wages", "stays", "abode", "limits"]) $("#" + id).value = ""; $("#report").hidden = true; last = null; status.textContent = "Cleared."; });
+    $("#clear-all").addEventListener("click", () => { lastSpec = null; for (const id of ["asof", "home", "employer", "wages", "stays", "abode", "limits"]) $("#" + id).value = ""; $("#report").hidden = true; last = null; status.textContent = "Cleared."; });
     $("#download").addEventListener("click", () => {
       if (!last) return;
       const a = document.createElement("a");
@@ -304,6 +307,15 @@
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       record("report_downloaded");
+    });
+    $("#download-log").addEventListener("click", () => {
+      if (!lastSpec) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([dayLogCsv(lastSpec)], { type: "text/csv" }));
+      a.download = `state-day-log-${lastSpec.year}.csv`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("daylog_downloaded");
     });
     $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
