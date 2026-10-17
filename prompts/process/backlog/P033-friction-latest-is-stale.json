@@ -19,6 +19,15 @@
   "opened": "2026-10-17",
   "source": "process run 2026-10-17, Critique mode",
   "pr": "this",
-  "result": null,
-  "history": [{"date":"2026-10-17","note":"measure now prints \"(file last changed D)\" next to each friction file; simplest form of the change."}]
+  "result": "Helped by construction (reports older than the file's last change are tagged); re-sample five untagged entries in a later run to confirm they reproduce.",
+  "history": [
+    {
+      "date": "2026-10-17",
+      "note": "measure now prints \"(file last changed D)\" next to each friction file; simplest form of the change."
+    },
+    {
+      "date": "2026-10-17",
+      "note": "measure now tags each 'latest' report dated before its file's last change with [file changed since]; the file-level date alone was useless because every file changes daily. 61 of the current reports are tagged."
+    }
+  ]
 }
