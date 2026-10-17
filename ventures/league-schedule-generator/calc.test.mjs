@@ -707,3 +707,34 @@ test("swiss refuses when no rematch-free pairing exists and prints a sheet", () 
   const text = swissText(players, swissPairings(players, []), 1);
   assert.match(text, /Board 1: A \(white\) vs C \(black\)/);
 });
+
+test("head-to-head puts the winner of the meeting above a level team with a better goal difference", () => {
+  const teams = ["A", "B", "C", "D"];
+  const results = [[0, 1, 0, 1], [0, 3, 5, 0], [1, 2, 0, 1], [2, 3, 0, 0], [1, 3, 0, 2]].map(([a, b, ga, gb]) => ({ a, b, ga, gb }));
+  assert.deepEqual(names2(standings(teams, results)), ["C", "D", "A", "B"]);
+  assert.deepEqual(names2(standings(teams, results, { headToHead: true })), ["C", "D", "B", "A"]);
+});
+const names2 = (rows) => rows.map((r) => r.name);
+
+test("schedule stats keep one court and time tally per team, no more", () => {
+  const s = buildSchedule(baseSpec(4, { courts: ["Court 1", "Court 2"], times: ["18:00", "19:00"] }));
+  assert.equal(s.stats.byCourt.length, 4);
+  assert.equal(s.stats.byTime.length, 4);
+});
+
+test("swiss standings start every player at zero games played", () => {
+  const t = swissStandings(["A", "B", "C"], [{ a: 0, b: 1, ga: 1, gb: 0 }], [2]);
+  assert.deepEqual(t.map((r) => [r.name, r.played]).sort(), [["A", 1], ["B", 1], ["C", 0]]);
+});
+
+test("head-to-head falls back to goals scored in the meetings when points and goal difference are level", () => {
+  const results = [[0, 1, 2, 1], [1, 2, 3, 2], [2, 0, 1, 0]].map(([a, b, ga, gb]) => ({ a, b, ga, gb }));
+  assert.deepEqual(names2(standings(["A", "B", "C"], results, { headToHead: true })), ["B", "C", "A"]);
+});
+
+test("schedule stats count each team's court and time use from zero", () => {
+  const s = buildSchedule(baseSpec(4, { courts: ["Court 1", "Court 2"], times: ["18:00", "19:00"] }));
+  const total = (rec) => rec.reduce((a, o) => a + Object.values(o).reduce((x, y) => x + y, 0), 0);
+  assert.equal(total(s.stats.byCourt), 2 * s.stats.matches);
+  assert.equal(total(s.stats.byTime), 2 * s.stats.matches);
+});
