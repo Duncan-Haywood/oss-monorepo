@@ -2,6 +2,8 @@
 
 Does a thicker sheet's lighter buckling-limited design survive a better through-thickness mesh? In the 3D eigenbuckling model of the L-bracket, going from one to two, three or four hexahedral layers through the sheet moves the buckling factor by 1.2% or less and the width needed for a factor of 3 by 0.07 mm or less, at 1.5, 2.0, 2.5 and 3.0 mm gauges. Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the "repeat the 2.0 and 2.5 mm cases with two or more element layers through the thickness" next step of `simdesign-revgauge`. Produced with AI assistance (Claude). Stylised and preliminary: ideal elastic sheet, sharp inner corner, buckling only, nothing made or tested. It builds on none of the CU Boulder groups in `prompt.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-gaugelayers/
+
 **Builds on.** `simdesign-revgauge` (the one-layer roots 22.5, 11.84, 6.81 and 4.31 mm for 1.5, 2.0, 2.5 and 3.0 mm sheet, coarse mesh), `simdesign-revwidth` (width root-finding, plate mass) and `simdesign-lbuckle` (the whole-L hexahedral eigenbuckling model; geometry, load, clamp, material and the floor of 3 are its assumptions). Nothing of the model is changed here except the number of element layers.
 
 ## Method

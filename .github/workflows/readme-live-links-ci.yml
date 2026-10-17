@@ -1,0 +1,37 @@
+name: README live links
+
+# Fails a pull request that adds a venture or research README with no link to
+# its live Pages page (SEO: the README is what GitHub and search engines index
+# first). 3 research READMEs had drifted before this ran anywhere. Reads
+# tracked files only; publishes nothing, pushes nothing, calls no paid API.
+
+on:
+  pull_request:
+    paths: ["ventures/*/README.md", "research/*/README.md", "research/_homepage/projects.json", "platform/ci/research_live_links.py", "platform/ci/venture_live_links.py", ".github/workflows/readme-live-links-ci.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Research READMEs link their live page
+        run: python3 platform/ci/research_live_links.py
+
+      - name: Venture READMEs link their live page
+        run: python3 platform/ci/venture_live_links.py
+
+      - name: Guard unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_research_live_links test_venture_live_links

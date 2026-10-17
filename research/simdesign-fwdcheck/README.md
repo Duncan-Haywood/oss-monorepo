@@ -2,6 +2,8 @@
 
 Only the 1.5 mm design does. The lightest L-brackets that clear the reversed-load buckling floor of 3 (`simdesign-revgauge`) are 22.5, 11.84, 6.81 and 4.31 mm wide at 1.5, 2.0, 2.5 and 3.0 mm sheet. Under the ordinary forward 100 N load, all four clear buckling (factors 4.7 to 5.6), but the 2.5 and 3.0 mm designs are far over the 100 MPa stress and 4 mm deflection limits used elsewhere in the track, and the 2.0 mm design is over the stress limit once the mesh is refined (95.7 MPa coarse, 144.9 MPa finer). Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the "check the 2.0 mm, 11.8 mm design against the forward load, the stress and the minimum-wall constraints" next step of `simdesign-gaugelayers`. Produced with AI assistance (Claude). Stylised and preliminary: ideal elastic steel, sharp inner corner, assumed limits, nothing made or tested. It builds on none of the CU Boulder groups in `prompt.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-fwdcheck/
+
 **Builds on.** `simdesign-lbuckle` (the whole-L hexahedral model, imported from its `src/`), `simdesign-revgauge` (the four buckling-limited widths), `simdesign-revwidth` (plate mass) and, for the limits, `simdesign-minwall` and `simdesign-dfm` (100 MPa working stress, 4 mm tip limit, 1.2 mm minimum wall; all assumed values, not data). Peak-stress mesh dependence at a sharp corner is the finding of `simdesign-meshmargin` and `simdesign-patchstress`.
 
 ## Method
