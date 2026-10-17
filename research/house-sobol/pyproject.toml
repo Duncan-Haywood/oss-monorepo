@@ -1,0 +1,13 @@
+[project]
+name = "house-sobol"
+version = "0.1.0"
+description = "Which uncertain input of the house-cost model drives the uncertainty in a house's price? Variance-based (Sobol) global sensitivity over lever ranges, the framing share and the driver splits"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-cost/src"]
