@@ -619,3 +619,16 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   stay null. Audit not run (mirrored or doc-only recent outputs).
 - Drift: see `prompts/drift/2026-10-17b.md`.
 - Result: (next review)
+
+## E31: review 2026-10-17 (third review that day)
+
+- Change: `land-your-work.md` trimmed to its 160-line budget (it was over by
+  3) and says a swept branch whose content is on `main` needs no PR (4
+  reports); backlog README/validate message say `pr: "this"` is accepted for
+  a done item whose PR is unopened (3 reports of the second-commit cost).
+- Metric: friction reports on `land-your-work.md` and the backlog README per
+  run, next 40 runs.
+- Candidates: unchanged (ventures 2, research 1 overlap; review/2 has 5).
+- Audit: not run (recent records mirrored or doc-only); `derive.py fetch` not
+  run, third review in one day.
+- Result: (next review)

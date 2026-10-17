@@ -20,9 +20,8 @@ python3 prompts/promptctl.py backlog     # open items, best first
 - **Taking an item**: search open PRs for its id first, and put the id in
   your PR title. Set `in_progress` in your PR; there is no remote claim, so a
   rare collision shows up as a conflict on this file, and that is fine.
-- **Closing**: `done` needs `pr`, which exists only after the push: commit
-  `in_progress` first, then flip to `done` with the PR number once the draft
-  is open. `result` stays `null` until a later run
+- **Closing**: `done` needs `pr`: the PR number, or `"this"` when the PR is not open
+  yet, so one commit validates (a later run may swap in the number). `result` stays `null` until a later run
   checks the metric against `baseline`; then it says helped, no change, or
   worse, with the numbers. `dropped` needs a reason in `result`.
 - **The change is a suggestion.** Whoever solves an item may find a better
