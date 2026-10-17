@@ -4,7 +4,7 @@ import {
   applyRainouts, applyWithdrawals, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, standingsCsv, scheduleIcs,
   scheduleText, leaguePageHtml, parseTimeLimits, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  splitPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, parseGrounds, groundClashes, applyGroundSharing,
+  splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, remainingFixtures, raceText, restReport, rematchReport, parseGrounds, groundClashes, applyGroundSharing,
 } from "./calc.mjs";
 
 const D = (iso) => parseDate(iso);
@@ -1067,4 +1067,20 @@ test("mexicano: after scores, the leaders meet and the standard 1&4 vs 2&3 split
   assert.match(txt, /^Round 2/);
   assert.match(txt, /Standings/);
   assert.throws(() => mexicanoNextRound(["a", "b", "c"], []), /at least 4/);
+});
+
+test("pool play spreads clubmates across pools without changing sizes or the seed rows", () => {
+  const teams = names(8);
+  const clubs = [["Team 1", "Team 4"], ["Team 2", "Team 3"]];
+  const plain = splitPools(teams, 2);
+  assert.equal(clubPairsInPools(plain, clubs), 2);
+  const apart = splitPools(teams, 2, clubs);
+  assert.equal(clubPairsInPools(apart, clubs), 0);
+  assert.deepEqual(apart.map((p) => p.teams.length), [4, 4]);
+  assert.deepEqual(apart.flatMap((p) => p.teams).sort(), teams.slice().sort());
+  assert.deepEqual(splitPools(teams, 2, clubs), apart, "deterministic");
+  // a club bigger than the number of pools cannot be fully separated, but is never made worse
+  const big = [["Team 1", "Team 2", "Team 3"]];
+  assert.ok(clubPairsInPools(splitPools(teams, 2, big), big) <= clubPairsInPools(splitPools(teams, 2), big));
+  assert.deepEqual(splitPools(teams, 2, []), plain);
 });
