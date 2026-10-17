@@ -186,3 +186,33 @@ test("Crypto.com export feeds the lot matcher end to end", () => {
   const a = analyze(r.csv, { method: "FIFO", year: 2023 });
   assert.ok(a.rows.length > 0);
 });
+
+const GEMINI = `Date,Time (UTC),Type,Symbol,Specification,Liquidity Provider,Trading Fee Rate (bps),USD Amount USD,Trading Fee (USD) USD,USD Balance USD,BTC Amount BTC,Trading Fee (BTC) BTC,BTC Balance BTC,ETH Amount ETH,ETH Balance ETH
+2023-01-10,10:00:00.000,Buy,BTCUSD,Market,Taker,40,"($10,000.00)",($40.00),$0.00,0.5 BTC,0 BTC,0.5 BTC,,
+2023-02-10,10:00:00.000,Interest Credit,ETH,Earn,,,,,,,,,0.02 ETH,0.02 ETH
+2023-03-10,10:00:00.000,Credit,BTC,Deposit,,,,,,0.1 BTC,,0.6 BTC,,
+2023-09-10,10:00:00.000,Sell,BTCUSD,Limit,Maker,20,"$15,000.00",($30.00),$14970.00,(0.5 BTC),0 BTC,0.1 BTC,,
+2023-09-11,10:00:00.000,Buy,ETHBTC,Market,Taker,40,,,,,,,0.1 ETH,
+2023-09-12,10:00:00.000,Mystery,BTC,,,,,,,,,,
+`;
+
+test("Gemini: detected, USD buys/sells and rewards mapped; deposits ignored", () => {
+  assert.equal(detectFormat(GEMINI), "gemini");
+  const r = convertExchangeCsv(GEMINI);
+  const lines = r.csv.trim().split("\n");
+  assert.equal(lines[0], OUT_HEADER);
+  assert.ok(lines.includes("2023-01-10,buy,BTC,0.5,10000,40,Gemini"));
+  assert.ok(lines.includes("2023-09-10,sell,BTC,0.5,15000,30,Gemini"));
+  assert.ok(lines.includes("2023-02-10,income,ETH,0.02,,0,Gemini")); // unpriced stays empty, never zero
+  assert.equal(lines.length, 1 + 3);
+  assert.ok(r.notes.some((n) => /1 Gemini row had no USD value/.test(n)));
+  assert.ok(r.notes.some((n) => /ETHBTC/.test(n)));
+  assert.ok(r.notes.some((n) => /Mystery/.test(n)));
+  assert.ok(r.notes.some((n) => /1 credit, debit/.test(n)));
+});
+
+test("Gemini export feeds the lot matcher end to end", () => {
+  const r = convertExchangeCsv(GEMINI);
+  const a = analyze(r.csv, { method: "FIFO", year: 2023 });
+  assert.ok(a.rows.length > 0);
+});

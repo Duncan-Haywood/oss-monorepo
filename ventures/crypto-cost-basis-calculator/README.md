@@ -15,7 +15,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
   holding periods, per-wallet books, tax netting and the Form 8949 style export.
 - `form8949Totals` in `calc.mjs`: the Part I (short-term) and Part II (long-term) column totals for the report year, shown under the rows, with a count of rows that have no purchase on record.
 - Tax-loss harvesting (`parsePrices`, `harvestPlan` in `calc.mjs`): type today's price per coin and it values every open lot, ranks the lots under water by tax saved, and shows how much of the year's estimated tax selling them would remove. Prices are yours; none are fetched; wash-sale rules are not applied.
-- `importers.mjs` - Coinbase, Kraken, Binance.US and Crypto.com App export readers that produce the plain CSV `calc.mjs` reads (unpriced rows left empty and flagged, never zero).
+- `importers.mjs` - Coinbase, Kraken, Binance.US, Crypto.com App and Gemini export readers that produce the plain CSV `calc.mjs` reads (unpriced rows left empty and flagged, never zero).
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `fifo-vs-hifo-crypto-cost-basis.html` - guide with a worked example that the
   test suite recomputes.
