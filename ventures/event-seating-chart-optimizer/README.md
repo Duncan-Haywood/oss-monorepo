@@ -24,6 +24,8 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-make-a-wedding-seating-chart.html` - guide whose worked example is
   recomputed by the test suite.
+- `how-to-seat-divorced-parents-at-a-wedding.html` - second guide (divorced
+  parents, new partners, a never-together pair), also recomputed by the tests.
 
 **No warranty.** Free and as-is; a planning aid, not event-planning advice or a
 guarantee that any guest will be content. It assigns tables, not seats within a
