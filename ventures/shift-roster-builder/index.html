@@ -102,6 +102,7 @@
       <div><label for="sales">Projected sales this week ($, optional)</label><input id="sales" inputmode="decimal" placeholder="e.g. 12000"></div>
       <div><label for="dailysales">Sales by day, Mon to Sun ($, optional)</label><input id="dailysales" placeholder="e.g. 1200, 1100, 1300, 1500, 2600, 3200, 1800"></div>
       <div><label for="hoursline">Weekly hours line to watch (optional)</label><input id="hoursline" inputmode="decimal" placeholder="e.g. 30"></div>
+      <div><label for="tippot">Tip pot to split this week ($, optional)</label><input id="tippot" inputmode="decimal" placeholder="e.g. 1450"></div>
       <div><label for="labortarget">Target labor cost (% of sales)</label><input id="labortarget" inputmode="decimal" placeholder="e.g. 30"></div>
       <div><label for="balance">Balance hours across people (0–100)</label><input id="balance" inputmode="decimal" value="25"></div>
     </div>
@@ -131,6 +132,7 @@
     <div id="daily-box"></div>
     <div id="fair-box"></div>
     <div id="hours-box"></div>
+    <div id="tip-box"></div>
     <div id="trim-box"></div>
     <h3>Changes since you posted it</h3>
     <p class="note">Posted a schedule, then changed it? Choose the roster CSV you posted, say when you made the change, and see every shift that was added, cancelled or moved, how much notice each got, and the premium pay <em>your own</em> rule would owe. Fair-workweek laws differ by city and change: enter your window and premium from the rule that applies to you; nothing here is a statement of what a law requires.</p>
@@ -199,7 +201,7 @@
   </footer>
 
   <script type="module">
-    import { scheduleChanges, carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, fairnessReport, hoursThresholds, trimOptions, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { scheduleChanges, carryOverStaff, scheduleFlags, parseStaff, parseShifts, buildRoster, laborPercent, dailyLabor, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, swapOptions, rosterCsv, hoursCsv, rosterIcs, rosterMessages, sampleStaff, sampleShifts, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -285,6 +287,8 @@
       const fr = fairnessReport(r);
       $("#fair-box").innerHTML = fr.rows.length ? `<h3>Who gets the tough shifts</h3><p class="note">Weekend, closing (10pm or later, or past midnight) and opening (6am or earlier) shifts per person.${fr.flag ? ` <strong>${esc(fr.most.name)} has ${fr.most.tough} and ${esc(fr.least.name)} has ${fr.least.tough}.</strong> Check this is what people agreed to; the builder does not balance it and cannot know who asked for what.` : " The spread is small."}</p><div class="scroll"><table><thead><tr><th>Person</th><th class="n">Shifts</th><th class="n">Weekend</th><th class="n">Closing</th><th class="n">Opening</th></tr></thead><tbody>${fr.rows.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${x.shifts}</td><td class="n">${x.weekend}</td><td class="n">${x.closing}</td><td class="n">${x.opening}</td></tr>`).join("")}</tbody></table></div>` : "";
       const ht = val("hoursline", 0) > 0 ? hoursThresholds(r, { threshold: val("hoursline", 0) }) : null;
+      const tp = val("tippot", 0) > 0 ? tipPool(r, val("tippot", 0)) : null;
+      $("#tip-box").innerHTML = tp && tp.rows.length ? `<h3>Tip pool by hours</h3><p class="note">${money2(tp.pot)} split in proportion to scheduled hours, to the cent, so the shares add back to the pot. A planning aid: who may share in a pool, and any limits, depend on where you are and are yours to apply.</p><div class="scroll"><table><thead><tr><th>Person</th><th class="n">Hours</th><th class="n">Share</th><th class="n">Per hour</th></tr></thead><tbody>${tp.rows.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${num(x.hours)}</td><td class="n">${money2(x.share)}</td><td class="n">${money2(x.perHour)}</td></tr>`).join("")}</tbody></table></div>` : "";
       $("#hours-box").innerHTML = ht && (ht.over.length || ht.near.length) ? `<h3>Around your ${num(ht.threshold)}-hour line</h3><p class="note">Some employers owe more (health coverage, benefits, paid leave) to people at a weekly-hours line. These people are at or just under yours, so moving a few hours is a choice you make on purpose. A list only: the builder does not enforce the line and states no legal requirement.</p><div class="scroll"><table><thead><tr><th>Person</th><th class="n">Hours</th><th>Where they stand</th></tr></thead><tbody>${ht.over.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${num(x.hours)}</td><td>${x.by < 0.005 ? "exactly at the line" : num(x.by) + " h over"}</td></tr>`).join("")}${ht.near.map((x) => `<tr><td>${esc(x.name)}</td><td class="n">${num(x.hours)}</td><td>${num(x.short)} h under</td></tr>`).join("")}</tbody></table></div>` : "";
       $("#cmp tbody").innerHTML = [["This roster", r.unfilledSlots, r.otHours, r.cost], ["Listed order", r.listed.unfilledSlots, r.listed.otHours, r.listed.cost]]
         .map(([n, u, o, c]) => `<tr><td>${n}</td><td class="n">${u}</td><td class="n">${num(o)}</td><td class="n">${money(c)}</td></tr>`).join("");
@@ -354,7 +358,7 @@
     });
 
     // Remember the team on this device only; nothing is sent anywhere.
-    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "splitprem", "splitgap", "burden", "balance", "sales", "dailysales", "labortarget", "hoursline"];
+    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "splitprem", "splitgap", "burden", "balance", "sales", "dailysales", "labortarget", "hoursline", "tippot"];
     const KEY = "shift-roster-builder:setup:v1";
     const snapshot = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]));
     const apply = (o) => { for (const f of FIELDS) if (o && typeof o[f] === "string") $("#" + f).value = o[f]; };

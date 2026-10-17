@@ -1121,6 +1121,24 @@ export function hoursThresholds(r, { threshold = 30, within = 2 } = {}) {
   return { threshold, within, over, near };
 }
 
+// Tip pool: split a pot of tips across the people on the roster in proportion to scheduled (paid) hours. Works in whole
+// cents with the largest-remainder rule, so the shares always add back to the pot exactly. A planning aid only: tip
+// pooling rules (who may share, manager exclusions, house-share limits) differ by place and are the employer's to apply.
+export function tipPool(r, pot) {
+  const cents = Math.round(Number(pot) * 100);
+  const people = (r.people || []).filter((p) => p.hours > 0);
+  const total = people.reduce((a, p) => a + p.hours, 0);
+  if (!(cents > 0) || !(total > 0)) return { pot: 0, hours: total, rows: [] };
+  const rows = people.map((p) => {
+    const exact = (cents * p.hours) / total;
+    return { name: p.name, hours: p.hours, cents: Math.floor(exact + 1e-9), frac: exact - Math.floor(exact + 1e-9) };
+  });
+  let left = cents - rows.reduce((a, x) => a + x.cents, 0);
+  [...rows].sort((a, b) => b.frac - a.frac || a.name.localeCompare(b.name)).forEach((x) => { if (left > 0) { x.cents++; left--; } });
+  rows.sort((a, b) => b.cents - a.cents || a.name.localeCompare(b.name));
+  return { pot: cents / 100, hours: total, rows: rows.map((x) => ({ name: x.name, hours: x.hours, share: x.cents / 100, perHour: x.cents / 100 / x.hours })) };
+}
+
 export function hoursCsv(r) {
   const rows = ["person,shifts,hours,overtime_hours,estimated_payroll,minimum_hours,hours_under_minimum"];
   for (const p of r.people) rows.push([p.name.includes(",") ? `"${p.name}"` : p.name, p.shifts, p.hours.toFixed(2), p.otHours.toFixed(2), p.cost.toFixed(2), p.minHours, p.short.toFixed(2)].join(","));
