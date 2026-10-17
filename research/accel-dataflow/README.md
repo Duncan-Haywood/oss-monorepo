@@ -2,6 +2,8 @@
 
 Third milestone of track 8 (task-specific AI accelerators) in `PROJECTS.md`. The question: for the two matrix-vector layers of the 40 trained `accel-kws` keyword-spotting MLPs, how much does the choice of dataflow (what stays put in the MAC array) change SRAM traffic, energy and cycles, as the lane count and batch grow? Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-dataflow/
+
 **Builds on.** `research/accel-kws` (its 40 models, layer shapes, measured RTL cycles and modelled energy) and `research/accel-codesign` (lane-count knob). The vocabulary of weight-, output- and input-stationary dataflows and the idea of ranking them by memory accesses follow Chen, Emer and Sze (2016), "Eyeriss: A Spatial Architecture for Energy-Efficient Dataflow for Convolutional Neural Networks", ISCA, and Sze et al. (2017), "Efficient Processing of Deep Neural Networks: A Tutorial and Survey", *Proc. IEEE*. Loop-nest cost models of this kind are what Parashar et al. (2019), "Timeloop", ISPASS, formalise; **Timeloop and Accelergy were not tried here**, so the model is a small one written for this project and nothing is compared with their output. Energy constants are those of `accel-kws`, in the spirit of Horowitz (2014), ISSCC, and were not re-checked against that paper. No paper's numbers are reproduced. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

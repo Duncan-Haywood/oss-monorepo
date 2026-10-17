@@ -2,6 +2,8 @@
 
 Follow-up to [`garment-thermal`](../garment-thermal) (track 6, `PROJECTS.md`), taking the next step "check the two-node constants against ... `pythermalcomfort`'s two-node output". That project's two-node model used control constants written from memory and was labelled qualitative. Here its `two_node` function (copied unchanged into `src/`, so this project stays self-contained) is run against the open-source `pythermalcomfort` implementation of the Gagge two-node model over a grid of conditions. Everything is a model on a CPU; no person was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-twonodecheck/
+
 **Builds on.** `research/garment-thermal` in this repository, and the `pythermalcomfort` package (MIT; version 4.6.1 here), whose `two_nodes_gagge` documents itself as the model of Gagge et al. (1986). I did not read Gagge et al. (1986) and make no claim about what it contains. This is a comparison of two implementations, not a validation against people or against the original paper. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 **Citation check.** The only source is the `pythermalcomfort` package, which I installed and ran; its docstring names Gagge et al. (1986) and I did not look that paper up (no access to doi.org). No other citation is used.

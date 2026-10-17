@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-ips`, whose second "next step" was to test the selection bias directly. Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-fullinfo/
+
 ## Motivation
 
 `ambient-ips` noted that the unweighted model came close to the oracle in one setting and guessed that "the selection bias matters little with these features", without testing it. Here I test it: on the same logged history, fit the model three ways and score each on fresh held-out streams.

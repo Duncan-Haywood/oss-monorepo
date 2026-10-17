@@ -2,6 +2,8 @@
 
 Follow-up in the self-replicating manufacturing track (`PROJECTS.md`, track 1). Two sibling projects, written in parallel, compute the mean time to extinction of a lone replicating printer shop with different Markov chains and did not reconcile their numbers (`selfrep-extinction-kits` says so). This project does that, using their code by relative path. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-reconcile/
+
 **Builds on.** `research/selfrep-extinction` (fleet-size chain, birth rate min(n/W, a)), `research/selfrep-extinction-kits` (chain on building machines, idle machines and kit stock), `research/selfrep-growth` and `research/selfrep-closure` (W = 50 h work per copy, V = 170.3 import units per copy, both assumed). Behind them: Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

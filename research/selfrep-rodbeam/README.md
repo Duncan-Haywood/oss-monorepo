@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-redesign` (track 1, `PROJECTS.md`), taking the next step its README asked for: replace the assumed 0.9 penalty of the "wooden smooth rods" substitution with a mechanical model. Produced with AI assistance (Claude). Computed only; no rod was built or tested.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-rodbeam/
+
 **Builds on.** `selfrep-redesign` and `selfrep-closure` in this repository (rod lengths and masses from the RepRap wiki bill of materials via `selfrep-closure`; RepRap: Jones et al., *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>). Beam theory is textbook Euler-Bernoulli bending. It builds on none of the labs in `prompt.md`.
 
 ## Method

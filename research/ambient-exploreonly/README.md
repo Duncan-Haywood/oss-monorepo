@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-labelmatch` and the chain of estimator fixes after it (`ambient-dr`, `ambient-drclip`, `ambient-crossfit`, `ambient-capcv`, `ambient-drvalid`, `ambient-drablate`, `ambient-drrepeat`). Every one of those tried to repair a biased fit by reweighting or by adding an outcome model. This project asks a simpler question: what if the learner just ignores every window where it spoke for a reason other than the &epsilon; coin? Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Positive result in the uninformed-prior regime, mixed with an informed prior.**
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-exploreonly/
+
 ## Motivation
 
 `ambient-labelmatch` showed that a random sample of the same size nearly reaches the oracle, so the damage is selection, not label volume. The reweighting and doubly robust follow-ups were still far below that control with the uninformed prior. But the assistant already draws a random sample for free: every window where it spoke *only because the &epsilon; coin came up* (the model said no and no wake phrase was heard) was chosen independently of that window's need. Those windows need no weights. They are few (about &epsilon; of the silent windows), so the open question is whether a small, clean sample beats a large, contaminated one, and what exploration costs while it is gathered.

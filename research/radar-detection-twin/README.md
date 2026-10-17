@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Follow-up to `radar-clutter-twin`: CA-CFAR and OS-CFAR (`k=8,12,14` of `N=16`) with thresholds set in a Gaussian-clutter *radar-simulation twin* and deployed against clutter with iid gamma texture (K-distributed power), now with a Swerling-I target. Results: an exact one-dimensional Pfa/Pd law for OS-CFAR in textured clutter (matches 400k-trial simulation to ~1%); OS-CFAR is inflated much like CA (design 1e-4, ν=2: CA 30×, OS k=12 35×); repairing the threshold costs 3.7–4.6 dB at ν=2, but the SNR needed for Pd=0.9 at Pfa 1e-4 is 6.3 dB above the twin's promise (CA; 2.8 dB at ν=5, 0.8 dB at ν=20), more than the threshold repair alone; at the twin's own threshold and promised SNR real Pd is 0.84 while Pfa is 30× design; and the detector ranking CA < OS is *not* reversed by texture (a negative result). See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/radar-detection-twin/
+
 ```bash
 cd research/radar-detection-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, ~15 s

@@ -2,6 +2,8 @@
 
 Fourth project of track 12, open-source residential construction (`PROJECTS.md`, milestone 4). A small, open price model for a new single-family home: each construction stage scales with a geometric driver (floor area, footprint, wall area), and the non-construction costs (lot, overhead, financing, commission, marketing, profit) follow from NAHB's 2024 cost shares. A sweep then asks which lever (size, storeys, shape, finish level, foundation, lot, fees, build time, framing materials and labour) moves the price most. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-cost/
+
 **Headline.** In this stylised model, size dominates: 1,600 to 2,400 sq ft moves the price by 24 index points (reference = 100). Next come storeys (14 points for one versus three at the same area), finish level (10) and lot price (10). A 14% cut in framing lumber (the `house-plan` default plan against its best 896 sq ft plan) is worth only 0.85% of the price, and 2.4% if it also cuts framing labour by 20%. Framing is 10.7% of the price, so lumber alone cannot cut it much; 35.6% of the price is not construction at all.
 
 **Builds on.** NAHB, "Cost of Constructing a Home in 2024" (Eye on Housing, 23 Jan 2025, <https://eyeonhousing.org/2025/01/cost-of-constructing-a-home-in-2024/>, read 2026-10-17), the source of every share used. The framing numbers come from [`house-plan`](../house-plan) (lumber per sq ft) and [`house-framing`](../house-framing) (why labour carries the case). It builds on none of the CU Boulder groups in `prompt.md`.

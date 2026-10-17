@@ -2,6 +2,8 @@
 
 Third milestone of the simulation-first design track (`PROJECTS.md`, track 5), and an instance of the repository's central sim-fidelity theme. A rectangular cantilever is sized for minimum mass under a tip-deflection limit and a stress limit, using four models of increasing cost: Euler–Bernoulli beam theory, Timoshenko beam theory, 2D plane-stress finite elements and 3D finite elements. Each model's design is then judged by the 3D model. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-fidelity/
+
 **Builds on.** scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>); classical beam theory, with Timoshenko's shear correction (Timoshenko, "On the correction for shear of the differential equation for transverse vibrations of prismatic bars", *Philosophical Magazine* 41:744–746, 1921) and the shear coefficient 5/6 as a common approximation (see Cowper, "The shear coefficient in Timoshenko's beam theory", *Journal of Applied Mechanics* 33(2):335–340, 1966). Follows `simdesign-bracket` and `simdesign-topopt` in this repository. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. Citations were written from memory of the literature and not re-checked online in this run.
 
 ## Method

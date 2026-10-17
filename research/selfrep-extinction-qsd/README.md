@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-extinction-kits` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking two items of that project's next steps: a quasi-stationary approximation of the exact mean extinction time, and a seed fleet of more than one machine. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-extinction-qsd/
+
 **Builds on.** `research/selfrep-extinction-kits` (the Markov chain of machines, idle/building state and vitamin kits, imported by relative path, not copied) and, through it, `selfrep-wearout`, `selfrep-growth` and `selfrep-closure`: work per copy W = 50.0 h and vitamins per copy V = 170.3 (assumed units). Quasi-stationary distributions of absorbing Markov chains are standard material (the decay rate of the sub-generator, and mean time to absorption ~ 1/rate); I cite no specific paper for the method. The project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

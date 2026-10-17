@@ -2,6 +2,8 @@
 
 Follow-up to `garment-stackopt` (track 6, `PROJECTS.md`; its "robustness term" next step). That project's optimised 8-layer stacks had a small angle shift on paper, but `garment-thincolor` had shown that 10% thickness errors matter. Here the optimised designs are fabricated virtually with random thickness error, and a robust objective (mean cost over fixed error draws) is compared with the nominal one at equal total cost. Everything is a model on a CPU; nothing was coated or measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-stackrobust/
+
 **Builds on.** `garment-stackopt` (objective and penalties, imported) and `garment-thincolor` (transfer-matrix reflectance, colour; Macleod, *Thin-Film Optical Filters*; Born and Wolf, *Principles of Optics*; Wyman, Sloan and Shirley 2013). Robust optimisation by sampled scenarios is a standard idea; no specific paper is reproduced. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. No LLM is used. **Citation check.** No new references; inherited ones carry the caveats in `garment-thincolor` (books cited from memory, editions unverified).
 
 ## Method (`src/garment_stackrobust/rob.py`)

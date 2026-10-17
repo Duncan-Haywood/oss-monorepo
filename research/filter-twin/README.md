@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A robot's estimator (here a scalar Kalman filter, plant `x' = a x + w`, sensor `y = x + v`) is often tuned inside a digital twin whose process noise `Q_t` and sensor noise `R_t` are guesses. The filter gain depends only on the twin's ratio `ρ_t = Q_t/R_t`, and the real error under any fixed gain `K` is exact: `P(K) = ((1−K)²Q + K²R)/(1 − (1−K)²a²)`. With real `a`=0.9, `Q`=`R`=1 (optimal gain 0.597, MSE 0.597): a twin 10× too quiet (`m = ρ_t/ρ` = 0.1) claims MSE 0.215 but the real MSE is 1.321 (claim/real 0.16, regret +121%); 100× too quiet (m=0.01) claims 0.043 against a real 3.57 (+497%); a twin 10× too noisy is *pessimistic* (claims 0.915, real 0.849, +42%), so the damage is asymmetric: at 100× the quiet twin costs 5.0 versus 0.64 for the noisy one (ratio 7.7×), and for a random walk (`a`=1) the quiet-twin regret grows like `m^{−1/2}` (807× at `m`=1e-6) while the noisy-twin regret saturates near 0.6. The regret is locally `c(ln m)²` with `c` = 0.14–0.23 for `a` in 0.5…1.1. Negative result: for an unstable plant (`a`>1) the twin's gain never destabilises the filter (there is no instability cliff). The lag-1 covariance of the filter's innovations is `a[(1−K)Π − KR]`, zero iff `K` is optimal, and a one-shot moment retune (Mehra) from `n` real innovations cut regret from 2.15 to 0.026 at `n`=200 and 0.00022 at `n`=25,000 (regret·`n` ≈ 5–6, i.e. `∝ 1/n`, simulation only). See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/filter-twin/
+
 ```bash
 cd research/filter-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, ~1 s

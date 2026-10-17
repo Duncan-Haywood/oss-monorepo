@@ -2,6 +2,8 @@
 
 Stdlib-only Python. How should a protocol decide, while checking outcomes as they arrive, that a verifier's reported fault probabilities are miscalibrated, without slashing honest verifiers more than α of the time? See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sequential-slashing/
+
 ```bash
 cd research/sequential-slashing
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 6 tests

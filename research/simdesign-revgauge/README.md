@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking a next step of `simdesign-revwidth`: that project cleared the reversed-load buckling floor of 3 by widening the 1.5 mm web from 18.4 to about 22.6 mm (+5.9 g). Here the same floor is reached by raising the sheet thickness instead, and the plate masses are compared. Produced with AI assistance (Claude). Stylised and preliminary: ideal elastic sheet, sharp inner corner, buckling only, nothing made or tested. It builds on none of the CU Boulder groups in `prompt.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-revgauge/
+
 **Builds on.** `simdesign-revwidth` (width bisection, plate mass) and, through it, `simdesign-lbuckle` (whole-L 3D hexahedral eigenbuckling model; geometry, load, clamp, material and the floor of 3 are its assumptions).
 
 ## Method

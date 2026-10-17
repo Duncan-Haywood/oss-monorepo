@@ -2,6 +2,8 @@
 
 Stdlib-only Python. A verifier can be asked for the quantile (VaR) of benign floating-point drift, but slashing and compensation need the expected overshoot, i.e. expected shortfall (ES), which is not elicitable alone. The scale-free score `S(v,e;x) = ln e + (v + (x−v)₊/(1−α))/e − 1` elicits (VaR, ES) jointly, with a closed-form excess-score law. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/tail-risk-elicitation/
+
 ```bash
 cd research/tail-risk-elicitation
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, ~6 s

@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Follow-up to this repository's `research/robofab-selfparts`, which showed that a modelled parallel-jaw arm needs a jaw opening at least as wide as the widest part of the gripper it builds (30 mm for the 40 x 30 mm toy design). Here the arm that builds the next gripper *is* the previous printed gripper, so its jaw opening is set by its own design. All numbers come from `experiments/results.txt`. Track 4 (`robofab`), simulation only.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-bootstrap/
+
 - **A copy at the same size cannot be built (stylised).** The unit toy gripper offers `32 s - 2 t` mm of jaw opening at scale `s` with fixed-size pads of thickness `t` (an assumption of this study, not a measurement), but needs `30 s` mm to assemble a copy (the exhaustive search of the geometry gives exactly 30.0 s at every scale tried, 1.0 to 7.0). With `t = 4` mm the unit gripper offers 24 mm and needs 30 mm.
 - **Self-assembly starts at scale `s = t`.** The smallest scale on a 0.25 grid at which a gripper can assemble a copy equals the pad thickness in mm (1, 2, 3, 4, 6 for `t` = 1, 2, 3, 4, 6). This is the closed form `32 s - 2 t >= 30 s`, so the search confirms algebra rather than finding something new.
 - **An actuator stroke cap bounds the window.** With `t = 4` mm, a jaw stroke of 100 mm or less admits no self-assembling scale; 120 mm admits only 4.0; 160 mm admits 4.0, 4.5 and 5.0. The condition is `30 t <= stroke`.

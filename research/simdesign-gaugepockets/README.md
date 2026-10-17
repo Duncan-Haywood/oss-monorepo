@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the first "next step" of `simdesign-gaugebasins`: repeat its w scan on finer meshes. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed rule values, materials and load; a small, preliminary experiment.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-gaugepockets/
+
 **Builds on.** `research/simdesign-gaugebasins` (model, rules and measures copied into `src/simdesign_gaugepockets/` so the project stays self-contained; only the experiment script and tests differ), and through it `simdesign-gaugemesh`, `simdesign-gaugescatter` and `simdesign-dfm`. scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>). No lab's work is built on here; the project belongs to the simulation-fidelity theme of the repository.
 
 ## Method

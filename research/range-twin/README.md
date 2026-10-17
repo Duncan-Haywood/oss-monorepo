@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Real sensor reads `clip(x, −R, R)`; twin reads `x`. The P loop `x+ = x − k·y` is speed-capped at `kR` beyond `R`, with exact step-count law `⌈(x0−R)/(kR)⌉ + ⌈ln(tol/x1)/ln(1−k)⌉` (108/108 cases match simulation); for `k=0.25` the twin says 49 steps from `1000R` and the real loop takes 4021 (82×), with error linear in `x0/R` (slope `1/k`). For a PI loop the twin's overshoot is neither bound nor lower bound: real overshoot is smaller at 2–5R, 4.1× larger at 1000R (870R vs 211R), and settling is 2006 vs 37 steps; conditional integration repairs overshoot but not settling. Overshoot/R is exactly scale invariant. Logs within range fit the gain exactly (and so cannot reveal `R`); from logs uniform on `[−L,L]` the fitted gain factor is `1.5q−0.5q³`, `q=R/L` (Monte Carlo matches to 3·10⁻⁴). See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/range-twin/
+
 ```bash
 cd research/range-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, <1 s

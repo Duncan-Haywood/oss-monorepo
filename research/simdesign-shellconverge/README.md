@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the "converge the mesh" next step of `simdesign-webshell`. Produced with AI assistance (Claude). A stylised, preliminary mesh study of an idealised model; nothing was made or tested. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-shellconverge/
+
 **Builds on.** `simdesign-webshell` (same model, code copied unchanged: L-bracket arms of length 80 mm, width w, thickness b = 2 mm, steel E = 200 GPa, ν = 0.30, 100 N tip load; linear eigenbuckling of a 3D quadratic-hexahedron model in scikit-fem, clamped at x = 0). Closed forms: the classical cantilever lateral-torsional results of Timoshenko and Gere, *Theory of Elastic Stability*, 2nd ed., McGraw-Hill, 1961, as used in `simdesign-webbuckle`. scikit-fem: T. Gustafsson and G. D. McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52), 2369, 2020.
 
 ## Method

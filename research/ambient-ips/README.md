@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-bandit`. In that project the assistant refit its model only on windows where it had spoken, a non-random sample. Here the policy speaks with a *known* probability in every window, and each labelled window is weighted by 1/probability. Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. The main results are negative or conditional.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-ips/
+
 ## Motivation
 
 `ambient-bandit` listed "debias with inverse-propensity weighting" as its first next step, to test whether the uninformed-prior failure and the drift failure came from learning on a biased sample. Greedy policies have propensity 0 or 1, so weighting needs some randomisation; an epsilon-greedy policy provides it with a known propensity.

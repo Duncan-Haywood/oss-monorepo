@@ -2,6 +2,8 @@
 
 A follow-up to `research/robofab-armaccel` (its "time-optimal (bang-bang) profile instead of min-jerk" next step), on the geometry of `research/robofab-reach` and the grip bound of `research/robofab-graspmove` (track `robofab`). `robofab-armaccel` carried six parts of a toy gripper on min-jerk joint moves. Here the same carries use the time-optimal speed profile along the same joint-space line under the same assumed joint torque limit, and I compare time and the jaw force each demands. All numbers come from `experiments/results.txt`. Pure Python, no dependencies, simulation only.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-armbang/
+
 - **Time-optimal saves 20 to 29% of total carry time.** Over nine arm and torque cases (links 0.08, 0.12, 0.20 m; limits 2, 5, 10 N m) the six-part total drops by 21 to 29% (for 0.12 m links at 5 N m, 0.419 s to 0.332 s). The min-jerk times here use a 0.001 s search grid; `robofab-armaccel` used 0.01 s, so its totals are a little higher than the min-jerk column here.
 - **The price is a harder grip: 1.2 to 2.4 times the jaw force.** Across all 54 part-and-case combinations, the peak jaw force bound under the time-optimal move is 1.18 to 2.41 times that of min-jerk. The 5.95 g cover on the 0.12 m arm at 5 N m needs 2.66 N per jaw instead of 1.49 N. The time-optimal acceleration jumps, which min-jerk avoids.
 - **So friction binds sooner.** Since time-optimal motion needs more grip for the same part, a jaw-force-limited design gives back part of the time saved. This note does not compute that trade (see Next steps).

@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-drclip`, whose first next step was "cross-fitted outcome models combined with a cap". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Negative result**: cross-fitting changed little where capping already worked and did not rescue the uninformed-prior case.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-crossfit/
+
 ## Motivation
 
 In `ambient-drclip` the outcome model m behind the doubly robust (DR) pseudo-label was fitted on the same labelled windows whose residuals y &minus; m the correction then uses, so those residuals are in-sample and shrunk. Cross-fitting (predict each window with a model that never saw it) is the standard remedy in the double/debiased machine-learning literature (Chernozhukov et al. 2018, *The Econometrics Journal* 21(1):C1&ndash;C68). I cite it for the idea only; the form here is my own adaptation, not a reproduction of their estimator or results.

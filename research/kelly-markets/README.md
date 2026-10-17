@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Agents bet a fraction `λ` of wealth Kelly-style in a binary market; the clearing price is the `λ·wealth`-weighted mean belief and wealth follows a conserved multiplicative update. This gives an exact Bayes identity at `λ=1`, a per-expert `ln(1/s₀)/λ` regret bound, a closed-form growth-optimal fraction `(π−p)/(q−p)`, and a manipulation cost `V·χ²(p₀‖p)` compared with LMSR. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/kelly-markets/
+
 ```bash
 cd research/kelly-markets
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 11 tests, <1 s

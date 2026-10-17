@@ -2,6 +2,8 @@
 
 Track 11 (adversarial human imitation), a no-model slice of milestone 5 (`mimic-transfer`), built on `mimic-contexts` and `mimic-surface`. **Preliminary, stylised: RAID plain-prompt text only, three chat models, one detector type, one split.** Produced with AI assistance (Claude). No LLM was run: the container cannot reach Hugging Face, so this uses only the stored suite. The prompted-detector, larger-model and MAUVE parts of milestone 5 are still open.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-genshift/
+
 `mimic-contexts` held out whole *families*. The imitation game also changes the *generator*: an imitator prompt, or a different model, produces text the detector was not fit on. The suite records which RAID chat model (llama, mistral, mpt) and which decoding (greedy, sampling) wrote each text, so a leave-one-generator-out check is possible without running anything. This project asks how much of the detector's AUROC survives it, whether a detector that sees a batch of same-source texts does better, and how much less varied the machine texts are.
 
 Numbers come from `results.txt` and `results.json`; the figure is `experiments/figure.svg`.

@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A policy's real return `R` is estimated from `n` real episodes plus `N ≥ n` twin episodes with a control variate, `R̄ − λ(T̄ₙ − T̄_N)`. It is unbiased whatever the twin's bias (twin bias +0.7 → twin-only error +0.700, control-variate error +0.001), and its variance is exactly `σ_R²((1−ρ²)/n + ρ²/N)` (matched to simulation within 6%). The twin cannot share execution noise with reality, only the scenario context (object pose, friction, start state), so the achievable correlation is set by the context share `η`: a *faithful* stochastic twin has `ρ = η`, while a *noise-free* twin has `ρ = √η` (`η = 0.5`: 1.33× vs 2.0× real-sample equivalent, and the same effect at `η` = 0.2 / 0.8: 1.04× vs 1.25× / 2.78× vs 5.0×). With a budget, the twin is worth using only if `c_T/c_R < (1−√(1−ρ²))²/ρ²` (0.072 for `ρ`=0.5, 0.172 for `ρ`=0.707), and the optimal allocation and variance are closed-form (`(√((1−ρ²)c_R)+√(ρ²c_T))² σ_R²/C`). For ranking two policies where the twin's bias favours the wrong one (twin-only gap −0.20, true +0.20), twin-only is wrong essentially always; the control variate needs 125 (faithful) / 86 (noise-free) real episodes per policy for a 90% correct order against 164 real-only. Estimating `λ` costs a `≈(n−2)/(n−3)` variance factor and a 95% interval covers 94%. A binary-success example (real 0.592 vs twin 0.500) gives `ρ=0.41` and the formula variance to within 2%. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/twin-evaluation/
+
 ```bash
 cd research/twin-evaluation
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 7 tests, ~6 s

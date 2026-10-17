@@ -2,6 +2,8 @@
 
 Track 11 (adversarial human imitation), a by-product of `mimic-contexts` and `mimic-crossplay`. **Preliminary, stylised: plain-prompt RAID text only, one detector type, one train/held-out split.** Produced with AI assistance (Claude). No LLM was run; the container cannot reach Hugging Face, so this uses only the stored suite.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-surface/
+
 `mimic-crossplay` found that text length drives the imitation game's payoff, and `mimic-contexts` showed length alone is at chance for held-out families. Both leave open how much *text* a detector needs and *which surface features* carry its signal. A game whose texts are short (the loop truncates to 400 characters) or whose imitator controls formatting is playing against a weaker detector than the headline AUROC 0.927. This project measures that, so later milestones can read their numbers against a known yardstick.
 
 Numbers come from `results.txt` and `results.json`; the figure is `experiments/figure.svg`.

@@ -2,6 +2,8 @@
 
 Why it seemed worth doing: `eda-earlystop` showed that after simulation the remaining formal CPU buys equivalence proofs at about 93 s each, and listed "predict which survivors are equivalent and spend formal only on those" as its open step. The `eda-verify` log is enough to try that without running a tool. Produced with AI assistance (Claude). Stylised and preliminary: 27 mutants of one design (the `chip-accel` MAC engine, p = 8, 4-bit), one solver, nothing new simulated.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-equivpredict/
+
 **Builds on.** `research/eda-earlystop`, `research/eda-checkorder` (loader and cascade), `research/eda-verify` (the log `experiments/mutants.jsonl`), `research/chip-accel`. No CU Boulder lab's work is built on and no affiliation is implied.
 
 ## Method

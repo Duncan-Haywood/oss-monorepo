@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Free-choice run (`PROJECTS.md`, Picking work): a small question about a very common twin simplification, thrust modelled as linear in throttle around hover, that none of the other `*-twin` projects asks. Produced with AI assistance (Claude). Stylised: 1-D altitude, unit mass, noiseless, a simulated "real" system with an assumed `T = k u²` thrust curve and no field data.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/thrust-twin/
+
 **Setup.** Vehicle `ẍ = T(u) − g`, throttle `u`. Twin: thrust linearised at hover. Controller designed in the twin: `a_cmd = kp (x₀ − x) − kd v`, `u = u_h + a_cmd/(2 k u_h)` (the twin's exact inverse), so the twin obeys `ẍ = a_cmd`. Real thrust `T = k u²` (`k u_h² = g`).
 
 **Closed form.** Substituting, the real vehicle realises `ẍ = a_cmd + a_cmd²/(4g)`: it depends only on `a_cmd/g`. The quadratic term is always positive, so climb commands over-deliver (×1.25 at `a_cmd = g`, ×1.5 at `2g`), descent commands under-deliver (×0.75 at `−g`), and the throttle floor `u = 0` is reached at `a_cmd = −2g` (free fall, `ẍ = −g`). With throttle limited to `2u_h` (assumed), acceleration caps at `3g`. The step response then depends on `p = ωn²|x₀|/g` only (tested).

@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-repair` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking that project's first listed next step: set the spare-part cost share `c` from the closure of the machine's wear parts in `selfrep-closure`. Produced with AI assistance (Claude). **Stylised, assumed inputs**: nothing here measures a real printer.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-spares/
+
 **Builds on.** `research/selfrep-repair` (the repair discrete-event model and the break-even rule c < s, imported by relative path), `research/selfrep-closure` (the Prusa Mendel parts list and which seed shop can make which part) and `research/selfrep-growth` (W = 50.0 h and V = 170.34 vitamin units per copy). Behind them: the RepRap project (Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>) and the question of von Neumann (1966) and Freitas and Merkle (2004), as in `PROJECTS.md`. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

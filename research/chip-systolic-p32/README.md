@@ -2,6 +2,8 @@
 
 Follow-up to `chip-systolic-hidewide` in the LLM chip-design-loop track (`PROJECTS.md`, track 3). That project listed "P = 32 at F = 32", "R = 4" and "simulate the MAC engine at H = 16 against NumPy" as next steps. This project runs the same F-16-4 network at F = 16 and 32 with P up to 32, arrays 2x16 and 4x8 added, and every MAC engine's RTL simulated. Produced with AI assistance (Claude). Preliminary and small: one toy network family, one seed, one tool version, one generic-gate synthesis script, no LLM in the loop.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-systolic-p32/
+
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed. The dataflow is the textbook systolic idea of H. T. Kung, "Why systolic architectures?", *IEEE Computer* 15(1):37-46, 1982, <https://doi.org/10.1109/MC.1982.1653825> (details as cited in `chip-systolic-batch`; the paper was not read in full here). Code is copied (MIT, same author) from `research/chip-systolic-hidewide` (itself copied from `chip-systolic-hidden`; the H = 16 changes are described there) and changed only in the sweep script and one added test; the generators are unchanged. Earlier changes in `chip-systolic-hidewide`:: H = 16; the index width now covers max(F, H) (it covered only F, which breaks when H > F); and the activation buffers hold max(F, H) entries per row, with the input repacked on load (they held F, which cannot store a hidden vector wider than the input). The README is new.
 
 ## Method

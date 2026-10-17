@@ -2,6 +2,8 @@
 
 Follow-up to `chip-systolic-p32` in the LLM chip-design-loop track (`PROJECTS.md`, track 3). That project found the P = 32 MAC engine had fewer generic-gate cells than P = 16 at the same cycle count (5637 against 6043 at F = 16) and wrote that this "small synthesis effect ... was not investigated" and that its 0.7% effect on the best design "is within what a different abc script could change". This project tests that statement. Produced with AI assistance (Claude). Preliminary and small: one network family, three model seeds, one tool version, no LLM in the loop.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-macp32cells/
+
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed. Code is copied (MIT, same author) from `research/chip-systolic-p32` (`model.py`, `baseline_gen.py`, unchanged); `flow.py` and the sweep are new. Tools: Yosys 0.33.
 
 ## Method

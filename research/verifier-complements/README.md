@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Exact value of a verifier committee for an accept/slash decision; when marginal-contribution hiring and leave-one-out pay break. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/verifier-complements/
+
 ```bash
 cd research/verifier-complements
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests

@@ -2,6 +2,8 @@
 
 Eighth project of track 12, open-source residential construction (`PROJECTS.md`, milestone 6, first version: wood-frame lateral design only; the alternative wall systems are next steps). It takes the 28 x 40 ft one-storey house of [`house-framing`](../house-framing), computes wind and seismic base shear, and checks it against the segmented wood shear-wall length its real openings leave. Stylised and not a code check: the capacities are from memory (see Limitations). Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/house-structure/
+
 **Headline (stylised).** At 115 mph and a seismic SDS of 0.50 this house uses **19% of one gable-wall line's capacity at the loosest nailing** (6 in panel edges) for wind across the ridge, and 6 to 8% in the other cases: it needs about 4.6 ft of full-height sheathed wall against 24 ft available. Lateral load is not what limits this plan. Wind has to reach 264 mph (Exposure-B-like) or 223 mph (C-like) before 6 in nailing runs out, and SDS 7. What does bite is the **openings**: adding windows to each gable wall takes the solid length from 24 ft to 18 ft with three windows, to 11 ft with four, and to zero with six, because narrow piers (under height/3.5) do not count. Framing choice does not matter: the advanced 2x6 at 24 in has the same shear capacity as the conventional wall (experiment E). Hold-down tension at the demand shear is under 800 lb at 115 mph (experiment A).
 
 **Builds on.** [`house-framing`](../house-framing) (imported unchanged: the walls and the positions of the openings). Method follows the structure of the American Wood Council's SDPWS and ASCE 7 in outline only, from memory. It builds on none of the CU Boulder groups in `prompt.md`.

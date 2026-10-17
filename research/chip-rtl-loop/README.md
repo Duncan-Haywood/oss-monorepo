@@ -2,6 +2,8 @@
 
 Second milestone of the LLM chip-design-loop track (`PROJECTS.md`, track 3). It builds the checking half of a generate-and-repair loop for Verilog: lint, compile, lockstep simulation against a golden model, and a formal equivalence proof for combinational tasks. It then runs one small experiment through it. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-rtl-loop/
+
 **Builds on.** The task-plus-testbench style of VerilogEval (Liu et al., ICCAD 2023, <https://doi.org/10.1109/ICCAD57390.2023.10323812>) and RTLLM (Lu et al., ASP-DAC 2024, <https://doi.org/10.1109/ASP-DAC58780.2024.10473904>), and the conversational repair idea of Chip-Chat (Blocklove et al., MLCAD 2023; title and venue as listed in `PROJECTS.md`, no DOI given because the container could not reach a bibliographic service to confirm one). **This is not a reproduction of any of them**: the tasks, golden models and testbenches here are original, and no published benchmark data is used. Tools: Yosys, Icarus Verilog, Verilator (versions below). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

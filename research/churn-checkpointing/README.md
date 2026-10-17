@@ -2,6 +2,8 @@
 
 Stdlib-only Python. How often should preemptible, decentralised workers commit checkpoints, and how far can synchronous training scale before churn eats it? See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/churn-checkpointing/
+
 ```bash
 cd research/churn-checkpointing
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests

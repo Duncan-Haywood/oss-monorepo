@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A field robot brakes with deceleration `g·μ(x)`, so it stops when the friction integral reaches `W0 = v0²/2g`; the twin-mean stopping distance is `d0 = W0/m`. If terrain friction is Gamma-distributed (CV 0.5) and piecewise constant on patches, the exact law is `P(D > s) = P(jk, jk·W0/(m s))` (regularised incomplete gamma, `j` independent patches across `s`, shape `k`), checked against a braking simulation (closed form 0.1173 vs simulated 0.1168 at `j=4`). A twin that draws every map cell independently (`n=100` cells across the distance) certifies 1.173·d0 at level 10⁻³; when the real terrain has 1, 3 or 10 patches across that distance the real exceedance is 0.444, 0.33 and 0.176. The finer the twin's cells the worse it gets: `n=10⁴` certifies 1.016·d0 and is exceeded 55% of the time on single-patch terrain. Real terrain with one patch needs 9.3·d0 (8.9× what an `n=1000` twin certifies), with ten patches 1.72·d0. The mean is nearly right and the tail is not: simulated `E[D]/d0` runs 1.002 to 1.322 as the patch length grows from 0.01·d0 to 100·d0 (limit `k/(k−1)=1.333`), while `P(D>1.2·d0)` goes 0.0001 to 0.43. Rebuilding the twin with the measured patch count restores the level (0.001 at `j_est=4`); overstating the count 2×/4× gives 0.016/0.069, understating it is conservative. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/terrain-twin/
+
 ```bash
 cd research/terrain-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 5 tests, ~1 s

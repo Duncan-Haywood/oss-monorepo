@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-reinvest` and `selfrep-singulararc` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking the "terminal fleet value" next step that both list. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-terminal/
+
 **Builds on.** `research/selfrep-reinvest` (its fluid fleet model and `run` simulator, imported by relative path, not copied) and `research/selfrep-growth` (the per-copy work `W` = 50.0 h and vitamin cost `V` = 170.3, imported), which come from `research/selfrep-closure` (RepRap Prusa Mendel; Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>). The question follows von Neumann (1966) and Freitas and Merkle (2004), as in `PROJECTS.md`. No paper's result is reproduced or compared; the only theory is the elementary calculation below. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

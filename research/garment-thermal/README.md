@@ -2,6 +2,8 @@
 
 Fourth milestone of the engineered-clothing track (`PROJECTS.md`, track 6). A stylised heat balance of body, clothing and surroundings: the ISO 7730 / Fanger PMV comfort index and a Gagge-style two-node (core, skin) model, both extended with four fabric properties (outer-surface infrared emissivity, infrared transmittance, solar absorptance, moisture permeability). Everything is a model on a CPU; no textile was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-thermal/
+
 **Builds on.** The two-node idea of Gagge, Stolwijk and Nishi (1971); the Fanger PMV/PPD comfort index as standardised in ISO 7730 (Fanger, 1970 book); the motivation from textiles that cool the body by passing its infrared (Hsu et al., 2016) and that gate infrared with humidity (Zhang et al., 2019). It extends `garment-teardown` and the track's other models by giving the "fabric" an optical side. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. **Citation check.** The Hsu, Zhang, Gagge and ISO entries were taken from the reference list in `PROJECTS.md` (checked 2026-10-12). This run could not re-check them: the container blocks Crossref and doi.org. I did not read the papers' full texts; I use them only for the qualitative idea, and no number below comes from them.
 
 ## Method

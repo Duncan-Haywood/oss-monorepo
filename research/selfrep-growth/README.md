@@ -2,6 +2,8 @@
 
 Third milestone of the self-replicating manufacturing track (`PROJECTS.md`, track 1). A fleet of identical printers each builds copies of itself from printed parts plus imported vitamins. A discrete-event simulation and a closed-form fluid model give the doubling time as a function of the import budget, build failures and closure. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-growth/
+
 **Builds on.** `research/selfrep-closure` (imported, not copied): its Prusa Mendel part model sets the printed mass and the vitamin cost per copy. Through it, the RepRap project (Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>). The question follows von Neumann (1966) and Freitas and Merkle (2004), as in `PROJECTS.md`. Lackner and Wendt (1995), "Exponential growth of large self-reproducing machine systems", *Math. Comput. Modelling* 21(10):55-81, <https://doi.org/10.1016/0895-7177(95)00071-9>, is the named comparison for this milestone: **this project does not make that comparison**, because I did not have the paper's text and will not describe its model from memory. The only theory used here is the textbook exponential-then-linear law derived below. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

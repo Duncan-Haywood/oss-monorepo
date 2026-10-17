@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-growth` in the self-replicating manufacturing track (`PROJECTS.md`, track 1). The growth model there lets machines live forever. Here every machine is retired at a random age, a build in progress on it is lost, and a share of its vitamin value can be recovered into the stock. A discrete-event simulation (standard library) is compared with a fluid model and a corrected closed form. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-wearout/
+
 **Builds on.** `research/selfrep-growth` and, through it, `research/selfrep-closure` (imported by relative path, not copied): work per copy W = 50.0 h and imported vitamins per copy V = 170.3 (assumed currency units). Behind them: the RepRap project (Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>), and the question of von Neumann (1966) and Freitas and Merkle (2004), as in `PROJECTS.md`. I did not read or compare Lackner and Wendt (1995). Weibull lifetimes are the standard reliability model; I give no reference for the distribution beyond its name. The project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

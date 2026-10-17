@@ -2,6 +2,8 @@
 
 Follow-up to `chip-systolic-fanin` and `chip-systolic-edge` in the LLM chip-design-loop track (`PROJECTS.md`, track 3). Those projects grew the input and hidden widths together (F-F-4), and `chip-systolic-edge` listed "a fixed hidden width with varying input fan-in" as a next step. This project makes the network F-8-4 and runs F = 8, 16 and 32. Produced with AI assistance (Claude). Preliminary and small: one toy network family, one seed, one tool version, one generic-gate synthesis script, no LLM in the loop.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-systolic-hidden/
+
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed. The dataflow is the textbook systolic idea of H. T. Kung, "Why systolic architectures?", *IEEE Computer* 15(1):37-46, 1982, <https://doi.org/10.1109/MC.1982.1653825> (details as cited in `chip-systolic-batch`; the paper was not read in full here). The generators, model, flow and experiment script are copied (MIT, same author) from `research/chip-systolic-fanin`, then changed so the hidden width H is separate from the input fan-in F: the second layer's fan-in is H, passes and the MAC schedule use the current layer's fan-in, and the cycle formulas follow. The tests and this README are new.
 
 ## Method

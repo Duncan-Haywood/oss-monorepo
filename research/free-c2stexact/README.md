@@ -2,6 +2,8 @@
 
 A free-choice run (not one of the priority tracks), chosen because its sibling `research/free-c2stpower` ended with a caveat: the C2ST's empirical null was noisy and a check on fresh exact-twin replicates falsely rejected 0 to 29% of the time against a nominal 5%. This project asks which of three simple rules actually holds its size. **Stylised and simulated only; no real data, no LLM.**
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/free-c2stexact/
+
 Every number below is copied from `experiments/results.txt`.
 
 ![False rejections on the exact twin](experiments/null_rate.svg)

@@ -2,6 +2,8 @@
 
 **Why this was worth doing.** `accel-lut` found that a product-table engine did not beat an int8 MAC engine, but its shared values were never retrained, so it called its low-K accuracy a lower bound. This project tests that caveat directly. **Result: mixed, small, and assumption-dependent.** Fine-tuning rescues K = 2 and 4 in the 75%-pruned network, which brings the table engine 14% under int8 energy within 2 points of float32 when a table read costs 0.04 pJ/bit. It does not help the dense network at K = 8, where it was worse than no fine-tuning. At the 0.16 pJ/bit read cost the table loses everywhere.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/accel-lutft/
+
 **Builds on.** `research/accel-lut` (task, models, cost model; `model.py` and `lut.py` are copied from it so the project is self-contained, and its post-training rows reproduce `accel-lut`'s accuracies and energies to the printed precision). Idea: weight sharing with a trained codebook, Han, Mao and Dally (2016), "Deep Compression", ICLR (citation from memory, **not re-verified in this run**). The fine-tuning here is a simpler straight-through scheme than theirs. Energy constants are assumptions in the spirit of Horowitz (2014), ISSCC (not re-checked). No CU Boulder group's work is built on or implied. Produced with AI assistance.
 
 ## Method

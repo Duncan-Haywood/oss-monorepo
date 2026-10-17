@@ -2,6 +2,8 @@
 
 Second milestone of the engineered-clothing track (`PROJECTS.md`, track 6). A flat trapezoid skirt-tube pattern (waist and hem circumference, length) is draped in simulation on an elliptical-section body; fit is scored by strain and waist ease; the pattern is then optimised for each of two synthetic bodies and swapped between them. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-pattern-fit/
+
 **Builds on.** Position based dynamics for cloth: Müller, Heidelberger, Hennix and Ratcliff (2007), *J. Vis. Commun. Image Represent.* 18(2):109–118. Cloth simulation for garments: Baraff and Witkin (1998), "Large steps in cloth simulation", SIGGRAPH, <https://doi.org/10.1145/280814.280821> (cited as context; this project does **not** implement their method). Ramanujan's (1914) ellipse-perimeter approximation, *Quart. J. Pure Appl. Math.* 45:350–372. I wrote the cloth code myself from the PBD idea; no third-party cloth or pattern code is used. FreeSewing patterns are **not** used here (the track mentions them; this milestone uses my own pattern). Citations were written from memory and `PROJECTS.md`; I could not open the papers in this run, so check them before relying on them. It builds on none of the CU Boulder groups in `prompt.md`, and claims no connection to them.
 
 ## Method

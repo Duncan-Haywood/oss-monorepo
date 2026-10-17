@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A pulsed Doppler radar reports radial velocity modulo `2V`; a twin that renders velocity as a real number has no aliasing. For the mean of `n` returns `y = μ + N(0, s²)` wrapped to `[−V, V)`, the real bias is an exact Gaussian tail series (`−V` at `μ=V`, `−2V` beyond), and the exact real MSE (Gaussian partial moments over wrap cells) has a floor `bias²`, so averaging makes the gap to the twin's claim `s²/n` grow: at `V=10, s=1` the real/claimed MSE is 7.9× at `μ=8, n=1` and 2.1×10³ at `n=10⁴`; 185× → 10⁶× at `μ=10`. Speeds with |bias| ≤ 0.1 extend only to 87%/74%/48% of `V` for `s`=0.5/1/2 (closed-form leading term `V+sΦ⁻¹(tol/2V)` agrees to 4 decimals). Unwrapping against a prior has exact failure probability `2Φ(−V/√(s²+s_p²))` and exact MSE; it stays within 10% of the twin's claim only for prior error `s_p ≤ 0.257V`. All matched to Monte Carlo in the tests. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/aliasing-twin/
+
 ```bash
 cd research/aliasing-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, ~2 s

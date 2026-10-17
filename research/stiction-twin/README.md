@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Unit mass under PID with Coulomb friction: kinetic level `Fc`, breakaway level `Fs ≥ Fc`; twin has no friction and is stable (error <1e-58). With `Fs = Fc` (sliding friction correctly identified) the real loop converges in all 15 cases tried (<5e-14), so that twin validates. With a stiction excess `ΔF = Fs − Fc` it hunts in stick-slip at 0.54–0.93 `ΔF/kp` in four of five gain settings, independent of `Fc` (0 to 20) and start, falling with damping and rising weakly with integral gain; one setting (kd=4, ki=5) converges. Scaling is bit-exact for power-of-two scales; the cycle is unique only to ~3 digits. Negative result: short runs show a motionless "converged" error for large `Fc/ki` while a 20 000 s run still hunts. No closed form for the amplitude constant. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/stiction-twin/
+
 ```bash
 cd research/stiction-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, <1 s

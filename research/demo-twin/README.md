@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Scalar plant `x' = a x + b·sat(u) + w` (`a=1.05`, `b=1`, `|u| ≤ U`), expert command `u = −k0 x` with `k0` the unsaturated LQ gain (0.963). A clone is fit by least squares to logged `(state, applied action)` pairs, where the states come from the expert running in a twin. Results, all from `experiments/results.txt`:
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/demo-twin/
+
 - **Logging the applied (clipped) action biases the clone, even with a perfect twin.** At `U = 1` the clone's gain is 0.582 against `k0 = 0.963` and its real cost is 9.8% above the expert's (gap 0.141 on 1.433). For Gaussian states the clone gain is exactly `k0·P(|k0 x| < U)` (Stein's lemma; verified to 4 digits against quadrature, and within 3% of the exact grid value for the expert's non-Gaussian states). Logging the pre-clip command removes the bias by construction.
 - **Twin errors move the gap through the states they produce, and some help.** A twin with 0.25× the true noise cuts the gap to 0.002; 2× the noise raises it to 0.75. A twin whose actuator limit is 3 instead of 1 gives gap 0.0001; one with limit 0.7 gives 0.84. Underestimating `b` by 30% gives 0.39; overestimating by 50% gives 0.09. More fidelity is not monotonically better here.
 - **Coverage is the lever.** Resetting the twin to logged states with sd ≤ 0.5·U/k0 gives gap ≤ 0.002; sd = U/k0 gives 0.08.

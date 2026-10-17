@@ -2,6 +2,8 @@
 
 Follow-up to [`garment-twonodestep`](../garment-twonodestep) (track 6, `PROJECTS.md`), taking its next step: "a step in metabolic rate". Everything is a model on a CPU; no person or fabric was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-twonodemet/
+
 **Builds on.** `garment-twonodestep` (scoring, oracle), `garment-twonodeswitch` (hysteresis-plus-lag gate; closed 0.15 and open 0.8 infrared transmittance, both assumptions) and `garment-twonodeoptics` (switchable two-node model; "ours" is this repository's choices, "ref" those of `pythermalcomfort` 4.6.1). The gating idea is motivated by Zhang et al. (2019), cited in `garment-thermal`; the actuator here is a toy, not a model of that textile. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 **Citation check.** No new source; Zhang et al. (2019) was not re-read in this run.

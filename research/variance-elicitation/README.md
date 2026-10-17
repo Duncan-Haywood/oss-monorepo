@@ -2,6 +2,8 @@
 
 Stdlib-only Python. One observation cannot elicit a variance, but two independent re-executions can, through `D = (y1−y2)²/2`. Exact misreport costs (Brier `(r−σ²)²`, scale-free `1/λ+ln λ−1`), a closed-form detection sample size `≈ 2z²(κ+1)/(λ−1)²`, the disjoint-pairs penalty against the sample variance, and the heavy-tail breakdown. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/variance-elicitation/
+
 ```bash
 cd research/variance-elicitation
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, <1 s

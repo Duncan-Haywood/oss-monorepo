@@ -2,6 +2,8 @@
 
 A follow-up to `research/robofab-jawcap` (its "a joint-speed limit" next step), on the geometry of `research/robofab-reach` and the grip bound of `research/robofab-graspmove` (track `robofab`). `robofab-jawcap` capped joint torque and jaw force but let the joints spin as fast as they liked: the unconstrained time-optimal carries here reach 6 to 154 rad/s, far above any real servo. Here a peak joint-speed limit `wmax` is added, and both profiles (time-optimal and min-jerk) are made as fast as torque, jaw cap and speed limit allow. All numbers come from `experiments/results.txt`. Pure Python, no dependencies, simulation only.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-jointspeed/
+
 - **A speed limit raises the time-optimal saving, up to a ceiling near 46%.** Over three arm sizes, three jaw caps (k = 2, 5, no cap) and speed limits of 6, 4, 3, 2 and 1 rad/s, the six-part time-optimal total is 28 to 46% shorter than the fastest min-jerk move meeting the same limits. Without a speed limit the same cases give 18 to 34%.
 - **The ceiling is geometric, not dynamic.** Once the speed limit binds, a min-jerk move needs `T = 1.875 d / wmax` (its peak speed is 1.875 times the mean) while the time-optimal move can cruise near `wmax`, so the saving tends to `1 - 1/1.875 = 47%`. Every case reaches 46% by wmax = 2 or 1 rad/s.
 - **The speed limit, not the grip or the motor, sets the time at low wmax.** At 1 rad/s all three jaw caps give the same time-optimal total for a given arm (5.75, 10.16 and 5.05 to 5.08 s for 0.08, 0.12 and 0.2 m links, to within 1%), so a stronger gripper or motor buys nothing there.

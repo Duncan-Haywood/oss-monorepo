@@ -2,6 +2,8 @@
 
 Fifth milestone of the self-replicating manufacturing track (`PROJECTS.md`, track 1). A stylised steady-state mass and energy balance for building one more RepRap Prusa Mendel, with and without recycling of plastic (shred and re-extrude) and aluminium (remelt offcuts). Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-materials/
+
 **Builds on.** `research/selfrep-closure` in this repository: its part list, assumed part masses and its judgement of which process can make which part. That list is the RepRap wiki's Prusa Mendel (iteration 2) page (see that README for the exact revision and the licence note); the RepRap project is Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>. The mass-balance structure (feedstock, yield, scrap, recycle fraction) is generic and written for this project; no external model is reproduced. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

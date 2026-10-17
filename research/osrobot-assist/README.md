@@ -2,6 +2,8 @@
 
 Sixth milestone (`osrobot-assist`) of track 9, open-source purpose-built robots, in the direction of the CAIRO Lab interest in human-robot collaboration and assistive robotics. Produced with AI assistance (Claude). Pure Python standard library. **Every constant (tip mass, loop gains, lip stiffness, mouth opening, sway shape, comfort limit) is an assumed round number marked ASSUMED in `model.py`, not a measurement of a person or a product, and no robot was built or tested with anyone.** All numbers below are from `experiments/results.txt`. Simulation only; **a stylised, preliminary study, and the Assistive Gym / MuJoCo human model the milestone mentions was not used** (neither is installed here; this is a planar point-mass stand-in).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/osrobot-assist/
+
 ![Peak lip force and contact share against approach speed and sensing delay](experiments/force_sweeps.svg)
 
 - **In this model the push on the lips is set by the controller, not the lips.** The tip's forward reference sits 0.05 s ahead of it, so a blocked tip pushes with `KP × 0.05 s × speed` = 20 N·s/m × speed. The peak force therefore tracks approach speed: 0.40 N at 0.02 m/s, 1.00 at 0.05, 2.00 at 0.10 and 4.00 at 0.20 (maximum over 200 trials at 30 mm sway). This is largely a property of the chosen controller, so treat it as an identity the tests check, not a discovery about people.

@@ -2,6 +2,8 @@
 
 Milestone 1 (`mimic-contexts`) of track 11, adversarial human imitation. The track will let two frozen LLMs play an imitation game by rewriting only their own prompts. Before any game, it needs a context suite and detectors that use no prompt, to anchor every later number. This project builds both. **It does not run the game, and it does not generate text with a local imitator.** The "plain-prompt imitators" here are chat-model generations already in RAID.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/mimic-contexts/
+
 Numbers come from `results.txt` and `artifacts.txt`.
 
 - **Suite.** 8 families (abstracts, books, news, poetry, recipes, reddit, reviews, wiki), 300 human and 300 LLM texts each (4,800), up to 1,500 characters, in `data/suite.jsonl.gz`. The LLM texts are plain-prompt generations from RAID's chat models (llama-chat, mistral-chat, mpt-chat, no adversarial attack). Train on 5 families and hold out poetry, reviews and wiki whole.

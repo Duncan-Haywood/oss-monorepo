@@ -2,6 +2,8 @@
 
 A verification study in the simulation-first design track (`PROJECTS.md`, track 5). The earlier projects `simdesign-meshmargin` and `simdesign-patchstress` found that the peak element stress of an L-bracket keeps rising as the mesh is refined, but had no exact answer to compare it with. A plate with a circular hole under tension does: Kirsch's solution gives a peak stress of exactly three times the remote stress. Here the finite-element code is checked against that solution, and two ways of reading "the peak stress" from the same solution are compared. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model; no real part was made or tested.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-kirsch/
+
 **Builds on.** Kirsch's exact solution for a circular hole in a plate under remote tension: G. Kirsch, "Die Theorie der Elastizität und die Bedürfnisse der Festigkeitslehre", *Zeitschrift des Vereines deutscher Ingenieure* 42 (1898), pp. 797–807 (some bibliographies give 797–802; the pages were not checked against the original), and S. P. Timoshenko and J. N. Goodier, *Theory of Elasticity* (McGraw-Hill, New York; 3rd ed. 1970). The formulas in `model.py` are written from those standard results and checked by `tests/` (free hole edge, uniaxial far field, peak of 3σ) and by the convergence below; they are not copied from any text. Finite elements: scikit-fem (Gustafsson and McBain, *JOSS* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>). Within this repository it follows `simdesign-meshmargin` and `simdesign-patchstress`. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

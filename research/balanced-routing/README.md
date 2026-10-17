@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Capacity-constrained expert routing (MoE load balancing) as a cost-function market: the balancing multipliers are congestion prices, and a price vector is a checkable certificate. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/balanced-routing/
+
 ```bash
 cd research/balanced-routing
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, ~3 s

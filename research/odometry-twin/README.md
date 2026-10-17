@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Each traversal has a persistent bias `b~N(0,σ_b²)` plus white noise, so real error after `T` steps has variance `σ_1²(ρT²+(1−ρ)T)`; a twin fitted to one-step increments (identical for every `ρ`) predicts `σ_1²T`, and the ratio is exactly `1+(T−1)ρ`. Results (stylised, 1-D): with 5% of step variance persistent, the twin's relocalisation interval (163 steps for a 5% miss target at 0.5 m) is 3.4× too long and the real miss probability is 51.6%; a 3σ loop-closure gate tuned in the twin accepts true closures with probability 0.908/0.642/0.327 at `T`=50/200/1000 instead of 0.9973, and in a closed loop the rejections make error run away (RMS 8.8 m vs 0.17 m calibrated at `T=200`). A calibrated gate is not a cure-all: with aliased closures offset by 1 m it accepts 97–99% of them once drift uncertainty exceeds the offset. Inflating the twin variance by a ratio fitted at the loop length from `n` ground-truth traversals recovers recall to 0.970 at `n=5` and 0.996 at `n=50`, but the ratio does not transfer to other loop lengths. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/odometry-twin/
+
 ```bash
 cd research/odometry-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, ~1 s

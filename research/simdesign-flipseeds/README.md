@@ -2,6 +2,8 @@
 
 Eighth project of the simulation-first design track (`PROJECTS.md`, track 5), taking the second "next step" of [`simdesign-coverweight`](../simdesign-coverweight): its machine-choice flips between count and mass weighting came from one seed. Produced with AI assistance (Claude). Everything here is stylised: the DFM rules, material properties and machine prices are the **assumed** round numbers of the earlier projects, the part family is a random sample and the mass weight is a crude same-material volume proxy. Simulated result only; no part was made.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-flipseeds/
+
 **Builds on.** `research/simdesign-coverweight` (`sample_parts`, `weights`, `wshop_value`), `research/selfrep-nextmachine` (`exhaustive`) and `research/simdesign-processcover`, all imported unchanged. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

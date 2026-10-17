@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Real system: a sawtooth FMCW radar, whose beat tone `2SR/c + 2vf_c/c` makes the range read `R + κv`, `κ = f_cT/B`; the twin reads the true `R`. Results (all from `experiments/results.txt`): (1) a signal-level simulation of the beat tone (exact two-way delay, Hann FFT, parabolic peak) matches `R₀ + κv + vT` to ≤ 1e-4 range cells at ±25 m/s for three presets; (2) the bias is `f_D T` cells, independent of bandwidth: 0.62, 3.1, 4.8 cells (9 cm, 46 cm, 2.9 m) at 30 m/s for fast 77 GHz, mid 77 GHz and slow 24 GHz ramps; (3) for `|v| ≤ V` it is at most `T/(2T_pri)` ≈ 0.33–0.42 cells, but `V` is 16.2, 3.9, 2.6 m/s here; (4) compensating with the radar's own wrapped Doppler leaves `k·T/T_pri` cells (`k = round(v/2V)`), which is worse than no compensation on exactly half of the over-range speeds; (5) for a stationary scene seen by a forward-moving radar (±60° field of view) a centroid fit absorbs an along-track position error `0.707κv` (6.5 cm, 33 cm, 2.0 m at 30 m/s) and leaves a distortion of rms `0.455κv`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chirp-twin/
+
 ```bash
 cd research/chirp-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, under 1 s

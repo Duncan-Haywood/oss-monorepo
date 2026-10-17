@@ -2,6 +2,8 @@
 
 A follow-up to `research/robofab-torquebound`, whose next steps asked to "bound the trapezoid's missed peaks (denser whole-move sampling ...)". It matters because every edge reported on this track is `1 - T_opt / T_trap`, and `T_trap` is only as honest as the check that sets it: a trapezoid is declared feasible if the torque and jaw force stay under their limits at the sampled instants, so missed peaks make the trapezoid look faster than it is and the time-optimal edge look smaller. Same toy arm, parts and limits as `robofab-torquebound` (track `robofab`).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robofab-peakcheck/
+
 - **The dense check barely moves the trapezoid.** The nine torque- and jaw-bound rows (3 arm sizes x jaw cap k = 2, 5 or none, six printed parts each, no speed limit) are re-solved with a trapezoid check of 10,000 whole-move midpoints plus 1,000 per ramp plus both sides of the two acceleration corners, against `robofab-torquebound`'s 201 + 160 per ramp. Six-part totals change by +0.006% to +0.152% in eight rows and by -0.150% in one (0.08 m, no cap).
 - **The edge is unchanged to within 0.13 points.** Dense-check edge over the time-optimal solver (n = 6400): 9.5% to 23.0%, against 9.4% to 23.0% before. Largest 0.08 m / k = 2 (23.0%), smallest 0.2 m / no cap (9.5%). The earlier "9 to 23%" finding does not rest on a sparse peak check.
 - **The dense answers hold at ten times the density.** Re-checked at 100,000 + 10,000 per ramp samples, the highest utilisation of any part's torque or jaw limit is 1.00000 (to five places; worst 0.99998 to 1.00000), and an a-posteriori estimate of the peak still missed between those samples is at most 0.0025 of a limit (largest for the 0.2 m arm with k = 2).

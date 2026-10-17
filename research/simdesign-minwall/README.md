@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the "relax or justify the 1.2 mm minimum wall and rerun b = 1 mm" next step of `simdesign-bucklebound`. Produced with AI assistance (Claude). Stylised; the buckling factor is an ideal-bar closed form that is not validated for thin sheet; preliminary.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-minwall/
+
 **Builds on.** `simdesign-bucklebound` (bracket model, rule sets, optimiser and the lateral-torsional buckling closed forms, copied here so the project is self-contained; the only code change is that the tests and experiment set `dfm.MIN_WALL_ANY`). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

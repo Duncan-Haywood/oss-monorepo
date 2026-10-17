@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Real system (simulated): a `1.0 × 0.5 m` rectangular robot crosses a straight gap of width `g` with heading error `θ ~ N(0, σ²)` relative to the gap axis. Its swept cross-section is `W cos θ + L sin|θ| = R sin(|θ| + α)` (`R = √(L²+W²) = 1.118 m`, `α = atan(W/L)`), so for `W ≤ g < L` it fits iff `|θ| ≤ θ* = asin(g/R) − α` and the pass probability is exactly `2Φ(θ*/σ) − 1`. Results (all from `experiments/results.txt`): (1) the closed form matches a Monte Carlo that rotates the four corners and checks their extent, to ≤0.0013 at five (g, σ) settings (e.g. 0.9603 vs 0.9608 at g = 0.60, σ = 0.05); (2) at σ = 0.05 the real pass probability climbs from 0 at g = 0.50 m through 0.58 at 0.54 and 0.90 at 0.58 to 0.96 at 0.60 m, while the inscribed-circle twin (radius `W/2`) says "pass" at every g ≥ 0.50 and the circumscribed-circle twin (radius `R/2`) says "fail" at every g < 1.118 (it never passes a gap the real robot clears 100% of the time at 0.70 m); (3) a twin inflated to a circle whose diameter 0.5954 m gives 95% real pass at σ = 0.05 is exact there but is 0.17 m too small at σ = 0.15 (real pass 0.49 at that gap) and 0.38 m too small at σ = 0.30 (0.26), and 0.057 m too large at σ = 0.02 (the needed gap is `R sin(α + zσ)`, not a fixed inflation); (4) for missions crossing `n` independent gaps at that gap, real success is 0.857, 0.774, 0.599, 0.359 for n = 3, 5, 10, 20 while the deterministic twin says 1, and the gap needed for a 95% mission grows from 0.595 m (n = 1) to 0.635 m (n = 10) and 0.645 m (n = 20).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/footprint-twin/
+
 ```bash
 cd research/footprint-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, under 1 s

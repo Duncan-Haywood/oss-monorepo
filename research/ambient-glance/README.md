@@ -9,6 +9,8 @@ Milestone 5 (`ambient-wearable`) is not done here: it needs datasheet figures an
 that I could not retrieve from this container, so I took the milestone that needs no sourced
 numbers.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-glance/
+
 ## Motivation
 
 `ambient-interject` asked *whether* to speak. Once the assistant has decided something is worth

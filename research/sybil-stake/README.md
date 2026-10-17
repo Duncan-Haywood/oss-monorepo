@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Does splitting stake across identities pay? See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/sybil-stake/
+
 ```bash
 cd research/sybil-stake
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 7 tests

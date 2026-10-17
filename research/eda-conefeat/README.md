@@ -2,6 +2,8 @@
 
 Why it seemed worth doing: `eda-equivpredict` reaches 93% by keying on the mutated source line, and says that rule cannot transfer to another file; a predictor for a new design needs structural features. Yosys and Icarus Verilog are now installable here (`apt`), so this project computes such features for the same 27 survivors and asks whether they carry any signal. Produced with AI assistance (Claude). Stylised and preliminary: 27 mutants of one design (the `chip-accel` MAC engine, p = 8, 4-bit). The headline is negative.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/eda-conefeat/
+
 **Builds on.** `research/eda-equivpredict` (survivors, labels, leave-one-line-out scoring), `research/eda-equivinterval` (the 92.6% to compare with), `research/eda-verify` (mutants and formal verdicts), `research/chip-accel`. No CU Boulder lab's work is built on and no affiliation is implied.
 
 ## Method

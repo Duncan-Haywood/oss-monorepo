@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-labelmatch`, whose first next step was "doubly robust weights on the same logged history". Produced with AI assistance. **Stylised, simulated results only**: every distribution is chosen by me and nothing is a claim about a real user, device or product. **Negative result.**
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-dr/
+
 ## Motivation
 
 `ambient-labelmatch` showed that the gap between a model fitted on windows where the assistant spoke and one fitted on all windows is mostly selection bias, and that raw inverse-propensity (IPS) weights are unstable while capped weights help only with an informed prior. A doubly robust (DR) estimator is the standard next candidate: it combines an outcome model with an IPS correction and is consistent if either is right. Does it help here?

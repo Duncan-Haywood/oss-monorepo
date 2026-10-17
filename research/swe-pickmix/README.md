@@ -2,6 +2,8 @@
 
 Pure Python standard library. Measured, not simulated: a follow-up to `swe-schedule` (milestone 5, `swe-schedule`, of track 10), which assumed a uniform pick from 11 tracks and a 12.8% duplicate rate for four blind starts. This project reads the pick mix and the concurrency off the repository's own git history. Produced with AI assistance (Claude). **Preliminary: the sample is small after the tracks were all live (36 PRs), merged projects stand in for picks (a pick that never merged is invisible), and concurrency is a lower bound.** All numbers below are from `experiments/results.txt`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/swe-pickmix/
+
 ![Share of merged projects by track](experiments/pickmix.svg)
 
 - **Merged projects are far from uniform across the tracks over the whole period (218 PRs, chi-square p < 0.0001), but that is mostly availability.** Tracks 1&ndash;6 carry 9.6&ndash;17.9% each and tracks 7&ndash;11 only 2.3&ndash;4.1%, because tracks 7&ndash;11 were added on 2026-10-14 and the first `mimic` project merged on 2026-10-15 10:52 UTC.

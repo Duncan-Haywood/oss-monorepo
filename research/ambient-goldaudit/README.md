@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-noisyaudit` (its "Next steps": a gold-subset variant). Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose, the label and the auditor are made-up uniform-error confusion matrices, and nothing is a claim about a real user, device or product.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-goldaudit/
+
 ## Motivation
 
 `ambient-noisyaudit` showed that reading a noisy auditor's labels as truth biases the estimate of the urgency classifier, and that EM fixes this only if the auditor's accuracy is known. A single noisy label per message cannot identify that accuracy. A small set of gold audits (the true class is observed) can: it pins the classifier's confusion matrix, and the noisy audits then reveal the auditor's. The question: how many gold audits replace how many noisy ones, and does a joint estimate that uses both beat discarding the noisy ones?

@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Plant `x⁺ = x + a⁺`, command `a⁺ = a + clip(−k x − a, −r, r)`; the twin has no rate limit and is first order (`x⁺ = (1−k)x`, never overshoots). The real loop is scale-invariant, so it depends only on `ρ = x₀/r` and `k`. The twin is exact iff `x₀ ≤ r/k` (real minus twin is exactly 0 at 0.999·r/k, 0.1–0.6% of `x₀` at 1.01·r/k). Beyond that the real loop overshoots: undershoot past zero is 0.232 of `x₀` at `ρ=100` (k=0.3) and 0.904 at `ρ=10⁴`, and settling to 1% takes 29418 steps at `ρ=10⁵` against the twin's 13. For `k=1/n` the smallest `ρ` with overshoot is empirically `2n(2n−1)` (equal for n=1…25 listed; not proved). Avoiding overshoot needs a rate limit 12–38× lower than keeping the twin exact.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/slew-twin/
+
 ```bash
 cd research/slew-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 7 tests, <1 s

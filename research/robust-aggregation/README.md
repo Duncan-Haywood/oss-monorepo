@@ -2,6 +2,8 @@
 
 Stdlib-only Python. What does a Byzantine fraction β do to mean, median and trimmed-mean aggregation of scalar reports? See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/robust-aggregation/
+
 ```bash
 cd research/robust-aggregation
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 7 tests

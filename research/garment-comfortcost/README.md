@@ -2,6 +2,8 @@
 
 A follow-up in the engineered-clothing track (`PROJECTS.md`, track 6), and the follow-up that `garment-thermal` listed ("what does a degree of comfort cost?"). It joins `garment-thermal`'s comfort-equivalent shifts to `garment-teardown`'s cost chain, for five fabric levers: infrared transmittance, low outer emissivity, white (low solar absorptance), thinner cloth and thicker cloth. Everything is a model on a CPU; no textile was measured and no price is quoted. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-comfortcost/
+
 **Builds on.** `garment-thermal` (PMV and optical extension, whose own caveats apply in full) and `garment-teardown` (trench-coat cost chain and its replica). The idea of an infrared-transparent or infrared-gating textile comes from Hsu et al. (2016) and Zhang et al. (2019); I use them only for that idea and no number comes from them. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-rodbeam` (track 1, `PROJECTS.md`), taking the "add aluminium rod as a substitution" next step from its README. Produced with AI assistance (Claude). Computed only; no rod was built or tested.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-alurod/
+
 **Builds on.** `selfrep-rodbeam` (beam model), `selfrep-redesign` (substitution search) and `selfrep-closure` (RepRap-class bill of materials, via the RepRap wiki; RepRap: Jones et al., *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>). Beam theory is textbook Euler-Bernoulli bending. It builds on none of the labs in `prompt.md`.
 
 ## Method

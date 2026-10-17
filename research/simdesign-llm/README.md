@@ -2,6 +2,8 @@
 
 Fourth milestone of the simulation-first design track (`PROJECTS.md`, track 5). A bracket sizing problem is scored by a finite-element simulator; four ways of choosing designs get the same 40 simulator calls. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-llm/
+
 **What "LLM" means here.** The run environment has no model API key. The proposer is the **session agent itself** (the Claude session that wrote this project), writing 4 rounds of 10 proposals by hand as committed files (`proposals/round1.json` to `round4.json`), reading the simulator's scores between rounds. This is one trajectory by one agent (n = 1), **not a reproducible LLM benchmark**, and the agent had advantages the baselines lack (below). Scoring is fully scripted.
 
 **Builds on.** The finite-element bracket model of `../simdesign-bracket` (scikit-fem: Gustafsson and McBain, *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>). CMA-ES: Hansen and Ostermeier, "Completely derandomized self-adaptation in evolution strategies", *Evolutionary Computation* 9(2):159–195, 2001, <https://doi.org/10.1162/106365601750190398>, via the `cma` Python package (Hansen et al.). Bayesian optimisation with expected improvement: Jones, Schonlau and Welch, "Efficient global optimization of expensive black-box functions", *Journal of Global Optimization* 13:455–492, 1998, <https://doi.org/10.1023/A:1008306431147> (own small NumPy GP, Matern-5/2). The Crossref records of the two optimisation papers were checked in this run; the scikit-fem citation is carried over from sibling projects. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.

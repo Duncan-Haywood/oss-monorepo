@@ -2,6 +2,8 @@
 
 Follow-up in the simulation-first design track (`PROJECTS.md`, track 5), taking the first "next step" of `simdesign-pocketmesh`: scan the web width on finer meshes. A negative result for the peak-stress measure on the 2 mm laser-cut bracket. Produced with AI assistance (Claude). Everything is a stylised 2D plane-stress model with assumed rule values, materials and load; a small, preliminary experiment.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-meshconverge/
+
 **Builds on.** `research/simdesign-pocketmesh` (model, rules and optimiser copied into `src/simdesign_meshconverge/` so the project stays self-contained; only the experiment script and tests differ), and through it `simdesign-gaugebasins`, `simdesign-gaugemesh` and `simdesign-dfm`. scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

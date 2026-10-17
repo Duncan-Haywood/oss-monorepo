@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-rodbeam` (track 1, `PROJECTS.md`), taking the next step its README asked for: derive the rod's stiffness spec from a vibration target instead of an assumed sag limit. Produced with AI assistance (Claude). Computed only; no rod was built or tested.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-rodmodes/
+
 **Builds on.** `selfrep-rodbeam` (beam model, materials, rod lengths) and through it `selfrep-redesign` and `selfrep-closure` in this repository. RepRap: Jones et al., *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>. The single-mode Rayleigh estimate with a 17/35 effective beam mass is a textbook result for a point mass at mid-span of a simply supported beam (see Blevins, *Formulas for Natural Frequency and Mode Shape*; I have not re-checked the coefficient against the book, but the test compares the mass-free limit with the exact beam mode). It builds on none of the labs in `prompt.md`.
 
 ## Method

@@ -2,6 +2,8 @@
 
 Stdlib-only Python. A prover commits to a training trace and the audit challenge is the hash of the commitment (Fiat-Shamir); the prover re-rolls until the challenge misses its corrupted steps. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/fiat-shamir-grinding/
+
 ```bash
 cd research/fiat-shamir-grinding
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 12 tests, <1 s

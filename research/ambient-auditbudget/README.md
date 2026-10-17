@@ -2,6 +2,8 @@
 
 Track 2 (ambient AI assistant), follow-up to `ambient-goldaudit` (its first "Next step": price a gold audit against a noisy one and choose the budget split). Produced with AI assistance. **Stylised, simulated results only**: every parameter is a round figure I chose, the label and the auditor are made-up uniform-error confusion matrices, and nothing is a claim about a real user, device or product.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/ambient-auditbudget/
+
 ## Motivation
 
 `ambient-goldaudit` showed that a few gold audits (true class observed) plus many noisy ones, fitted jointly by EM, beat either alone, but it fixed the number of each. Someone with a real audit budget must choose: a gold audit costs more than a noisy one. For a budget B (in noisy-audit units) and a gold audit costing c, how much should go to gold?

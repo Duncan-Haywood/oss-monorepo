@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. A UAV takes k noisy point observations from a corridor to reduce forecast error over a verification region it cannot enter (a storm). The sites are chosen, and the forecast corrected, using the covariance of a digital twin (a forecast ensemble). The real error covariance after the twin-gain update is exact (Joseph form), so every gap between what the twin claims and what the real field delivers is computed, not sampled, and checked against Monte Carlo. Results (stylised 1-D Gaussian field, real correlation length 0.2, 8-cell region, 3 observations): a twin with the right statistics and the right planner cuts the real verification error by 22%; a twin whose correlation length is 2× too long *claims* −65% and delivers +28% (worse than not observing), because each update is harmful beyond a closed-form harm radius `(ln 2/(ℓ_r⁻²−ℓ_t⁻²))^{1/2}`; a too-short length scale merely wastes the flight. Amplitude errors are harmless for one observation (gain ratio ≤ `(s²+r)/s²`) but an under-confident twin double-counts over several. A finite ensemble drawn from the *correct* model is enough to cause harm: M=10 members gives +27% mean real error (71% of ensembles worse than nothing), M=20 is break-even on average (38% harmful), M≥50 is safe; Gaussian localisation cuts harm at small M (M=20: 1%) but costs accuracy at large M. Fitting the length scale from m real field samples needs m≈50 to remove harm. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/targeted-observation-twin/
+
 ```bash
 cd research/targeted-observation-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, ~1 s

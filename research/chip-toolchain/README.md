@@ -2,6 +2,8 @@
 
 First milestone of the LLM chip-design-loop track (`PROJECTS.md`, track 3). It installs an all-open front end in the container, records exact tool versions, and measures what the flow reports for a few small designs. It also checks that the flow can prove two adders equivalent and catch a deliberately broken one. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-toolchain/
+
 **Builds on.** The open tools Yosys (<https://yosyshq.net/yosys/>), Icarus Verilog and Verilator (<https://www.veripool.org/verilator/>); the later milestones target the LLM-for-RTL line of work (VerilogEval, Liu et al., ICCAD 2023, <https://doi.org/10.1109/ICCAD57390.2023.10323812>; RTLLM, Lu et al., ASP-DAC 2024, <https://doi.org/10.1109/ASP-DAC58780.2024.10473904>). Nothing from those papers is reproduced here. This project builds on none of the CU Boulder groups listed in `prompt.md` and claims no connection to them.
 
 ## Method

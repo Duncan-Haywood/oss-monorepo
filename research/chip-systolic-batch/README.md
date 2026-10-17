@@ -2,6 +2,8 @@
 
 Follow-up to `chip-systolic` (itself a follow-up to `chip-accel`) in the LLM chip-design-loop track (`PROJECTS.md`, track 3). `chip-systolic` found that an R x C output-stationary systolic array loses to a MAC-lane engine on cells x cycles at batch R = 4 and guessed that a larger batch might favour the array. This project tests that guess by sweeping R = 4, 8, 16 at 4-bit weights. Produced with AI assistance (Claude). Preliminary and small: one toy 8-8-4 network, one tool version, one generic-gate synthesis script, no LLM in the loop.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-systolic-batch/
+
 **Builds on.** Nothing from the CU Boulder groups in `prompt.md`; no connection to them is claimed. The dataflow is the textbook systolic idea of H. T. Kung, "Why systolic architectures?", *IEEE Computer* 15(1):37-46, 1982, <https://doi.org/10.1109/MC.1982.1653825> (bibliographic details confirmed by web search on 2026-10-13; the paper was not read in full here). The generator, model and flow code are copied from `research/chip-systolic` (same author, MIT), which in turn copies `model.py` and `baseline_gen.py` from `research/chip-accel`. Only `experiments/run.py` and the tests are new.
 
 ## Method

@@ -2,6 +2,8 @@
 
 Fifth milestone of the simulation-first design track (`PROJECTS.md`, track 5). The parametric L-bracket of `simdesign-bracket` is sized for minimum mass under a stress and a deflection limit, once with no process rules and once under the rules of FDM printing, CNC routing, laser cutting and sand casting. The ratio of the two masses is the *mass price of manufacturability*. Produced with AI assistance (Claude). Everything here is a stylised model: rule values and material properties are assumed round numbers, not datasheet values.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/simdesign-dfm/
+
 **Builds on.** `research/simdesign-bracket` in this repository (the L-profile, 2D plane-stress model and the STL writer, copied into `src/simdesign_dfm/` so that the project stays self-contained); scikit-fem (Gustafsson and McBain, "scikit-fem: A Python package for finite element assembly", *Journal of Open Source Software* 5(52):2369, 2020, <https://doi.org/10.21105/joss.02369>); SciPy's `differential_evolution` (Storn and Price, 1997, *Journal of Global Optimization* 11:341–359); Shapely for polygon offsets (<https://github.com/shapely/shapely>). The idea that process rules can be written as constraints on a parametric design is standard design-for-manufacture practice (see Boothroyd, Dewhurst and Knight, *Product Design for Manufacture and Assembly*, 3rd ed., CRC Press, 2011, as background); none of the numbers below is taken from it. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. It is the by-product track 1's shop needs: a check of which of its processes (FDM, CNC routing, laser cutting, casting) can make a given part, and at what mass.
 
 ## Method

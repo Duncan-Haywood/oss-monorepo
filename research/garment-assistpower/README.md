@@ -2,6 +2,8 @@
 
 Follow-up to `research/garment-assist` (track 6, `PROJECTS.md`), taking the "battery and motor mass model" item from its next steps. The suit's mass is no longer a free parameter: it is built from a fixed part, a motor sized to the suit's peak torque, and a battery sized to the electrical energy for a stated number of hours. That mass is fed back into the metabolic cost. Everything is a CPU model with assumed constants; no suit or person was measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-assistpower/
+
 **Builds on.** `research/garment-assist` (the one-joint ankle model, imported unchanged from the sibling directory), and the qualitative idea from Collins, Wiggin and Sawicki (2015) and Kim et al. (2019) that assistive devices can lower the metabolic cost of walking. I did not read these papers in this run and no number below comes from them. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. **Citation check.** Entries copied from `PROJECTS.md` (checked 2026-10-12); not re-checked here (no access to doi.org).
 
 ## Method

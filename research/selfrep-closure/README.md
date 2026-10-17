@@ -2,6 +2,8 @@
 
 First milestone of the self-replicating manufacturing track (`PROJECTS.md`, track 1). It models one real open printer, the RepRap Prusa Mendel (iteration 2), as a list of parts and computes part, mass and cost closure for three seed shops. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-closure/
+
 **Builds on.** The RepRap project (Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>) and its Prusa Mendel (iteration 2) design by Josef Prusa and contributors; the bill of materials is the one on the RepRap wiki page <https://reprap.org/wiki/Prusa_Mendel_(iteration_2)> (oldid 181926, last edited 9 April 2018, retrieved 2026-10-13; content under the GNU FDL, the lists were re-keyed by hand, no text copied). The *closure* and *vitamin* vocabulary follows `PROJECTS.md` and the RepRap literature; the wider framing is von Neumann (1966), Freitas and Merkle (2004). None of these is reproduced. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

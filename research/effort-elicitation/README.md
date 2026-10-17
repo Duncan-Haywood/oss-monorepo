@@ -2,6 +2,8 @@
 
 Stdlib-only Python. Exact beta-binomial value-of-information V(n) for Brier/log/spherical scoring rules; implementable efforts, information rent, payout spread. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/effort-elicitation/
+
 ```bash
 cd research/effort-elicitation
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 6 tests

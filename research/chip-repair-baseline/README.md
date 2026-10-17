@@ -2,6 +2,8 @@
 
 A companion to [`research/chip-rtl-loop`](../chip-rtl-loop) (the repository's second chip-track milestone, written by a parallel run that merged first; this project shares no code with it). It supplies what the loop needs for a fair comparison (`PROJECTS.md`: every proposer is compared with a baseline that uses no LLM): ten tasks with references and testbenches, a four-stage checker (compile, lint, simulation, SAT miter), a random-mutation hill-climbing repair baseline, and an optional model proposer. **Preliminary and small.** The only proposer actually run besides the baseline was the session agent (Claude), and it passed every task on its first attempt, so feedback rounds were not exercised. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/chip-repair-baseline/
+
 **Builds on.** The LLM-for-RTL benchmarks VerilogEval (Liu, Pinckney, Khailany and Ren, ICCAD 2023, <https://doi.org/10.1109/ICCAD57390.2023.10323812>) and RTLLM (Lu, Liu, Zhang and Xie, ASP-DAC 2024, <https://doi.org/10.1109/ASP-DAC58780.2024.10473904>) for the idea of scoring generated RTL by simulation against a reference, and Chip-Chat (Blocklove, Garg, Karri and Pearce, MLCAD 2023, <https://doi.org/10.1109/MLCAD58807.2023.10299874>) for conversational repair with tool feedback. No task, text or testbench is taken from them: all ten tasks, references and testbenches are written for this project, and the numbers here are not comparable with theirs. It uses the same open tools as `chip-toolchain` but separate code. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

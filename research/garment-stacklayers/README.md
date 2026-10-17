@@ -2,6 +2,8 @@
 
 Follow-up to `garment-stackpareto` (track 6, `PROJECTS.md`; its "layer count as a variable" next step). `garment-stackpareto` fixed the stack at 8 layers. Here the layer count N runs over 2, 4, 6, 8, 10 and 12 with the same objective, penalties and optimiser budget, for three constraint cases. Everything is a model on a CPU; no coating was made or measured. Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-stacklayers/
+
 **Builds on.** `research/garment-stackpareto`, `research/garment-stackopt` and `research/garment-thincolor` (imported, not copied), which implement the standard characteristic-matrix method of thin films (Macleod, *Thin-Film Optical Filters*; Born and Wolf, *Principles of Optics*) and the Wyman, Sloan and Shirley (2013) colour-matching fit. The optimiser is SciPy Nelder-Mead with random restarts. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. No LLM is used. **Citation check.** No new references; those inherited carry the caveats stated in `garment-thincolor` (books cited from memory, editions unverified).
 
 ## Method (`src/garment_stacklayers/layers.py`)

@@ -2,6 +2,8 @@
 
 Pure Python, no dependencies. Averaging `n` steps of a twin reset to an empty queue or zero error biases the mean toward that start. For AR(1) output the bias, variance and MSE-optimal warm-up deletion are exact (bias/sd 1.88, 0.67, 0.28, 0.12 at n=20/100/500/2500, φ=0.9, a=3, matched to simulation). For the M/M/1 wait started empty the summed bias is `C = ρ/(1−ρ)³` (a closed form matched to an exact Spitzer series and to coupled simulation), so bias equals one standard deviation only at `n* = C²/V` = 0.55/2.0/22.6 jobs at ρ=0.5/0.7/0.9, small next to the relaxation time (12/37/380): at run lengths long enough for a valid interval the cold start costs 1–3 points of coverage. Short runs are different: at ρ=0.9 the mean of 50 waits from an empty start is 5.6 below the true 9 (62%), a systematically optimistic twin; a start at the mean cuts the bias but not reliably the RMSE; a start from a noisy real-state estimate is unbiased but has 3.6× the sd; and MSER-5 truncation made both bias and coverage worse here. See `paper/whitepaper.md`.
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/warmstart-twin/
+
 ```bash
 cd research/warmstart-twin
 PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, ~2 s

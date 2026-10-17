@@ -2,6 +2,8 @@
 
 Follow-up to `selfrep-wearout` in the self-replicating manufacturing track (`PROJECTS.md`, track 1), taking the last item of that project's next steps ("test the extinction explanation with a birth-death model that has a known extinction time"). Produced with AI assistance (Claude).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/selfrep-extinction/
+
 **Builds on.** `research/selfrep-wearout` (simulator, imported by relative path), `research/selfrep-growth` and `research/selfrep-closure` (work per copy W = 50.0 h, imported vitamins per copy V = 170.3, both assumed units). Behind them: the RepRap project (Jones et al., "RepRap – the replicating rapid prototyper", *Robotica* 29(1), 2011, <https://doi.org/10.1017/S026357471000069X>) and the question of von Neumann (1966) and Freitas and Merkle (2004), as in `PROJECTS.md`. The mean time to absorption of a birth-death chain is a standard result for Markov chains; I give no reference for it. This project builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
 
 ## Method

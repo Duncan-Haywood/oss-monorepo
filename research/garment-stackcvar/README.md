@@ -2,6 +2,8 @@
 
 Follow-up to `garment-stackrobust` (track 6, `PROJECTS.md`; its "CVaR objective" and "correlated (rate-drift) errors" next steps). That project found that optimised 8-layer thin-film stacks lose to the plain quarter-wave stack under independent 3 to 5% layer-thickness error. Here the training objective is changed to the mean of the worst quarter of the sampled errors (CVaR), and the error model to one with a shared rate-drift component; every design is cross-evaluated under both models. Everything is a model on a CPU; nothing was coated or measured. Produced with AI assistance (Claude). **Result: negative** (below).
 
+**Live page:** https://duncan-haywood.github.io/monorepo-projects/research/garment-stackcvar/
+
 **Builds on.** `garment-stackrobust`, `garment-stackopt` (objective, imported) and `garment-thincolor` (transfer-matrix reflectance and colour; Macleod, *Thin-Film Optical Filters*; Born and Wolf, *Principles of Optics*; Wyman, Sloan and Shirley 2013). CVaR (conditional value at risk) is a standard tail-risk measure (Rockafellar and Uryasev 2000, *Journal of Risk* 2(3), cited from memory; not re-checked). It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them. No LLM is used. **Citation check.** No new reference was verified in this run; the inherited references carry the caveats in `garment-thincolor`, and the CVaR reference is unverified.
 
 ## Method (`src/garment_stackcvar/cvar.py`)
