@@ -1,4 +1,4 @@
-from house_framing.model import ADVANCED_2X6, CONVENTIONAL_2X6, House, walls_of
+from house_framing.model import ADVANCED_2X6, CONVENTIONAL_2X6, House, Opening, Wall, walls_of
 from house_structure import demands, design, line_capacity, max_sds, max_wind_speed, required_solid_ft, segments, wind_pressure
 
 
@@ -58,3 +58,12 @@ def test_framing_scheme_does_not_change_capacity():
 
 def test_required_solid_length():
     assert abs(required_solid_ft(510, 6, "wind") - 1.0) < 1e-9
+
+
+def test_wider_garage_door_never_adds_capacity():
+    caps = [line_capacity(Wall(325.0, False, (Opening(0.0, w * 12, 0.0),)), 6, "wind") for w in (9, 12, 16, 20, 22)]
+    assert caps == sorted(caps, reverse=True) and caps[0] > caps[-1] > 0
+
+
+def test_a_door_that_fills_the_wall_leaves_no_capacity():
+    assert line_capacity(Wall(325.0, False, (Opening(0.0, 325.0, 0.0),)), 2, "wind") == 0
