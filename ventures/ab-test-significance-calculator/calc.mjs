@@ -200,6 +200,72 @@ export function priceTest({ n1, c1, price1, n2, c2, price2, alpha = 0.05, monthl
     bayes: { probBBeatsA: wins / draws, expectedLossChoosingB: lossB / draws, expectedLossChoosingA: lossA / draws, liftLow: q(0.025), liftMedian: q(0.5), liftHigh: q(0.975) }, findings };
 }
 
+// A/B/n: every variant against one control, with Holm step-down adjusted p-values
+// so testing several variants does not inflate the chance of a false winner, plus
+// the Bayesian chance each arm (control included) is the best.
+export function multiTest({ arms, alpha = 0.05, draws = 20000, seed = 17 } = {}) {
+  if (!Array.isArray(arms) || arms.length < 3) return { error: "Enter a control and at least two variants. For one variant use the A/B panel." };
+  if (arms.length > 10) return { error: "At most 10 arms (a control and nine variants)." };
+  for (const a of arms) {
+    if (!isCount(a.n) || !isCount(a.c)) return { error: `${a.name}: visitors and conversions must be whole numbers, zero or more.` };
+    if (a.n < 1) return { error: `${a.name}: needs at least one visitor.` };
+    if (a.c > a.n) return { error: `${a.name}: conversions cannot exceed visitors.` };
+  }
+  const ctl = arms[0];
+  const rows = arms.slice(1).map((a) => {
+    const p1 = ctl.c / ctl.n, p2 = a.c / a.n, pool = (ctl.c + a.c) / (ctl.n + a.n);
+    const se = Math.sqrt(pool * (1 - pool) * (1 / ctl.n + 1 / a.n));
+    const z = se > 0 ? (p2 - p1) / se : 0;
+    return { name: a.name, n: a.n, c: a.c, rate: p2, lift: p1 > 0 ? p2 / p1 - 1 : NaN, z, p: twoSided(z) };
+  });
+  const m = rows.length;
+  const order = rows.map((_, i) => i).sort((x, y) => rows[x].p - rows[y].p);
+  let run = 0;
+  order.forEach((i, k) => {
+    run = Math.max(run, Math.min(1, (m - k) * rows[i].p));
+    rows[i].pHolm = run;
+    rows[i].significant = run < alpha;
+  });
+  const rand = rng(seed);
+  const best = new Array(arms.length).fill(0);
+  for (let d = 0; d < draws; d++) {
+    let top = -1, bi = 0;
+    for (let i = 0; i < arms.length; i++) {
+      const v = betaDraw(1 + arms[i].c, 1 + arms[i].n - arms[i].c, rand);
+      if (v > top) { top = v; bi = i; }
+    }
+    best[bi]++;
+  }
+  rows.forEach((r, i) => { r.probBest = best[i + 1] / draws; });
+  const control = { name: ctl.name, n: ctl.n, c: ctl.c, rate: ctl.c / ctl.n, probBest: best[0] / draws };
+  const winners = rows.filter((r) => r.significant && r.lift > 0).sort((a, b) => b.rate - a.rate);
+  const findings = [];
+  if (arms.some((a) => a.c < 10)) findings.push({ severity: "medium", title: "Few conversions in an arm", detail: "An arm with fewer than 10 conversions makes the normal approximation shaky. Keep the test running." });
+  if (!winners.length) findings.push({ severity: "info", title: "No variant beats control after correction", detail: `With ${m} variants tested, a variant must clear a stricter bar than a single A/B test. None does at ${(alpha * 100).toFixed(0)}%.` });
+  else findings.push({ severity: "info", title: `${winners[0].name} beats control`, detail: `Lift ${signedPct(winners[0].lift)}, Holm-adjusted p = ${winners[0].pHolm.toFixed(4)}.` });
+  const losers = rows.filter((r) => r.significant && r.lift < 0);
+  if (losers.length) findings.push({ severity: "high", title: `${losers.map((r) => r.name).join(", ")} significantly worse than control`, detail: "Consider stopping these arms." });
+  findings.push({ severity: "info", title: "Variants are compared with control only", detail: "Differences between variants are not tested here, and unequal traffic splits are not checked for sample ratio mismatch." });
+  return { control, rows, alpha, winners, findings };
+}
+
+export function multiSampleText() {
+  return "Control, 5000, 250\nNew headline, 5000, 290\nNew button, 5000, 262\nShort form, 5000, 305";
+}
+
+// "name, visitors, conversions" per line; the first line is the control.
+export function parseArms(text) {
+  const arms = [];
+  for (const [i, line] of String(text || "").split(/\r?\n/).entries()) {
+    if (!line.trim()) continue;
+    const parts = line.split(/[,\t]/).map((x) => x.trim());
+    if (parts.length < 3) return { error: `Line ${i + 1}: use "name, visitors, conversions".` };
+    const n = Number(parts[parts.length - 2].replace(/_/g, "")), c = Number(parts[parts.length - 1].replace(/_/g, ""));
+    arms.push({ name: parts.slice(0, -2).join(", ") || `Arm ${arms.length + 1}`, n, c });
+  }
+  return { arms };
+}
+
 export const money = (x) => (Number.isFinite(x) ? (x < 0 ? "-" : "") + "$" + Math.abs(x).toFixed(Math.abs(x) < 10 ? 3 : 2) : "n/a");
 
 export function priceSampleText() {

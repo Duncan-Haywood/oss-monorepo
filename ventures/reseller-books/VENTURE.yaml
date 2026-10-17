@@ -1,7 +1,7 @@
 name: reseller-books
 description: >-
   Free browser tool that reads a reseller's eBay Transaction report, Etsy
-  Payment Account statement, Poshmark My Sales Report and Whatnot orders export
+  Payment Account statement, Poshmark My Sales Report, Whatnot orders export and Shopify Payments transactions export
   together and returns one monthly profit and loss, the share of each sales
   dollar every channel really keeps after fees, postage, ads and refunds, profit
   by channel where costs are supplied, and a Schedule C style worksheet for a tax

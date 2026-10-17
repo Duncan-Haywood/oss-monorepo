@@ -2767,6 +2767,11 @@
      "slug": "mimic-mujocotwin",
      "title": "Does a classifier two-sample test see the integrator, timestep and friction gaps of a MuJoCo digital twin?",
      "summary": "A MuJoCo hinge pendulum (RK4, 0.002 s, dry friction, Student-t sensor noise) is the &lsquo;real&rsquo; system; twins change the integrator, timestep or friction. A boosted-tree classifier two-sample test (800 trajectories per class, 3 seeds) has AUROC 0.98 for semi-implicit Euler at 0.02 s (paired RMSE 0.028 rad), 0.90 at 0.01 s, 0.67 at 0.005 s (0.007 rad) and 0.53 at 0.002 s (0.003 rad), which is not separable from the null 0.51. A friction error of 10% gives 0.52 and 20% gives 0.61. Gaussian instead of Student-t noise of the same sd has zero paired error but AUROC 0.92. Limits: one toy system, one classifier, 3 seeds; the &lsquo;real&rsquo; system is itself simulated. Stylised, preliminary."
+    },
+    {
+     "slug": "mimic-mmdmujoco",
+     "title": "Does a kernel MMD test catch the same wrong MuJoCo digital twins as a classifier two-sample test?",
+     "summary": "A MuJoCo hinge pendulum with Student-t sensor noise is the &lsquo;real&rsquo; system; twins change the integrator, friction or noise. Rejection uses the 95th percentile of the exact twin&rsquo;s own statistic. Boosted-tree C2ST power is 1.00 at <em>n</em>&nbsp;=&nbsp;200 for semi-implicit Euler at 0.02&nbsp;s and 0.90 at 0.01&nbsp;s, and 1.00 for a Gaussian-vs-Student-t noise-shape error, where MMD (raw or on second differences) stays at 0.00&ndash;0.07. MMD on second differences does catch a +25% noise-level error (0.95 at <em>n</em>&nbsp;=&nbsp;100). A 10&ndash;20% friction error is invisible to all three at <em>n</em>&nbsp;&le;&nbsp;200. Limitations: one toy system, 20 C2ST replicates, two sample sizes. Stylised."
     }
    ]
   },

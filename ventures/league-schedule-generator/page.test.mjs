@@ -346,3 +346,10 @@ test("the courts-and-time-slots guide's worked example matches buildSchedule() a
   assert.match(page("sitemap.xml"), new RegExp(name));
   assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
 });
+
+test("play-off race table has a copy button wired to raceText", () => {
+  const html = page("index.html");
+  assert.match(html, /id="copy-race"/);
+  assert.match(html, /import \{[^}]*\braceText\b[^}]*\} from "\.\/calc\.mjs"/);
+  assert.match(html, /raceText\(last\.race\.rows, last\.race\.spots\)/);
+});

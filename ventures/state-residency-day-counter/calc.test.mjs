@@ -189,6 +189,14 @@ test("Rhode Island is a more-than-183-days-plus-abode state", () => {
   assert.equal(RULES.RI.requiresAbode, true);
 });
 
+test("Vermont is a more-than-183-days-plus-abode state", () => {
+  assert.equal(RULES.VT.limit, 183);
+  assert.equal(RULES.VT.requiresAbode, true);
+  assert.equal(RULES.VT.kind, "statutory");
+  const sp = spec(["VT 2025-01-01 to 2025-07-02"], { homeState: "FL" }); // 183 days: at the limit, not over
+  assert.notEqual(by(analyze(sp), "VT").status, "over");
+});
+
 test("icsToStays: all-day end is exclusive, locations and titles resolve, adjacent same-state merge", () => {
   const ics = [
     "BEGIN:VCALENDAR",
