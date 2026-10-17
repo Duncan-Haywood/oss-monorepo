@@ -6,3 +6,109 @@ F  script         design        cycles/batch  cells  depth  cells*cycles/vec  rt
 16 yosys_default systolic 1x8        74     3713    40         274762  True
 16 yosys_default systolic 1x16       66     6183    39         408078  True
 16 yosys_default systolic 2x8        77     6962    40         268037  True
+16 yosys_default systolic 2x16       68    11616    39         394944  True
+16 yosys_default systolic 4x8        83    13040    48         270580  True
+16 yosys_default mac-lane P=4       87     2277    40         198099  True
+16 yosys_default mac-lane P=8       53     3560    38         188680  True
+16 yosys_default mac-lane P=16      36     6043    38         217548  True
+16 yosys_default mac-lane P=32      36     5637    38         202932  True
+F=16 yosys_default: best array / best MAC engine (cells*cycles/vec) = 1.30
+16 strash_map    systolic 1x4       102     3155    37         321810  True
+16 strash_map    systolic 1x8        74     4867    37         360158  True
+16 strash_map    systolic 1x16       66     8151    36         537966  True
+16 strash_map    systolic 2x8        77    10158    38         391083  True
+16 strash_map    systolic 2x16       68    16301    36         554234  True
+16 strash_map    systolic 4x8        83    22631    45         469593  True
+16 strash_map    mac-lane P=4       87     2891    36         251517  True
+16 strash_map    mac-lane P=8       53     4416    33         234048  True
+16 strash_map    mac-lane P=16      36     7301    30         262836  True
+16 strash_map    mac-lane P=32      36     6752    28         243072  True
+F=16 strash_map: best array / best MAC engine (cells*cycles/vec) = 1.37
+16 dc2_map       systolic 1x4       102     2490    42         253980  True
+16 dc2_map       systolic 1x8        74     3846    39         284604  True
+16 dc2_map       systolic 1x16       66     6440    38         425040  True
+16 dc2_map       systolic 2x8        77     7552    41         290752  True
+16 dc2_map       systolic 2x16       68    11974    41         407116  True
+16 dc2_map       systolic 4x8        83    14957    42         310357  True
+16 dc2_map       mac-lane P=4       87     2384    41         207408  True
+16 dc2_map       mac-lane P=8       53     3644    39         193132  True
+16 dc2_map       mac-lane P=16      36     6118    38         220248  True
+16 dc2_map       mac-lane P=32      36     5672    38         204192  True
+F=16 dc2_map: best array / best MAC engine (cells*cycles/vec) = 1.32
+16 dch_map       systolic 1x4       102     2414    30         246228  True
+16 dch_map       systolic 1x8        74     3799    29         281126  True
+16 dch_map       systolic 1x16       66     6431    29         424446  True
+16 dch_map       systolic 2x8        77     7264    29         279664  True
+16 dch_map       systolic 2x16       68    12101    30         411434  True
+16 dch_map       systolic 4x8        83    13828    31         286931  True
+16 dch_map       mac-lane P=4       87     2246    28         195402  True
+16 dch_map       mac-lane P=8       53     3529    27         187037  True
+16 dch_map       mac-lane P=16      36     6042    27         217512  True
+16 dch_map       mac-lane P=32      36     5804    27         208944  True
+F=16 dch_map: best array / best MAC engine (cells*cycles/vec) = 1.32
+16 resyn2_map    systolic 1x4       102     2723    39         277746  True
+16 resyn2_map    systolic 1x8        74     4084    38         302216  True
+16 resyn2_map    systolic 1x16       66     6622    36         437052  True
+16 resyn2_map    systolic 2x8        77     7788    38         299838  True
+16 resyn2_map    systolic 2x16       68    12781    36         434554  True
+16 resyn2_map    systolic 4x8        83    14872    40         308594  True
+16 resyn2_map    mac-lane P=4       87     2554    37         222198  True
+16 resyn2_map    mac-lane P=8       53     3861    36         204633  True
+16 resyn2_map    mac-lane P=16      36     6446    34         232056  True
+16 resyn2_map    mac-lane P=32      36     6057    35         218052  True
+F=16 resyn2_map: best array / best MAC engine (cells*cycles/vec) = 1.36
+32 yosys_default systolic 1x4       166     3455    49         573530  True
+32 yosys_default systolic 1x8       106     4501    49         477106  True
+32 yosys_default systolic 1x16       82     7195    48         589990  True
+32 yosys_default systolic 2x8       109     8410    50         458345  True
+32 yosys_default systolic 2x16       84    13954    48         586068  True
+32 yosys_default systolic 4x8       115    16571    52         476416  True
+32 yosys_default mac-lane P=4      151     3394    45         512494  True
+32 yosys_default mac-lane P=8       85     4377    43         372045  True
+32 yosys_default mac-lane P=16      52     6941    43         360932  True
+32 yosys_default mac-lane P=32      52     6894    43         358488  True
+F=32 yosys_default: best array / best MAC engine (cells*cycles/vec) = 1.28
+32 strash_map    systolic 1x4       166     5023    41         833818  True
+32 strash_map    systolic 1x8       106     6847    39         725782  True
+32 strash_map    systolic 1x16       82    10856    38         890192  True
+32 strash_map    systolic 2x8       109    14337    40         781366  True
+32 strash_map    systolic 2x16       84    22346    39         938532  True
+32 strash_map    systolic 4x8       115    32839    46         944121  True
+32 strash_map    mac-lane P=4      151     4149    36         626499  True
+32 strash_map    mac-lane P=8       85     5841    35         496485  True
+32 strash_map    mac-lane P=16      52     9385    33         488020  True
+32 strash_map    mac-lane P=32      52     8726    33         453752  True
+F=32 strash_map: best array / best MAC engine (cells*cycles/vec) = 1.60
+32 dc2_map       systolic 1x4       166     3647    51         605402  True
+32 dc2_map       systolic 1x8       106     4829    51         511874  True
+32 dc2_map       systolic 1x16       82     7697    46         631154  True
+32 dc2_map       systolic 2x8       109     9088    52         495296  True
+32 dc2_map       systolic 2x16       84    14939    46         627438  True
+32 dc2_map       systolic 4x8       115    19349    48         556283  True
+32 dc2_map       mac-lane P=4      151     3530    49         533030  True
+32 dc2_map       mac-lane P=8       85     4580    47         389300  True
+32 dc2_map       mac-lane P=16      52     7298    46         379496  True
+32 dc2_map       mac-lane P=32      52     7163    46         372476  True
+F=32 dc2_map: best array / best MAC engine (cells*cycles/vec) = 1.33
+32 dch_map       systolic 1x4       166     3674    36         609884  True
+32 dch_map       systolic 1x8       106     4878    34         517068  True
+32 dch_map       systolic 1x16       82     7803    33         639846  True
+32 dch_map       systolic 2x8       109     8690    35         473605  True
+32 dch_map       systolic 2x16       84    14487    33         608454  True
+32 dch_map       systolic 4x8       115    17477    34         502463  True
+32 dch_map       mac-lane P=4      151     3375    33         509625  True
+32 dch_map       mac-lane P=8       85     4476    32         380460  True
+32 dch_map       mac-lane P=16      52     7248    31         376896  True
+32 dch_map       mac-lane P=32      52     7088    32         368576  True
+F=32 dch_map: best array / best MAC engine (cells*cycles/vec) = 1.28
+32 resyn2_map    systolic 1x4       166     3732    43         619512  True
+32 resyn2_map    systolic 1x8       106     5116    42         542296  True
+32 resyn2_map    systolic 1x16       82     7808    41         640256  True
+32 resyn2_map    systolic 2x8       109     9910    41         540095  True
+32 resyn2_map    systolic 2x16       84    15528    41         652176  True
+32 resyn2_map    systolic 4x8       115    20426    43         587247  True
+32 resyn2_map    mac-lane P=4      151     3590    40         542090  True
+32 resyn2_map    mac-lane P=8       85     4816    39         409360  True
+32 resyn2_map    mac-lane P=16      52     7536    39         391872  True
+32 resyn2_map    mac-lane P=32      52     7255    38         377260  True
+F=32 resyn2_map: best array / best MAC engine (cells*cycles/vec) = 1.43
