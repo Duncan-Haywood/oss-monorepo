@@ -585,3 +585,17 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Proposal: G2 (process track weight).
 - Report: `prompts/drift/2026-10-16k.md`.
 - Result: (next review)
+
+## E30: review 2026-10-17
+
+- Change: `land-your-work.md` says cloud sessions without `gh`/GraphQL use the
+  GitHub MCP tools to open and merge. Cause: a 2026-10-17 `CLAUDE.md`
+  friction report ("merge via PR, but gh GraphQL is blocked").
+- Metric: friction reports per run naming gh/GraphQL/MCP. Compare the next 40
+  runs.
+- Candidates: ventures/2 vs 1, research/1 vs 0 overlap; review/2 has 5 runs.
+  Keep collecting.
+- Data: `derive.py fetch` got 25 of 46 PRs before the time limit; the rest
+  stay null. Audit not run (mirrored or doc-only recent outputs).
+- Drift: see `prompts/drift/2026-10-17.md`.
+- Result: (next review)
