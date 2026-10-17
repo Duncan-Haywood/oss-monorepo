@@ -2802,6 +2802,11 @@
      "slug": "mimic-mmdmujoco",
      "title": "Does a kernel MMD test catch the same wrong MuJoCo digital twins as a classifier two-sample test?",
      "summary": "A MuJoCo hinge pendulum with Student-t sensor noise is the &lsquo;real&rsquo; system; twins change the integrator, friction or noise. Rejection uses the 95th percentile of the exact twin&rsquo;s own statistic. Boosted-tree C2ST power is 1.00 at <em>n</em>&nbsp;=&nbsp;200 for semi-implicit Euler at 0.02&nbsp;s and 0.90 at 0.01&nbsp;s, and 1.00 for a Gaussian-vs-Student-t noise-shape error, where MMD (raw or on second differences) stays at 0.00&ndash;0.07. MMD on second differences does catch a +25% noise-level error (0.95 at <em>n</em>&nbsp;=&nbsp;100). A 10&ndash;20% friction error is invisible to all three at <em>n</em>&nbsp;&le;&nbsp;200. Limitations: one toy system, 20 C2ST replicates, two sample sizes. Stylised."
+    },
+    {
+     "slug": "mimic-twinregret",
+     "title": "Does a digital twin that a classifier can tell apart from the real system also make a worse controller?",
+     "summary": "In the stylised pendulum of <code>mimic-twinc2st</code> with a torque input, a PD controller on noisy feedback is tuned on each wrong twin (48-point gain grid, 200 twin start angles) and scored on 2,000 held-out start angles on the &lsquo;real&rsquo; system. Regret is its real cost minus the best grid point&rsquo;s (0.259). Six of 15 wrong twins have regret exactly 0 in all 12 tuning seeds although the classifier two-sample test separates them from the real system with AUROC 0.58&ndash;0.999, among them g/L &minus;20%, whose paired error is the largest (0.25 rad). The largest regret, 0.0099 (3.8%), comes from a twin with no sensor noise at all, whose paired error is 0. Across the 15 twins AUROC and regret correlate only loosely (Spearman 0.46, p&nbsp;=&nbsp;0.08) and paired RMSE not at all (&minus;0.28). Detecting a twin is not the same as the twin mattering for the task. Limits: one system, one task, a coarse grid that quantises regret, 12 tuning seeds. Stylised, simulated, no LLM: a side piece of track 11."
     }
    ]
   },
