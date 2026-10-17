@@ -1,0 +1,50 @@
+house-vibration experiments (SPF No. 2 floor joists, 10 psf dead + 40 psf live; joist alone, no subfloor composite action)
+frequency = first mode of a simply supported beam carrying the 10 psf dead load; limits are in Hz, 0 = no limit
+
+A. First natural frequency (Hz) of the longest strength-and-deflection-passing joist (no frequency limit)
+  size    12 in    16 in  19.2 in    24 in
+  2x6       12.1     12.7     13.0     13.6
+  2x8       10.5     11.0     11.5     12.8
+  2x10       9.3     10.1     11.1     12.4
+  2x12       8.7     10.1     11.1     12.4
+
+B. Maximum clear span (ft-in) by frequency limit, 16 in and 24 in spacing
+  size  spacing        0Hz       6Hz       8Hz      10Hz      12Hz      15Hz
+  2x6     16 in      9' 2"     9' 2"     9' 2"     9' 2"     9' 2"     8' 5"
+  2x6     24 in      7'11"     7'11"     7'11"     7'11"     7'11"     7' 7"
+  2x8     16 in     12' 1"    12' 1"    12' 1"    12' 1"    11' 7"    10' 4"
+  2x8     24 in     10' 1"    10' 1"    10' 1"    10' 1"    10' 1"     9' 4"
+  2x10    16 in     15' 3"    15' 3"    15' 3"    15' 3"    13'11"    12' 6"
+  2x10    24 in     12' 5"    12' 5"    12' 5"    12' 5"    12' 5"    11' 3"
+  2x12    16 in     17' 8"    17' 8"    17' 8"    17' 8"    16' 2"    14' 6"
+  2x12    24 in     14' 5"    14' 5"    14' 5"    14' 5"    14' 5"    13' 1"
+
+C. Least lumber that passes (board feet per sq ft), cheapest size and spacing, by frequency limit
+  span                  0Hz                6Hz                8Hz               10Hz               12Hz               15Hz
+   8 ft       2x6@19.2 0.62      2x6@19.2 0.62      2x6@19.2 0.62      2x6@19.2 0.62      2x6@19.2 0.62      2x6@19.2 0.62
+  10 ft         2x8@24 0.67        2x8@24 0.67        2x8@24 0.67        2x8@24 0.67        2x8@24 0.67       2x10@24 0.83
+  12 ft        2x10@24 0.83       2x10@24 0.83       2x10@24 0.83       2x10@24 0.83       2x10@24 0.83       2x12@24 1.00
+  14 ft        2x12@24 1.00       2x12@24 1.00       2x12@24 1.00       2x12@24 1.00       2x12@24 1.00       2x12@16 1.50
+  16 ft      2x12@19.2 1.25     2x12@19.2 1.25     2x12@19.2 1.25     2x12@19.2 1.25       2x12@16 1.50               none
+
+D. Saving of the cheapest joist over 2x10 at 16 in, as % of 2x10 @16 lumber; '-' where 2x10 @16 itself fails
+  span        0Hz      6Hz      8Hz     10Hz     12Hz     15Hz
+   8 ft       50%      50%      50%      50%      50%      50%
+  10 ft       47%      47%      47%      47%      47%      33%
+  12 ft       33%      33%      33%      33%      33%      20%
+  14 ft       20%      20%      20%      20%        -        -
+  16 ft         -        -        -        -        -        -
+
+E. Maximum clear span (decimal ft) against the frequency limit
+  limit_Hz 2x8@16  2x10@16  2x10@24  2x12@24  
+       0     12.15    15.26    12.43    14.44
+       2     12.15    15.26    12.43    14.44
+       4     12.15    15.26    12.43    14.44
+       6     12.15    15.26    12.43    14.44
+       8     12.15    15.26    12.43    14.44
+      10     12.15    15.26    12.43    14.44
+      12     11.64    13.99    12.43    14.44
+      14     10.76    12.95    11.69    13.55
+      16     10.06    12.10    10.92    12.67
+      18      9.48    11.40    10.29    11.94
+      20      8.98    10.81     9.76    11.32
