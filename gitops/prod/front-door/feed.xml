@@ -84,7 +84,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/liability-audit/"/>
     <id>tag:marisstella.dev,2026:tool/liability-audit</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free, open-source scan of your app&#39;s code or built site for legal and financial exposure: trackers with no consent, subscriptions with no renewal terms, a missing privacy policy or terms, affiliate links with no disclosure, AI with no disclosure, live keys in the tree, LLM endpoints with no spend cap, and cloud IaC with no budget alarm. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
@@ -116,7 +116,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/reseller-books/"/>
     <id>tag:marisstella.dev,2026:tool/reseller-books</id>
     <updated>2026-10-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Marketplace seller tools"/>
     <summary type="text">Free private tool for resellers: drop your eBay, Etsy, Poshmark and Whatnot reports and get one monthly profit and loss, what each channel really keeps, and a Schedule C style worksheet. Nothing is uploaded.</summary>
   </entry>
   <entry>
