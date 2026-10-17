@@ -17,9 +17,9 @@
   "tokens_out": 16983,
   "cost_usd": 0.9691,
   "tool_calls": 26,
-  "task": "house-schedule",
+  "task": "house-schedule-check",
   "projects": [
-    "house-schedule"
+    "house-schedule-check"
   ],
   "pr": 7657,
   "repo": null,
@@ -37,11 +37,15 @@
     {
       "file": "research/PROJECTS.md",
       "issue": "Milestone 9 progress paragraph is ~15k chars of project lists; hard to read and edit."
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Claim-before-build cannot see a PR opened in the same minutes; the sibling's PR #7656 appeared after my open-PR check."
     }
   ],
   "deviations": [],
   "goal": null,
-  "notes": "Fixed two modelling flaws found from first results (strawman late-ordering baseline; crew merge with no effect due to gap logic) before writing up. Savings are assumption-driven and labelled so.",
+  "notes": "Fixed two modelling flaws found from first results (strawman late-ordering baseline; crew merge with no effect due to gap logic) before writing up. Savings are assumption-driven and labelled so. A sibling run landed research/house-schedule (#7656) minutes before me (same slug, no claim visible); I renamed mine house-schedule-check and framed it as an independent cross-check.",
   "corrections": [],
   "redteam": null,
   "usage": {

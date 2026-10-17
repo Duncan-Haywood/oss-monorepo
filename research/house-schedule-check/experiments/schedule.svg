@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 300" role="img" aria-label="Bar chart of mean and 90th-percentile calendar days to build a stylised house under five scheduling scenarios: baseline: mean 205, p90 228; order long-lead items day 0: mean 181, p90 202; prefab wall/roof panels: mean 202, p90 225; one framing crew (fewer handoffs): mean 205, p90 229; all three: mean 171, p90 190">
+<rect width="700" height="300" fill="#fff"/>
+<text x="350.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Calendar days to complete a stylised house build</text>
+<text x="350.0" y="40" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#555">4,000 simulated builds per scenario; every input is an assumption</text>
+<line x1="230.0" x2="230.0" y1="60" y2="264" stroke="#ddd"/><text x="230.0" y="280" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<line x1="312.7" x2="312.7" y1="60" y2="264" stroke="#ddd"/><text x="312.7" y="280" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<line x1="395.4" x2="395.4" y1="60" y2="264" stroke="#ddd"/><text x="395.4" y="280" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<line x1="478.1" x2="478.1" y1="60" y2="264" stroke="#ddd"/><text x="478.1" y="280" text-anchor="middle" font-family="sans-serif" font-size="11">150</text>
+<line x1="560.8" x2="560.8" y1="60" y2="264" stroke="#ddd"/><text x="560.8" y="280" text-anchor="middle" font-family="sans-serif" font-size="11">200</text>
+<line x1="643.5" x2="643.5" y1="60" y2="264" stroke="#ddd"/><text x="643.5" y="280" text-anchor="middle" font-family="sans-serif" font-size="11">250</text>
+<rect x="230.0" y="62.0" width="339.0" height="18.4" fill="#b5651d"/>
+<rect x="230.0" y="80.4" width="377.1" height="18.4" fill="#444"/>
+<text x="222" y="84.4" text-anchor="end" font-family="sans-serif" font-size="11">baseline</text>
+<text x="611.1" y="84.4" font-family="sans-serif" font-size="10">205 / 228</text>
+<rect x="230.0" y="102.8" width="299.3" height="18.4" fill="#b5651d"/>
+<rect x="230.0" y="121.2" width="334.1" height="18.4" fill="#444"/>
+<text x="222" y="125.2" text-anchor="end" font-family="sans-serif" font-size="11">order long-lead items day 0</text>
+<text x="568.1" y="125.2" font-family="sans-serif" font-size="10">181 / 202</text>
+<rect x="230.0" y="143.6" width="334.1" height="18.4" fill="#b5651d"/>
+<rect x="230.0" y="162.0" width="372.1" height="18.4" fill="#444"/>
+<text x="222" y="166.0" text-anchor="end" font-family="sans-serif" font-size="11">prefab wall/roof panels</text>
+<text x="606.1" y="166.0" font-family="sans-serif" font-size="10">202 / 225</text>
+<rect x="230.0" y="184.4" width="339.0" height="18.4" fill="#b5651d"/>
+<rect x="230.0" y="202.8" width="378.7" height="18.4" fill="#444"/>
+<text x="222" y="206.8" text-anchor="end" font-family="sans-serif" font-size="11">one framing crew (fewer handoffs)</text>
+<text x="612.7" y="206.8" font-family="sans-serif" font-size="10">205 / 229</text>
+<rect x="230.0" y="225.2" width="282.8" height="18.4" fill="#b5651d"/>
+<rect x="230.0" y="243.6" width="314.2" height="18.4" fill="#444"/>
+<text x="222" y="247.6" text-anchor="end" font-family="sans-serif" font-size="11">all three</text>
+<text x="548.2" y="247.6" font-family="sans-serif" font-size="10">171 / 190</text>
+<rect x="230" y="46" width="10" height="10" fill="#b5651d"/><text x="244" y="55" font-family="sans-serif" font-size="11">mean</text><rect x="290" y="46" width="10" height="10" fill="#444"/><text x="304" y="55" font-family="sans-serif" font-size="11">90th percentile</text>
+</svg>
