@@ -1977,6 +1977,11 @@
      "summary": "A stylised, preliminary search over 448 designs: a rod choice (steel, hardwood or aluminium at 8, 10 or 12&nbsp;mm) times subsets of six other part substitutions, with a rod penalty tied to mid-span sag by an assumed log curve. At every budget from 0.5 up the best mass-closure design uses the 12&nbsp;mm aluminium rod: 40.0% at budget 2.0 against 33.1% for the wooden-rod search of <em>selfrep-redesign</em>, and 41.4% against 35.8% at full budget. The choice sits at the assumed holder limit because the closure metric counts heavier bar stock as makeable, so it says little about the best rod. The pick held for penalty scales from 0.05 to 1. Computed only; nothing was built."
     },
     {
+     "slug": "selfrep-stockmass",
+     "title": "Does the best printer redesign change when imported bar stock counts as an import, not as made?",
+     "summary": "A stylised, preliminary re-scoring of the 448-design search of <code>selfrep-alusearch</code>: the score is the mass (or cost) the shop must still import per printer copy, vitamins plus raw stock at an assumed 0.8 yield. The import-mass minimiser reaches 5.85&nbsp;kg against 6.72&nbsp;kg for the steel-rod baseline, with the light 8&nbsp;mm hardwood rod; the earlier closure-maximising pick (12&nbsp;mm aluminium) imports 6.79&nbsp;kg, no better than baseline. By import cost the 12&nbsp;mm aluminium rod stays best (147.5 against 173.3). Yield, stock price and penalties are assumed; computed only."
+    },
+    {
      "slug": "simdesign-topopt",
      "title": "Can Sigmund's 99-line topology optimisation be reproduced in Python and carried through to a printable part?",
      "summary": "A Q4 plane-stress SIMP code with the 99-line sensitivity filter and optimality-criteria update, tested against Hooke's law and finite-difference sensitivities. It gives truss-like cantilever (compliance 351.9&nbsp;&rarr;&nbsp;52.4) and half-MBB (1007.0&nbsp;&rarr;&nbsp;203.3) designs. Without the filter 11.5% of 2&times;2 cells are checkerboards; with it none, at the same compliance within 0.03%. The thresholded MBB design is one connected body and is written as an extruded, mirrored STL. Stylised: dimensionless 2D compliance only, no stress or 3D check, not compared with the published codes."
