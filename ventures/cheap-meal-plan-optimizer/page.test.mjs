@@ -138,3 +138,10 @@ test("the guide carries the clauses, links both ways, and its worked example mat
   }
   assert.ok(guide.includes(`${money2(solve({ ...spec, proteinMin: 100 }).cost)}`) && guide.includes(`${money2(solve({ ...spec, proteinMin: 180 }).cost)}`));
 });
+
+test("the food list is remembered on this device only, with a way to forget it", () => {
+  const html = page("index.html");
+  assert.match(html, /id="forget"/);
+  assert.match(html, /cheap-meal-plan-setup-v1/);
+  assert.doesNotMatch(html, /nothing is saved when you close the page/);
+});

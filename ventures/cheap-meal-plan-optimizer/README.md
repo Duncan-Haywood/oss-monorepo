@@ -16,6 +16,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Variety limit: set "Most calories from one food (%)" (for example 30) and no single food may supply more than that share of the day's calories, which stops the cheapest plan being a bag of rice and nothing else. It is a linear row per food in the same solver, checked again by `verifyPlan`; leave it blank for the plain cheapest plan. Compare two runs to see what variety costs.
 - Share link: "Copy share link" writes the food list and targets into the URL fragment (`#foods=...`), which browsers never send to a server, so you can bookmark a menu or send it to someone; opening the link refills the form. `encodeShare`/`decodeShare` in `calc.mjs` keep only known numeric fields.
 - Shopping list: add a ninth column, servings per pack (`Rice | 0.15 | 180 | 3.5 | 40 | 0.3 | 0.7 | | 36`), and the report turns the plan into whole packs for the week, with leftovers and the real till total (`groceryList` in `calc.mjs`). Pack price is price per serving times pack size, so the cheapest plan itself is unchanged.
+- Returning each week: the food list and targets are remembered on this device (same `encodeShare` format, local storage key `cheap-meal-plan-setup-v1`), restored on load and cleared by "Forget saved data".
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-eat-high-protein-on-a-budget.html` - guide whose worked example is
   recomputed by the test suite.
@@ -37,7 +38,9 @@ Checked against exhaustive search on small random menus, not against real
 shopping.
 
 **Privacy.** Everything runs in your browser; your food list is never uploaded
-and is not saved. Anonymous feature counts stay in local storage and can be
-switched off.
+and is not sent anywhere. So you can update prices each week, the food list and
+targets are remembered in this browser's local storage only ("Forget saved data"
+removes them; a share link loaded from the address replaces them). Anonymous
+feature counts also stay in local storage and can be switched off.
 
 MIT licence, see `LICENSE`.
