@@ -47,6 +47,7 @@ DEP_MANIFESTS = ("requirements*.txt", "**/requirements*.txt", "pip.conf", "**/pi
                  "package.json", "**/package.json", ".npmrc", "**/.npmrc")
 NODE_PINS = ("package.json", "**/package.json", ".nvmrc", "**/.nvmrc", ".node-version", "**/.node-version",
              ".tool-versions", "**/.tool-versions") + DOCKERFILES + WORKFLOWS
+INSTRUCTION_TEXT = ("*.md", "**/*.md", "*.mdc", "**/*.mdc", ".cursorrules", "**/.cursorrules", ".windsurfrules", "**/.windsurfrules")
 AGENT_CONFIGS = (".claude/settings.json", ".claude/settings.local.json", ".mcp.json", ".cursor/mcp.json", ".vscode/mcp.json")
 DEPENDABOT_TRIGGERS = ("package.json", "**/package.json", "requirements*.txt", "**/requirements*.txt", "pyproject.toml",
                        "**/pyproject.toml", "go.mod", "**/go.mod", "Cargo.toml", "**/Cargo.toml", "Gemfile", "**/Gemfile",
@@ -149,6 +150,21 @@ def agent_permission_config(stdout, stderr, _code):
             if f.get("severity") not in SEVERITY_RANK:
                 continue  # "info" notes are advice, not risks
             out.append(_finding(f.get("kind"), f["severity"], entry.get("file"), f.get("line"), f.get("message")))
+    return out
+
+
+def hidden_unicode(stdout, _stderr, _code):
+    data = json.loads(stdout or "{}")
+    decoded = {(d["file"], d["line"]): d["text"] for d in data.get("decoded", [])}
+    out = []
+    for f in data.get("findings", []):
+        if f.get("severity") not in SEVERITY_RANK:
+            continue
+        msg = f"{f['codePoint']} {f['name']} is invisible or reorders text to a human reviewer but is read by a program: ...{f.get('context', '')}..."
+        if (f["file"], f["line"]) in decoded and f.get("category") == "tag-character":
+            msg += f' A run of Tag characters on this line decodes to: "{decoded[(f["file"], f["line"])]}".'
+        out.append(_finding(f.get("category"), f["severity"], f["file"], f["line"], msg,
+                            "Delete the character, or if it is legitimate (an emoji sequence is already ignored), record why in a baseline."))
     return out
 
 
@@ -290,6 +306,10 @@ CHECKS = [
          title="Over-broad AI agent permissions and MCP servers", applies=AGENT_CONFIGS,
          runtime="node", entry="agent-permission-config-check/cli.mjs", args=["check", "--root", ".", "--json"],
          adapt=agent_permission_config),
+    dict(id="hidden-unicode", venture="hidden-unicode-check", category="ai-agents",
+         title="Invisible and bidirectional Unicode in instruction files and source (Trojan Source, ASCII smuggling)",
+         applies=INSTRUCTION_TEXT + PY_JS_TS,
+         runtime="node", entry="hidden-unicode-check/cli.mjs", args=[".", "--format", "json"], adapt=hidden_unicode),
 ]
 
 BY_ID = {c["id"]: c for c in CHECKS}
