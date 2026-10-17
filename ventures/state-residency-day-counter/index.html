@@ -90,6 +90,7 @@
     <button type="button" class="secondary" id="load-example">Load an example</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
     <div style="margin-top:12px"><label for="ics">Or import your calendar (.ics file from Google, Apple or Outlook). Events whose location names a state become stay lines you can check and edit. The file is read in your browser and never uploaded.</label><input id="ics" type="file" accept=".ics,text/calendar"></div>
+    <div style="margin-top:12px"><label for="timeline">Or import Google Timeline history (the Semantic Location History .json files from Google Takeout). Place visits whose address names a state become stay lines. Read in your browser, never uploaded.</label><input id="timeline" type="file" accept=".json,application/json" multiple></div>
     <p id="form-status" role="status" class="note">Enter your stays, then click Count my days.</p>
   </section>
 
@@ -145,7 +146,7 @@
   </footer>
 
   <script type="module">
-    import { CONVENTIONS, icsToStays, parseStays, analyze, sampleSpec, reportCsv, statusText, dayIso, parseDate, toDay, fmtNum, fmtMoney, yearBounds, STATE_NAMES } from "./calc.mjs";
+    import { CONVENTIONS, icsToStays, timelineToStays, parseStays, analyze, sampleSpec, reportCsv, statusText, dayIso, parseDate, toDay, fmtNum, fmtMoney, yearBounds, STATE_NAMES } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -178,6 +179,20 @@
       const cur = $("#stays").value.trim();
       $("#stays").value = (cur ? cur + "\n" : "") + r.lines.join("\n");
       $("#form-status").textContent = `Imported ${r.imported} events as ${r.lines.length} stay lines; ${r.skipped} skipped (no state, or outside ${$("#year").value}). Check them, add the days the calendar does not cover, then click Count my days.`;
+    });
+
+    $("#timeline").addEventListener("change", async (e) => {
+      const files = [...e.target.files];
+      if (!files.length) return;
+      const year = Number($("#year").value);
+      const docs = [];
+      for (const f of files) { try { docs.push(JSON.parse(await f.text())); } catch { /* reported below */ } }
+      if (!docs.length) { $("#form-status").textContent = "Those files are not JSON. Use the Semantic Location History files from Google Takeout."; return; }
+      const r = timelineToStays(JSON.stringify(docs), year);
+      if (!r.lines.length) { $("#form-status").textContent = `No place visits with a US state in the address were found (${r.skipped} skipped).`; return; }
+      const cur = $("#stays").value.trim();
+      $("#stays").value = (cur ? cur + "\n" : "") + r.lines.join("\n");
+      $("#form-status").textContent = `Imported ${r.imported} place visits as ${r.lines.length} stay lines; ${r.skipped} skipped (no address or state, travel, or outside ${year}). Check them, add the days the history does not cover, then click Count my days.`;
     });
 
     function readSpec() {
