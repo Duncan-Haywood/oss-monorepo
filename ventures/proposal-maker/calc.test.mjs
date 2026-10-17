@@ -320,3 +320,14 @@ test("followUpText names the proposal and the remaining days", () => {
   assert.match(txt, /1 more day\./);
   assert.match(followUpText({ clientName: "", number: "P", title: "", reason: "quiet", daysLeft: null }), /^Hi,/);
 });
+
+test("boundaries: a one-cent milestone, a one-cent change rate, a one-month retainer and a 101% deposit", () => {
+  const tiny = base({ options: [{ name: "", lines: [{ desc: "Fee", qty: 1, rate: "1" }] }], depositType: "percent", depositValue: "0", milestones: [{ label: "Kickoff", percent: "1", when: "" }] });
+  const rows = paymentSchedule(tiny, 0);
+  assert.ok(rows.some((r) => r.label === "Kickoff" && r.amount === 1));
+  const penny = base({ terms: { changeRate: "0.01" } });
+  assert.match(clauseTexts(penny).find((c) => c.key === "changeOrders").text, /per hour/);
+  const oneMonth = base({ model: "retainer", retainer: { monthly: "1000", months: "1", hours: "10" } });
+  assert.ok(validate(oneMonth).every((m) => !/number of months/.test(m)));
+  assert.ok(validate({ ...base(), depositType: "percent", depositValue: "101" }).some((m) => /between 0 and 100/.test(m)));
+});
