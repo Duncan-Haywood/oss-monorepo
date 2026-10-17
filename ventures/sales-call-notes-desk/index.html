@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sales Call Notes Desk — turn call notes into CRM fields and a follow-up email, free</title>
+  <meta name="description" content="Free sales call notes to CRM tool. Paste your notes or transcript and get the CRM fields, what BANT and MEDDIC still miss, dated next steps and a checked follow-up email. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Sales Call Notes Desk — notes in, CRM fields and follow-up out, free and private">
+  <meta property="og:description" content="Find the gaps in a discovery call, fill the CRM and draft the follow-up in a minute. Optional AI on your own key.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sales Call Notes Desk", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste sales call notes and get the CRM fields, the qualification gaps (BANT and MEDDIC), a dated list of next steps and a follow-up email you send yourself. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I turn sales call notes into CRM fields?", "acceptedAnswer": {"@type": "Answer", "text": "Paste the notes or transcript and the tool reads them for pain, quantified impact, budget, decision maker, timeline, decision process, decision criteria, alternatives and a dated next step, and shows the sentence each came from. One click gives you a CSV row or a block of text to paste into the deal record. Anything the notes do not say is left blank and listed as a question for the next call, never guessed."}}, {"@type": "Question", "name": "What is the difference between BANT and MEDDIC?", "acceptedAnswer": {"@type": "Answer", "text": "BANT checks four things: budget, authority, need and timeline. MEDDIC adds quantified impact, the economic buyer, decision criteria, decision process, the pain and a champion, which suits longer deals with several people involved. This tool reports nine fields that cover both lists, so you can see at a glance which parts of either checklist your call actually answered."}}, {"@type": "Question", "name": "How do I write a good follow-up email after a sales call?", "acceptedAnswer": {"@type": "Answer", "text": "Send it the same day, keep it under 200 words, recap the problem in the contact's own words, list what each side agreed to do with a date, and end on one clear next step. Do not add prices, discounts or promises that were not said on the call. The tool drafts exactly that from your notes and checks the draft before you send it."}}, {"@type": "Question", "name": "Does it use AI, and are my call notes sent anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "Only if you choose. The analysis and the built-in email work with no key, using rules in your browser, and your notes are never uploaded. If you add your own API key for Anthropic, OpenAI, Gemini or an OpenAI-compatible endpoint, only the notes and the draft email are sent, from your browser straight to that provider, and the model email is rejected if it contains a dollar figure that is not in your notes."}}, {"@type": "Question", "name": "Why did it say my deal has no decision maker?", "acceptedAnswer": {"@type": "Answer", "text": "It looks for a title such as CFO or director together with words like signs off, approves or final say. If the notes never mention who decides, it flags the gap, because a deal with one contact and no known approver is the most common way a good call goes quiet. Add the name and title to the notes and run it again."}}, {"@type": "Question", "name": "Can I use it on a call transcript?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Lines that start with a name and a colon are treated as speakers. Put your own name in the Your name box and the tool sorts next steps into yours and theirs. A transcript works best trimmed to the important parts, because the rules read every sentence."}}, {"@type": "Question", "name": "Is Sales Call Notes Desk free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There is no signup, no limit and no watermark. It runs in your browser, so it costs nothing to serve, and it is MIT-licensed open source you can host yourself."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d2330; background: #f4f4f8; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    a { color: #2b4ea8; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f2a55; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f2a55; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a4f5e; }
+    .card { background: #fff; border: 1px solid #d6d9e4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f2a5512; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5b6076; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2b4ea8; color: #fff; font-weight: 700; cursor: pointer; margin: 10px 8px 0 0; }
+    button.secondary { background: #e4e7f2; color: #1f2a55; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eef0f8; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f2a55; }
+    .rev { border: 1px solid #d6d9e4; border-radius: 12px; padding: 14px; margin: 14px 0; background: #fcfcfe; }
+    .rev blockquote { margin: 6px 0 10px; padding-left: 12px; border-left: 3px solid #b8bfdc; color: #333a52; }
+    .rev textarea { min-height: 120px; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin: 0 6px 4px 0; }
+    .pill.good { background: #dcefdc; color: #1d5a24; }
+    .pill.mid { background: #fdf0d5; color: #5c4508; }
+    .pill.high { background: #f8d9d6; color: #7d1f16; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 8px 12px; margin: 8px 0; color: #5c4508; font-size: .9rem; }
+    .err { background: #f8d9d6; border-radius: 10px; padding: 8px 12px; margin: 8px 0; color: #7d1f16; font-size: .9rem; }
+    footer { margin-top: 28px; border-top: 1px solid #d6d9e4; padding-top: 16px; }
+    details summary { cursor: pointer; font-weight: 700; color: #1f2a55; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
+    .check input { width: auto; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  
+    .ev { font-size: .86rem; color: #4a4f5e; margin: 2px 0 0 14px; }
+    table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #d6d9e4; vertical-align: top; }
+    .scroll { overflow-x: auto; }
+    pre { white-space: pre-wrap; background: #fcfcfe; border: 1px solid #d6d9e4; border-radius: 10px; padding: 12px; font: 14px/1.5 system-ui, sans-serif; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SALES CALL NOTES DESK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Turn call notes into CRM fields and a follow-up in a minute</h1>
+    <p>Paste your <strong>discovery call notes or transcript</strong>. You get what you learned (pain, budget, decision maker, timeline, process, criteria, alternatives), <strong>what the call still did not answer</strong> with the question to ask next, the <strong>next steps with dates</strong>, a <strong>CRM-ready row</strong>, and a <strong>follow-up email</strong> checked against your notes so it never states a number you did not hear.</p>
+    <p class="note">Every item shows the sentence it came from, and a field with no evidence is left blank, never guessed. Want the method? Read <a href="./how-to-write-a-sales-follow-up-email.html">how to write a sales follow-up email after a call</a>.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>1. The call</h2>
+    <div class="row3">
+      <div><label for="company">Company</label><input id="company" autocomplete="organization" placeholder="Brightline Logistics"></div>
+      <div><label for="contact">Contact</label><input id="contact" autocomplete="off" placeholder="Dana Reyes"></div>
+      <div><label for="you">Your name (signs the email)</label><input id="you" autocomplete="name" placeholder="Sam"></div>
+      <div><label for="date">Call date</label><input id="date" type="date"></div>
+      <div><label for="rep">Your speaker label in a transcript</label><input id="rep" autocomplete="off" placeholder="Me, Sam"></div>
+      <div><label for="comps">Competitors to look for (comma separated)</label><input id="comps" autocomplete="off" placeholder="RouteWorks, HubSpot"></div>
+    </div>
+    <h2 style="margin-top:18px">2. Paste your notes</h2>
+    <label for="notes">Bullets, sentences or a transcript. Lines that start with a name and a colon (<code>Dana: …</code>) are read as speakers.</label>
+    <textarea id="notes" rows="12" placeholder="Dana: Right now we build routes by hand in spreadsheets, about 12 hours a week.&#10;Dana: Budget is roughly $20k a year, Marcus (CFO) signs off.&#10;Me: I'll send the sample by Tuesday."></textarea>
+    <button type="button" id="go">Read the call</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="status" role="status" class="note">Paste your notes, then click Read the call.</p>
+  </section>
+
+  <section class="card" id="out" hidden>
+    <h2>3. What the call told you</h2>
+    <div class="big" id="summary"></div>
+    <div id="flags"></div>
+    <div class="scroll"><table><thead><tr><th>Field</th><th>What the notes say</th></tr></thead><tbody id="cov"></tbody></table></div>
+    <h3>Next steps</h3>
+    <div id="steps"></div>
+    <h3>Ask on the next call</h3>
+    <ul id="gaps"></ul>
+    <button type="button" id="dl-csv">Download CRM row (CSV)</button>
+    <button type="button" class="secondary" id="copy-crm">Copy as text for the deal notes</button>
+  </section>
+
+  <section class="card" id="mail" hidden>
+    <h2>4. Follow-up email (you send it)</h2>
+    <label for="subject">Subject</label><input id="subject">
+    <label for="body">Body</label><textarea id="body" rows="14"></textarea>
+    <div id="lint"></div>
+    <button type="button" id="copy-mail">Copy email</button>
+    <button type="button" class="secondary" id="ai-go">Polish with AI</button>
+    <p class="note">A draft for you to read, edit and send yourself. This tool never sends anything.</p>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Optional: polish the email with AI, on your own key</summary>
+      <p class="note">Off by default. If you add a key, only your notes and the draft email are sent, straight from this browser to the provider you pick, never to us. The model email must pass the same checks (no dollar figure that is not in your notes, no guarantees); otherwise the built-in email is kept and you are told. The key is kept only in this browser if you tick the box.</p>
+      <div class="row3">
+        <div><label for="ai-provider">Provider</label><select id="ai-provider"><option value="">None (built-in email only)</option><option value="anthropic">Anthropic</option><option value="openai">OpenAI</option><option value="gemini">Google Gemini</option><option value="openai-compatible">Other (OpenAI-compatible, e.g. OpenRouter, Ollama)</option></select></div>
+        <div><label for="ai-model">Model (required except for Anthropic)</label><input id="ai-model" autocomplete="off" placeholder="model name"></div>
+        <div><label for="ai-base">Base URL (other providers only)</label><input id="ai-base" autocomplete="off" placeholder="http://localhost:11434/v1"></div>
+        <div><label for="ai-key">API key</label><input id="ai-key" type="password" autocomplete="off"></div>
+      </div>
+      <div class="check"><input type="checkbox" id="ai-remember"><label for="ai-remember" style="display:inline;margin:0;font-weight:400">Remember the key in this browser</label></div>
+    </details>
+  </section>
+  </main>
+
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>How do I turn sales call notes into CRM fields?</h3>
+    <p>Paste the notes or transcript and the tool reads them for pain, quantified impact, budget, decision maker, timeline, decision process, decision criteria, alternatives and a dated next step, and shows the sentence each came from. One click gives you a CSV row or a block of text to paste into the deal record. Anything the notes do not say is left blank and listed as a question for the next call, never guessed.</p>
+    <h3>What is the difference between BANT and MEDDIC?</h3>
+    <p>BANT checks four things: budget, authority, need and timeline. MEDDIC adds quantified impact, the economic buyer, decision criteria, decision process, the pain and a champion, which suits longer deals with several people involved. This tool reports nine fields that cover both lists, so you can see at a glance which parts of either checklist your call actually answered.</p>
+    <h3>How do I write a good follow-up email after a sales call?</h3>
+    <p>Send it the same day, keep it under 200 words, recap the problem in the contact's own words, list what each side agreed to do with a date, and end on one clear next step. Do not add prices, discounts or promises that were not said on the call. The tool drafts exactly that from your notes and checks the draft before you send it.</p>
+    <h3>Does it use AI, and are my call notes sent anywhere?</h3>
+    <p>Only if you choose. The analysis and the built-in email work with no key, using rules in your browser, and your notes are never uploaded. If you add your own API key for Anthropic, OpenAI, Gemini or an OpenAI-compatible endpoint, only the notes and the draft email are sent, from your browser straight to that provider, and the model email is rejected if it contains a dollar figure that is not in your notes.</p>
+    <h3>Why did it say my deal has no decision maker?</h3>
+    <p>It looks for a title such as CFO or director together with words like signs off, approves or final say. If the notes never mention who decides, it flags the gap, because a deal with one contact and no known approver is the most common way a good call goes quiet. Add the name and title to the notes and run it again.</p>
+    <h3>Can I use it on a call transcript?</h3>
+    <p>Yes. Lines that start with a name and a colon are treated as speakers. Put your own name in the Your name box and the tool sorts next steps into yours and theirs. A transcript works best trimmed to the important parts, because the rules read every sentence.</p>
+    <h3>Is Sales Call Notes Desk free?</h3>
+    <p>Yes. There is no signup, no limit and no watermark. It runs in your browser, so it costs nothing to serve, and it is MIT-licensed open source you can host yourself.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax or sales-compliance advice, and its readings are keyword rules over the text you paste, so they can miss things or misread a sentence. <strong>You are responsible for reading and editing every field and every email</strong> before you save or send it, and for following the laws and platform rules that apply to your outreach, such as CAN-SPAM, GDPR and call-recording consent.</p>
+    <p><strong>Independent.</strong> Not affiliated with Salesforce, HubSpot, Pipedrive, Gong or any CRM or sales vendor, and none is endorsed here. The example call is invented.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working. Do not use this as a system of record: your settings are remembered only in this browser ("Clear" forgets them), so download the CSV.</p>
+    <p>Everything runs in your browser. Your notes and emails are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>call_read</code>, <code>example_loaded</code>, <code>email_copied</code>, <code>csv_downloaded</code>, <code>crm_copied</code>, <code>ai_polished</code>) are counted in this browser's local storage only and can be turned off.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../icp-lens/">ICP lens</a> for scoring which accounts to call, the <a href="../quote-follow-up-timing/">quote follow-up timing</a> tool for when to chase, and the <a href="../proposal-maker/">proposal maker</a> for the document after the call.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyzeCall, crmFields, toCsv, followUpEmail, checkEmail, SAMPLE_NOTES } from "./calc.mjs";
+    import { draftEmail } from "./ai.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const SAVE = "sales-call-notes-desk:setup";
+    const AIKEY = "sales-call-notes-desk:ai";
+    const FIELDS = ["company", "contact", "you", "rep", "comps"];
+    const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+    const meta = () => ({ company: $("#company").value.trim(), contact: $("#contact").value.trim(), you: $("#you").value.trim(), date: $("#date").value });
+    let analysis = null;
+
+    function aiConfig() {
+      const provider = $("#ai-provider").value;
+      return provider ? { provider, model: $("#ai-model").value.trim(), baseUrl: $("#ai-base").value.trim(), apiKey: $("#ai-key").value.trim(), browser: true } : {};
+    }
+    function relint() {
+      const r = checkEmail($("#body").value, $("#notes").value);
+      const box = $("#lint");
+      box.replaceChildren();
+      for (const e of r.errors) box.append(el("div", "err", e));
+      for (const w of r.warnings) box.append(el("div", "warn", w));
+      if (!r.errors.length && !r.warnings.length) box.append(el("div", "note", "Checks passed. Still read it before you send."));
+    }
+    function crmText() {
+      return Object.entries(crmFields(analysis, meta())).filter(([, v]) => v).map(([k, v]) => k + ": " + v).join("\n");
+    }
+
+    function render() {
+      const a = analysis;
+      $("#out").hidden = false;
+      $("#mail").hidden = false;
+      const big = $("#summary");
+      big.replaceChildren();
+      for (const [n, label] of [[a.qualified + "/" + a.total, "fields answered"], [a.nextSteps.length, "next steps"], [a.objections.length, "objections"], [a.flags.length, "risks"]]) {
+        const d = el("div"); d.append(el("strong", "", String(n)), document.createTextNode(label)); big.append(d);
+      }
+      const flags = $("#flags");
+      flags.replaceChildren();
+      for (const f of a.flags) flags.append(el("div", f.level === "high" ? "err" : "warn", f.text));
+      const cov = $("#cov");
+      cov.replaceChildren();
+      for (const c of a.coverage) {
+        const tr = el("tr"), th = el("td"), td = el("td");
+        th.append(el("span", "pill " + (c.found ? "good" : "high"), c.found ? "found" : "missing"), document.createTextNode(c.label));
+        if (c.found) for (const e of c.evidence) td.append(el("div", "ev", "“" + e.text + "”"));
+        else td.append(el("div", "ev", "Nothing in the notes."));
+        tr.append(th, td);
+        cov.append(tr);
+      }
+      const steps = $("#steps");
+      steps.replaceChildren();
+      if (!a.nextSteps.length) steps.append(el("div", "note", "No next step found in these notes."));
+      for (const s of a.nextSteps) steps.append(el("div", "ev", (s.owner === "you" ? "You" : s.owner === "them" ? "Them" : "Unclear who") + (s.due ? " · " + s.due : s.dueText ? " · " + s.dueText : " · no date") + " — " + s.text));
+      const gaps = $("#gaps");
+      gaps.replaceChildren();
+      for (const g of a.gaps) gaps.append(el("li", "", g.label + ": " + g.ask));
+      if (!a.gaps.length) gaps.append(el("li", "", "Every field has evidence. Check the quality of it before you rely on it."));
+      const e = followUpEmail(a, meta());
+      $("#subject").value = e.subject;
+      $("#body").value = e.body;
+      relint();
+    }
+
+    function run() {
+      const text = $("#notes").value;
+      if (!text.trim()) { $("#status").textContent = "Paste your notes first."; return; }
+      analysis = analyzeCall(text, { rep: $("#rep").value, competitors: $("#comps").value, today: $("#date").value || undefined });
+      if (!analysis.units) { $("#status").textContent = "No sentences found in the notes."; return; }
+      $("#status").textContent = "Read " + analysis.units + " lines. Edit the email below; the checks re-run as you type.";
+      render();
+      record("call_read");
+      try { localStorage.setItem(SAVE, JSON.stringify(Object.fromEntries(FIELDS.map((k) => [k, $("#" + k).value])))); } catch { /* storage is optional */ }
+    }
+    $("#go").addEventListener("click", run);
+    $("#body").addEventListener("input", relint);
+    $("#load-example").addEventListener("click", () => {
+      $("#notes").value = SAMPLE_NOTES;
+      if (!$("#company").value) { $("#company").value = "Brightline Logistics"; $("#contact").value = "Dana Reyes"; $("#you").value = "Sam"; }
+      if (!$("#rep").value) $("#rep").value = "Me";
+      run(); record("example_loaded");
+    });
+    $("#clear-all").addEventListener("click", () => { $("#notes").value = ""; $("#out").hidden = true; $("#mail").hidden = true; analysis = null; try { localStorage.removeItem(SAVE); } catch { /* optional */ } });
+    $("#copy-mail").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText("Subject: " + $("#subject").value + "\n\n" + $("#body").value); $("#copy-mail").textContent = "Copied"; record("email_copied"); }
+      catch { $("#copy-mail").textContent = "Select and copy by hand"; }
+    });
+    $("#copy-crm").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(crmText()); $("#copy-crm").textContent = "Copied"; record("crm_copied"); }
+      catch { $("#copy-crm").textContent = "Select and copy by hand"; }
+    });
+    $("#dl-csv").addEventListener("click", () => {
+      const a = el("a"); a.href = URL.createObjectURL(new Blob([toCsv(crmFields(analysis, meta()))], { type: "text/csv" })); a.download = "call-notes-crm-row.csv"; a.click(); URL.revokeObjectURL(a.href); record("csv_downloaded");
+    });
+    $("#ai-go").addEventListener("click", async () => {
+      const b = $("#ai-go"), cfg = aiConfig();
+      if (!cfg.provider) { b.textContent = "Choose a provider under Optional AI first"; return; }
+      b.disabled = true; b.textContent = "Working…";
+      try {
+        const r = await draftEmail(cfg, $("#notes").value, analysis, meta());
+        $("#body").value = r.body; relint();
+        b.textContent = r.source === "model" ? "Polished (read it before sending)" : "Kept the built-in email" + (r.error ? ": " + r.error : "");
+        if (r.source === "model") record("ai_polished");
+      } catch (e) { b.textContent = "Failed: " + e.message; }
+      b.disabled = false;
+    });
+
+    try {
+      const s = JSON.parse(localStorage.getItem(SAVE) || "null");
+      if (s) for (const k of FIELDS) if (typeof s[k] === "string") $("#" + k).value = s[k];
+      const c = JSON.parse(localStorage.getItem(AIKEY) || "null");
+      if (c) { $("#ai-provider").value = c.provider || ""; $("#ai-model").value = c.model || ""; $("#ai-base").value = c.baseUrl || ""; $("#ai-key").value = c.apiKey || ""; $("#ai-remember").checked = !!c.apiKey; }
+    } catch { /* optional */ }
+    for (const id of ["#ai-provider", "#ai-model", "#ai-base", "#ai-key", "#ai-remember"]) {
+      $(id).addEventListener("change", () => { try { if ($("#ai-remember").checked) localStorage.setItem(AIKEY, JSON.stringify(aiConfig())); else localStorage.removeItem(AIKEY); } catch { /* optional */ } });
+    }
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>
