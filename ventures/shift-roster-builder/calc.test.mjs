@@ -509,6 +509,21 @@ test("scheduleFlags: flags a person scheduled on all seven days", () => {
   assert.equal(scheduleFlags({}).sevenDays.length, 0);
 });
 
+test("seventhDayPay: extra over straight time on the seventh day, only for people on all seven days", async () => {
+  const { seventhDayPay } = await import("./calc.mjs");
+  const week = [0, 1, 2, 3, 4, 5].map((day) => ({ slot: { day, startMin: 540, endMin: 780 }, person: "Sam" }));
+  const sun = { slot: { day: 6, startMin: 540, endMin: 1140 }, person: "Sam" }; // 10 hours
+  const r = { people: [{ name: "Sam", wage: 20 }, { name: "Ana", wage: 30 }], assignments: week.concat(sun, [{ slot: { day: 6, startMin: 0, endMin: 120 }, person: "Ana" }]) };
+  const p = seventhDayPay(r);
+  assert.equal(p.rows.length, 1);
+  assert.equal(p.rows[0].person, "Sam");
+  assert.equal(p.rows[0].hours, 10);
+  // 8h x 0.5 x $20 + 2h x 1.0 x $20 = $120
+  assert.equal(p.total, 120);
+  assert.equal(seventhDayPay(r, { burdenPct: 10 }).total, 132);
+  assert.equal(seventhDayPay({}).total, 0);
+});
+
 test("fixed: pins a shift to one person and the rest is planned around it", async () => {
   const { parseStaff, parseShifts, buildRoster } = await import("./calc.mjs");
   const staff = parseStaff("Ana, 10, 40, 0, any\nBen, 30, 40, 0, any").staff;

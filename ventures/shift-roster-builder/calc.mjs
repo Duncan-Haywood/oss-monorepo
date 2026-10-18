@@ -1174,6 +1174,27 @@ export function scheduleFlags(r, { dailyLimit = 8, splitGap = 1, mealAfter = 5, 
   return { overDaily: overDaily.sort(order), splits: splits.sort(order), longStretches: longStretches.sort(order), sevenDays, notice };
 }
 
+// What a seventh-consecutive-day premium would add for each person who works all seven days of the week (the last day
+// is DAYS[6], so this assumes the workweek starts on Monday). California's rule is 1.5x for the first `firstHours` of
+// that day and 2x after; both multipliers are yours to set. Returns only the extra over straight time (burden
+// included), by person, plus the total. The search does not price it, so this is a figure to compare, not a roster
+// input. A planning aid, not a statement of what any state requires.
+export function seventhDayPay(r, { firstHours = 8, firstMult = 1.5, laterMult = 2, burdenPct = 0 } = {}) {
+  const wages = new Map((r.people || []).map((p) => [p.name, p.wage]));
+  const sevens = new Set(scheduleFlags(r).sevenDays.map((x) => x.person));
+  const hours = new Map();
+  for (const a of r.assignments || []) {
+    if (!a.person || a.slot.day !== 6 || !sevens.has(a.person)) continue;
+    hours.set(a.person, (hours.get(a.person) || 0) + (a.slot.endMin - a.slot.startMin) / 60);
+  }
+  const burden = 1 + burdenPct / 100;
+  const rows = [...hours].map(([person, h]) => {
+    const first = Math.min(h, firstHours), later = Math.max(0, h - firstHours), wage = wages.get(person) || 0;
+    return { person, hours: h, extra: wage * (first * (firstMult - 1) + later * (laterMult - 1)) * burden };
+  }).sort((a, b) => a.person.localeCompare(b.person));
+  return { rows, total: rows.reduce((t, x) => t + x.extra, 0) };
+}
+
 // Puts a meal break on the clock for every straight stretch longer than `mealAfter` hours (back-to-back shifts joined).
 // The break starts on a `step`-minute mark, no earlier than `earliest` minutes into the stretch, early enough to begin
 // before `mealAfter` hours have passed and to leave `tail` minutes after it. Among those starts it picks the one that
