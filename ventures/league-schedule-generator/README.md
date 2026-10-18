@@ -17,6 +17,23 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **League-management platforms** (TeamSnap, LeagueApps, SportsEngine and similar): registration, payments, team messaging and score apps, usually on a paid plan and with accounts for every team. This tool only makes and maintains the schedule: no signup, no upload, free.
 - **What this adds:** a fair round robin with the fewest possible home/away breaks, real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. If you need registration or payments, use a platform and paste this schedule into it.
 
+## Run your own league page (self-hosted)
+
+The browser tool builds the season; `server.mjs` gets it to your players. You keep the setup and post results in
+`/admin?key=...`; your players open **one link** (`/league?t=...`) to see every fixture, the standings and the
+play-off bracket, and add their own team's schedule to their calendar (`.ics`). No accounts, no per-team fee, no
+third party: zero dependencies, one JSON file on a disk you own.
+
+- **Alternatives today:** TeamSnap, LeagueApps and SportsEngine hold your players' data behind per-team accounts and
+  paid plans. This is only the publish-fixtures-and-table loop for one league, MIT-licensed. It has no registration,
+  payments, messaging or score-entry by players; use one of them if you need those.
+- **Secrets:** `ADMIN_KEY` unlocks `/admin`; `LEAGUE_TOKEN` is the secret in the player link. The server refuses to
+  serve without both. Put it behind HTTPS (Fly and Render do); keys are in the URL, so do not share admin links.
+- **Run:** `ADMIN_KEY=a LEAGUE_TOKEN=b STATE=./state.json node server.mjs`, or `docker compose up -d`
+  (`docker-compose.yml`), Fly (`fly.toml`), or Render (`render.yaml`, deploy from your fork; it generates both
+  secrets). Nothing runs on the author's accounts.
+- Tests: `node --test server.test.mjs deploy.test.mjs`.
+
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - circle-method rounds with byes for odd leagues and home/away built

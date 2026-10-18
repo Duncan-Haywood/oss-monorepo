@@ -1,0 +1,21 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# Starter plan on purpose: the free plan has no disk, so the published plan would vanish on restart.
+# Render generates ADMIN_KEY and GUEST_TOKEN; read them in the service's Environment tab.
+services:
+  - type: web
+    name: seating-hub
+    runtime: docker
+    dockerContext: ventures/event-seating-chart-optimizer
+    dockerfilePath: ventures/event-seating-chart-optimizer/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: GUEST_TOKEN
+        generateValue: true

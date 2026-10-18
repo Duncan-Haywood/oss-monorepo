@@ -1,0 +1,338 @@
+Yosys: Yosys 0.33 (git sha1 2584903a060); designs: 133 alu=36, fir=36, mac=36, sorter=25
+Pooled surrogate = other three families (weight 1) + k chosen designs of the held-out family (weight w). Median APE on the held-out designs not chosen. random: median over 30 draws; other strategies are deterministic (one value).
+
+== linear, held-out alu (n=36); cells are median APE, percent ==
+w    k    random  smallest    spread  extremes
+1    2      29.8      64.7      22.1      58.5
+1    3      19.3      76.8      11.7      37.7
+1    5      17.8      12.7      13.5      10.8
+1    8       9.8      14.8       8.9       9.5
+1    12      8.4      14.9       7.8       7.9
+5    2      29.8      78.8      22.1      58.5
+5    3      18.0      83.2      11.7      37.7
+5    5      15.1      13.3       6.9       5.6
+5    8       8.2      14.2       4.9       5.8
+5    12      7.4      16.6       4.4       5.1
+20   2      28.7      83.5      22.1      58.5
+20   3      15.7      83.1      11.7      34.3
+20   5      12.5       9.9       5.8       6.1
+20   8       8.0      13.6       4.8       7.1
+20   12      6.6      17.2       3.8       4.2
+
+== linear, held-out fir (n=36); cells are median APE, percent ==
+w    k    random  smallest    spread  extremes
+1    2      12.6       9.1      10.5      14.4
+1    3       8.5       9.1       8.7       9.3
+1    5       6.4       6.9       6.2       4.7
+1    8       5.2       7.7       5.1       3.5
+1    12      3.7       5.9       2.3       1.9
+5    2      10.9       9.0       5.3      13.7
+5    3       6.0       9.1       4.8       5.2
+5    5       3.7       6.9       3.7       1.8
+5    8       2.3       4.9       2.4       1.4
+5    12      2.0       3.2       0.8       0.6
+20   2       8.6       8.1       2.7      13.4
+20   3       4.0       8.1       2.5       3.2
+20   5       2.3       5.7       2.0       1.6
+20   8       1.9       3.2       1.1       1.0
+20   12      1.6       2.2       1.1       0.8
+
+== linear, held-out mac (n=36); cells are median APE, percent ==
+w    k    random  smallest    spread  extremes
+1    2       8.7      18.7       9.9       6.6
+1    3       8.8      19.9       6.7       6.6
+1    5       7.0      17.9       5.5       6.5
+1    8       6.3      13.7       5.6       5.9
+1    12      5.3       8.3       4.0       4.4
+5    2       6.7      20.8       5.3       6.5
+5    3       6.1      18.8       6.2       7.2
+5    5       4.7      17.1       3.5       3.4
+5    8       3.5      10.4       2.7       2.7
+5    12      2.1       4.0       1.6       1.9
+20   2       6.4      17.7       3.7       4.6
+20   3       3.4      16.2       4.7       2.8
+20   5       2.5      15.5       2.1       2.1
+20   8       1.7       7.2       1.5       1.7
+20   12      1.4       3.3       1.7       1.4
+
+== linear, held-out sorter (n=25); cells are median APE, percent ==
+w    k    random  smallest    spread  extremes
+1    2      18.8      54.9      19.6      23.3
+1    3      16.0      44.0      20.3      24.8
+1    5      12.9      25.5      15.0      15.2
+1    8      12.1      25.0      10.1      12.9
+1    12     13.7      21.2       8.0       9.5
+5    2      17.7      31.7      16.1      37.9
+5    3      13.0      25.5      17.0      24.3
+5    5      12.4      23.6      10.6      11.5
+5    8      10.2      20.2       7.7       8.3
+5    12      9.0      14.3       7.2       7.5
+20   2      17.2      20.5      15.3      46.4
+20   3      12.4      22.6      10.5      23.7
+20   5      12.4      22.5       6.2       7.5
+20   8       8.3      16.9       4.7       6.3
+20   12      7.6      13.4       5.9       8.0
+
+== ridge, held-out alu (n=36); cells are median APE, percent ==
+w    k    random  smallest    spread  extremes
+1    2      24.2      16.5      18.6      29.7
+1    3      19.6      17.0      21.7      34.6
+1    5      10.1      20.7       7.5       7.7
+1    8       6.8      21.5       4.4       4.9
+1    12      5.8      16.7       4.1       4.9
+5    2      23.7      23.5      18.6      29.7
+5    3      19.0      20.0      20.6      34.4
+5    5       8.3      32.9       9.7       8.7
+5    8       6.2      24.0       4.2       5.5
+5    12      4.6      15.7       4.1       3.8
+20   2      23.7      24.8      18.5      29.7
+20   3      18.9      26.4      20.6      34.4
+20   5       8.2      40.8      10.3       8.9
+20   8       5.8      21.3       4.4       5.1
+20   12      4.3      15.2       3.9       4.1
+
+== ridge, held-out fir (n=36); cells are median APE, percent ==
+w    k    random  smallest    spread  extremes
+1    2      27.5      25.0      21.2      28.8
+1    3      16.8      27.3      25.3      24.4
+1    5      12.3      29.4       9.8       7.5
+1    8      10.0      12.2      11.2       8.2
+1    12      7.8      13.1       7.6       6.3
+5    2      28.2      23.8      21.4      29.1
+5    3      14.9      29.0      25.9      25.4
+5    5      11.5      28.6       9.4       7.3
+5    8       7.5      12.7      10.3       9.9
+5    12      6.0       7.5       6.6       4.6
+20   2      28.3      23.2      21.3      29.2
+20   3      13.7      24.7      26.2      25.7
+20   5       9.9      37.5       9.0       8.8
+20   8       6.8       9.8      11.1      10.1
+20   12      5.3       7.2       5.3       3.5
+
+== ridge, held-out mac (n=36); cells are median APE, percent ==
+w    k    random  smallest    spread  extremes
+1    2      20.9      22.4      24.7      23.5
+1    3      21.0      22.9      24.5      17.5
+1    5      17.3      19.2      12.2      10.6
+1    8      14.5      18.9      10.1      10.1
+1    12     13.0      17.2       9.0       9.8
+5    2      20.6      22.5      26.0      23.5
+5    3      18.9      29.3      24.9      10.1
+5    5       9.7      18.3       5.3       3.5
+5    8       6.8      19.0       4.0       4.3
+5    12      5.0      11.7       3.3       3.9
+20   2      21.8      24.4      26.3      23.9
+20   3      13.6      51.5      22.5       3.2
+20   5       4.4      16.5       1.8       1.6
+20   8       2.5      12.6       1.4       1.9
+20   12      1.9       8.0       1.4       1.7
+
+== ridge, held-out sorter (n=25); cells are median APE, percent ==
+w    k    random  smallest    spread  extremes
+1    2       6.9       6.6       5.1       5.7
+1    3       7.0      11.3       5.7       6.1
+1    5       6.8      11.2       4.9       5.2
+1    8       5.9       7.6       3.4       5.5
+1    12      5.7       8.4       3.4       5.8
+5    2       6.3       9.5       4.7       5.7
+5    3       6.5      14.8       5.7       6.0
+5    5       5.3      18.0       5.4       3.3
+5    8       4.6       6.7       3.5       3.7
+5    12      4.1       8.4       3.3       3.8
+20   2       6.6      11.5       4.4       5.7
+20   3       6.9      24.6       5.9       6.0
+20   5       5.5      27.2       5.2       3.0
+20   8       4.8       7.8       3.6       3.4
+20   12      4.3       9.2       3.3       3.9
+
+== gbr, held-out alu (n=36); cells are median APE, percent ==
+w    k    random  smallest    spread  extremes
+1    2      30.1      30.3      37.0      36.3
+1    3      33.5      31.0      33.5      29.2
+1    5      26.1      30.9      14.5      17.0
+1    8      25.1      33.1      11.3      14.3
+1    12     19.8      37.4      16.3      17.2
+5    2      31.5      29.9      38.5      41.7
+5    3      35.7      30.7      39.0      27.3
+5    5      30.1      29.2      22.4      18.3
+5    8      27.2      32.6      11.6      18.4
+5    12     20.3      36.1      16.4      15.1
+20   2      32.5      29.9      44.6      38.9
+20   3      34.5      27.7      37.1      25.9
+20   5      31.2      26.9      24.9      23.4
+20   8      28.7      34.7      16.7      26.6
+20   12     21.2      39.4      20.7      18.3
+
+== gbr, held-out fir (n=36); cells are median APE, percent ==
+w    k    random  smallest    spread  extremes
+1    2      13.9      17.2      10.9      16.7
+1    3      12.9      17.0       8.7      13.8
+1    5      10.9      19.1       7.8      14.2
+1    8       8.8      15.2       6.2      10.3
+1    12      7.5      18.4       5.3      11.3
+5    2      13.6      17.1      10.4      16.4
+5    3      13.0      17.6       7.4      11.8
+5    5      10.9      24.3       6.9       8.0
+5    8       9.2      18.6      10.3       8.5
+5    12      7.9      23.3       6.3      12.0
+20   2      15.0      21.2      11.3      18.5
+20   3      13.1      15.8      10.6      11.8
+20   5      11.7      24.0       8.9       9.9
+20   8       9.4      21.0      13.4      10.0
+20   12      8.6      20.3       8.2      10.9
+
+== gbr, held-out mac (n=36); cells are median APE, percent ==
+w    k    random  smallest    spread  extremes
+1    2      45.6      55.7      43.6      48.6
+1    3      37.9      57.7      29.8      44.2
+1    5      31.1      56.5      22.7      24.0
+1    8      21.7      45.5      22.9      14.6
+1    12     17.2      48.8      12.3       9.9
+5    2      45.5      60.1      42.6      41.8
+5    3      37.3      58.6      33.9      41.9
+5    5      30.7      60.6      30.5      34.1
+5    8      21.9      54.5      19.8      13.7
+5    12     18.0      41.7      11.1      10.9
+20   2      45.2      56.5      42.5      36.0
+20   3      38.6      57.9      38.3      41.0
+20   5      29.1      58.1      28.8      24.7
+20   8      22.3      54.8      20.3      18.1
+20   12     15.5      35.1      13.1      12.6
+
+== gbr, held-out sorter (n=25); cells are median APE, percent ==
+w    k    random  smallest    spread  extremes
+1    2      25.2      59.0      24.2      30.1
+1    3      21.3      47.0      18.3      18.3
+1    5      18.2      40.6      20.4      16.1
+1    8      17.9      44.2      12.4      12.3
+1    12     15.6      41.7      14.8      11.4
+5    2      30.4      58.4      26.7      32.2
+5    3      28.1      53.0      22.7      20.6
+5    5      22.1      46.6      16.1      30.6
+5    8      22.0      43.9      16.7      21.2
+5    12     22.7      47.4      24.8      16.1
+20   2      32.6      59.5      27.4      33.2
+20   3      30.3      47.5      27.7      23.7
+20   5      26.8      45.1      22.6      30.5
+20   8      26.5      43.4      25.8      20.9
+20   12     21.1      48.6      26.6      13.0
+
+== S. linear, w=1: median over the four held-out families of the median APE (percent) ==
+k random smallest spread extremes
+2 15.7 36.8 15.1 18.9
+3 12.4 31.9 10.2 17.1
+5 9.9 15.3 9.9 8.7
+8 8.0 14.3 7.2 7.7
+12 6.9 11.6 5.9 6.1
+
+== S. linear, w=5: median over the four held-out families of the median APE (percent) ==
+k random smallest spread extremes
+2 14.3 26.2 10.7 25.8
+3 9.5 22.2 8.9 15.7
+5 8.5 15.2 5.3 4.5
+8 5.8 12.3 3.8 4.2
+12 4.7 9.1 3.0 3.5
+
+== S. linear, w=20: median over the four held-out families of the median APE (percent) ==
+k random smallest spread extremes
+2 12.9 19.1 9.5 29.9
+3 8.2 19.4 7.6 13.5
+5 7.5 12.7 4.0 4.1
+8 5.0 10.4 3.1 4.0
+12 4.1 8.3 2.7 2.8
+
+== S. ridge, w=1: median over the four held-out families of the median APE (percent) ==
+k random smallest spread extremes
+2 22.5 19.4 19.9 26.2
+3 18.2 20.0 23.1 20.9
+5 11.2 20.0 8.7 7.6
+8 8.4 15.6 7.2 6.8
+12 6.8 14.9 5.9 6.1
+
+== S. ridge, w=5: median over the four held-out families of the median APE (percent) ==
+k random smallest spread extremes
+2 22.1 23.0 20.0 26.3
+3 16.9 24.5 22.7 17.8
+5 9.0 23.4 7.4 5.4
+8 6.5 15.8 4.1 4.9
+12 4.8 10.1 3.7 3.9
+
+== S. ridge, w=20: median over the four held-out families of the median APE (percent) ==
+k random smallest spread extremes
+2 22.8 23.8 19.9 26.5
+3 13.6 25.5 21.5 15.8
+5 6.9 32.4 7.1 5.9
+8 5.3 11.2 4.0 4.2
+12 4.3 8.6 3.6 3.7
+
+== S. gbr, w=1: median over the four held-out families of the median APE (percent) ==
+k random smallest spread extremes
+2 27.6 43.0 30.6 33.2
+3 27.4 39.0 24.1 23.8
+5 22.1 35.7 17.5 16.6
+8 19.8 38.7 11.9 13.3
+12 16.4 39.5 13.5 11.3
+
+== S. gbr, w=5: median over the four held-out families of the median APE (percent) ==
+k random smallest spread extremes
+2 31.0 44.1 32.6 36.9
+3 31.9 41.8 28.3 23.9
+5 26.1 37.9 19.3 24.5
+8 22.0 38.2 14.2 16.1
+12 19.1 38.9 13.7 13.5
+
+== S. gbr, w=20: median over the four held-out families of the median APE (percent) ==
+k random smallest spread extremes
+2 32.5 43.2 34.9 34.6
+3 32.4 37.6 32.4 24.8
+5 28.0 36.0 23.7 24.1
+8 24.4 39.0 18.5 19.5
+12 18.3 37.3 16.9 12.8
+
+== R. share of the random draws that beat the strategy, median over the four families (percent; low means the strategy beats most random draws) ==
+kind w k smallest spread extremes
+linear 1 2 92 42 70
+linear 1 3 100 33 73
+linear 1 5 80 38 25
+linear 1 8 95 33 45
+linear 1 12 100 15 20
+linear 5 2 93 17 78
+linear 5 3 98 38 85
+linear 5 5 90 13 7
+linear 5 8 97 15 17
+linear 5 12 100 17 23
+linear 20 2 90 20 83
+linear 20 3 98 28 63
+linear 20 5 97 15 7
+linear 20 8 97 3 27
+linear 20 12 100 23 30
+ridge 1 2 37 12 62
+ridge 1 3 77 70 48
+ridge 1 5 97 10 7
+ridge 1 8 88 7 32
+ridge 1 12 97 3 15
+ridge 5 2 57 17 67
+ridge 5 3 92 70 60
+ridge 5 5 98 48 15
+ridge 5 8 95 13 32
+ridge 5 12 100 20 18
+ridge 20 2 67 17 62
+ridge 20 3 92 70 52
+ridge 20 5 100 40 20
+ridge 20 8 98 10 30
+ridge 20 12 100 18 33
+gbr 1 2 85 47 73
+gbr 1 3 93 22 48
+gbr 1 5 98 13 28
+gbr 1 8 100 17 13
+gbr 1 12 100 27 33
+gbr 5 2 98 35 73
+gbr 5 3 97 28 20
+gbr 5 5 100 10 37
+gbr 5 8 100 20 22
+gbr 5 12 100 17 18
+gbr 20 2 98 35 72
+gbr 20 3 88 42 20
+gbr 20 5 100 23 25
+gbr 20 8 98 37 23
+gbr 20 12 100 45 22

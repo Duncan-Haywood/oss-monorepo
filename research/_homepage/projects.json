@@ -1359,6 +1359,11 @@
      "summary": "A loop in which rewrites of a 16-bit adder and a 6&times;6 multiplier must be proved equivalent to the reference by a Yosys miter before a generic-gate ABC script scores cells and depth. With nine attempts written by the session agent (not an LLM benchmark; two were seeded faults the gate rejected), the best adder is a 4-bit carry-select at 0.85&times; the reference cells&times;depth, the same circuit family as the best config of a no-model parameter sweep, so a random sweep of the same budget never beats it (ties in 63 of 200 seeds). No multiplier rewrite beat <code>a * b</code>. Stylised: gate counts, not layout; one tool version; two designs."
     },
     {
+     "slug": "chip-scaling",
+     "title": "How does generic-gate area grow with bit width for adders, shifters, popcount and multipliers?",
+     "summary": "Seven behavioural blocks synthesised by Yosys 0.33 to generic gates at widths 4&ndash;64. Cell counts for the adder, comparator, equality and 4:1 mux are close to linear in width (fitted exponent 1.00&ndash;1.13); the multiplier is quadratic (2.19 overall, 2.06 on the largest widths); the barrel shifter sits at 1.27&ndash;1.35. Logic depth scales differently from cells: the default-script adder's depth grows about 2&times;W (7 to 125) while the comparator's grows slowly (5 to 16). Preliminary: five widths, one tool version, generic gates rather than library area, no confidence intervals."
+    },
+    {
      "slug": "chip-abc-sweep",
      "title": "Does the ABC synthesis script matter as much as the written RTL structure for adder and multiplier area and depth?",
      "summary": "A follow-up to <code>chip-ppa-loop</code>: five ABC scripts are applied to five written 16-bit adder structures and eight 6&times;6 multiplier structures, each proved equivalent to its reference by a Yosys miter. For the adder, cells&times;depth moves by up to 1.75&times; with the script for one structure and 1.18&ndash;1.94&times; across structures for a fixed script; the best pair is 0.48&times; the default-script plain adder. All eight multiplier structures score identically under each script, yet the script alone moves them by 1.17&times;. Stylised: two designs, one Yosys version, generic-gate counts rather than layout."
@@ -2698,6 +2703,11 @@
      "summary": "A follow-up to <code>eda-surrogate</code> on its 133 designs in four generator families: when a word-level cell-count surrogate meets a family it has not seen, how many Yosys syntheses of that family restore it? Over 30 random draws per cell, one synthesised design pooled with the other families cuts the linear model&rsquo;s median error from 48.6% to 18.4% (median over the four families), and training on the new family alone overtakes pooling from about three designs (4.8% against 10.4% at five). Boosted trees need far more (about 12 designs to get under 20%) and pooled boosting is worse than zero-shot on one family for up to five designs. Ranking is good throughout. Stylised: small clean families, random rather than chosen adaptation designs, a synthesis-only target, no place and route."
     },
     {
+     "slug": "eda-adaptpick",
+     "title": "Which few designs of a new family should you synthesise to adapt a cell-count surrogate, and should they count for more?",
+     "summary": "A follow-up to <code>eda-adapt</code> on the same 133 designs in four generator families. Choosing the k adaptation designs by farthest-point spread in feature space, instead of at random, roughly halves the linear model&rsquo;s held-out median error at k&nbsp;=&nbsp;5 (5.3% against 8.5%, new-family weight 5); picking the smallest designs is worst (15.2%). Upweighting the new family&rsquo;s points helps the linear and ridge models from k&nbsp;=&nbsp;5 but hurt boosted trees. Stylised: four small clean families, a synthesis-only cell-count target, deterministic choosers scored on different remaining sets, no confidence intervals."
+    },
+    {
      "slug": "eda-flowtune",
      "title": "Does the best ABC recipe for one design transfer to another?",
      "summary": "All 400 ABC pass sequences (up to three passes of seven) mapped to SKY130 on eight small datapath designs, so every optimum is known. The best recipe differs per design and transfers badly: one design&rsquo;s best recipe scores a mean 1.31&times; (worst 2.06&times;) the other&rsquo;s optimum, and score rankings of recipes correlate only weakly across designs (Spearman &minus;0.51 to 0.46). A leave-one-out consensus recipe is only slightly better than a median sequence (1.22&times; against 1.26&times;), and warm-starting a hill climber with it helps one design (<em>mac4</em>) but is within noise of random search on average at budgets 10 to 40. Stylised: eight hand-picked toy designs, ABC&rsquo;s static delay, no place and route; the OpenROAD-settings half of the milestone is not done."
@@ -2969,6 +2979,11 @@
      "summary": "Detector side of <code>mimic-anycontext</code>, run without an LLM because the model download was blocked. A TF-IDF n-gram logistic-regression detector is fitted on seven of eight RAID-derived families and scored on the eighth: mean AUROC 0.934 against 0.985 when fitted inside the family, worst on recipes (0.843), abstracts and wiki. Forty labelled target items close most of the gap on recipes. Held-out generators cost little (AUROC 0.90&ndash;1.00) and length does not explain it. Stylised: plain-prompt machine text only, one detector type; the prompt-optimising imitator is not tested."
     },
     {
+     "slug": "mimic-anycontext-prompt",
+     "title": "Can a prompt make a 0.5B model detect machine text, and does the prompt carry to families it never saw?",
+     "summary": "Prompted-detector half of <code>mimic-anycontext</code>. Qwen2.5-0.5B-Instruct answers Yes/No to &ldquo;was this written by a person?&rdquo; for RAID human and LLM texts in eight families, with 16 candidate prompts (the plain instruction plus random subsets of a ten-fragment bank). Negative result: the detector is inverted, with mean AUROC 0.278 for the plain prompt and 0.293 for a universal prompt picked on six families and scored on the other two (0.5 is chance; no prompt reaches 0.5 on any family, best 0.424). Picking prompts on selection texts adds +0.015 to +0.033, within selection noise, so the seen/held-out gap (about 0.01) says nothing about transfer. The prompt-free n-gram detector in <code>mimic-anycontext-detect</code> gets 0.93 on the same kind of text. Stylised: one small model, shallow random search, plain-prompt machine text, 30+30 test texts per family."
+    },
+    {
      "slug": "mimic-mauve",
      "title": "Does MAUVE, a distribution-level score, rank human-vs-machine gaps the way a text detector does?",
      "summary": "MAUVE between human and RAID chat-model text in 20 family &times; model cells (TF-IDF/SVD embedding, 5 draws of 48&ndash;100 texts), against a cross-fit n-gram detector on the same texts. Human-vs-human MAUVE is 0.92&ndash;0.99; every human-vs-model cell is at most 0.83. MAUVE and AUROC rank cells loosely alike (Spearman &minus;0.60, p = 0.005; wiki/mistral-chat is hardest for both), but disagree on recipes (AUROC 0.999, MAUVE 0.32) and news (0.97, 0.75), and MAUVE does not track the distinct-2 ratio (&rho; = 0.24, n.s.). Preliminary: the embedding is lexical, not MAUVE&rsquo;s usual GPT-2 features, so values are not comparable with the literature; plain-prompt text only, no LLM run."
@@ -3094,6 +3109,11 @@
      "slug": "house-structure",
      "title": "Does a small wood-frame house have enough shear wall for wind and earthquakes once the windows and doors are cut out?",
      "summary": "Wind and seismic base shear on the <code>house-framing</code> house (28 &times; 40 ft, one storey) against the segmented shear-wall length its openings leave. At 115 mph and SDS 0.50 the worst case uses 19% of a gable-wall line's capacity at the loosest (6 in) nailing; wind must reach 264 mph before that nailing runs out. Lateral load does not govern this plan, but glazing does: four windows per gable wall cut the usable wall from 24 ft to 11 ft, six leave none. A 16 ft garage door in the gable wall raises the load share to 41% at 6 in nailing, and a centred 22 ft door needs tighter nailing. Advanced and conventional framing carry the same shear. <em>Stylised</em>: the nailing table and load coefficients are from memory and unchecked, and diaphragms, uplift and overturning are not modelled."
+    },
+    {
+     "slug": "house-torsion",
+     "title": "How much does accidental torsion add to the garage-front wall's demand in a rigid-diaphragm wind split?",
+     "summary": "Offsets the wind load by up to 15% of the house length in <code>house-nailedwall</code>'s rigid roof-diaphragm split. The relief survives but shrinks: for a centred 22 ft garage door, demand over capacity at 6 in nailing rises from 0.36&ndash;0.59 (load at the centre) to 0.44&ndash;0.71 at a 15% offset, still below the flexible split's 1.05, while the partner wall moves only from 0.27&ndash;0.31 to 0.29&ndash;0.33. Stylised: placeholder offset, unverified stiffness constants, along-ridge wind only, not a code check."
     },
     {
      "slug": "house-nailedwall",
