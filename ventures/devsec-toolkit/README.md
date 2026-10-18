@@ -5,7 +5,7 @@ dependencies, and nothing leaves your machine.
 
 Supply-chain and CI security tooling is mostly paid, or scattered across a
 dozen single-purpose scanners, each with its own install, output format and
-suppression scheme. devsec-toolkit runs a repository through **22 static
+suppression scheme. devsec-toolkit runs a repository through **23 static
 security checks** and reports every finding once: one schema, one
 high/medium/low scale, one baseline, and text, JSON, Markdown or SARIF output.
 
@@ -37,7 +37,7 @@ devsec list                                     # every check, by category
 devsec bundle vendor/devsec                     # self-contained copy (about 0.7 MB) to commit or cache
 ```
 
-Requirements: Python 3.9+. Node.js 18+ for the five checks written in
+Requirements: Python 3.9+. Node.js 18+ for the six checks written in
 JavaScript. Without Node those are reported as **skipped**, never as passing;
 add `--strict` to make a skipped or crashed check fail the run.
 

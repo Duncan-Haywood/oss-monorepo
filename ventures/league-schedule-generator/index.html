@@ -91,6 +91,7 @@
     <div class="row4">
       <div><label for="playoff">Teams in the play-off (0 = none)</label><input id="playoff" inputmode="numeric" value="0"></div>
       <div><label for="playoffDouble">Double elimination (out after two losses)</label><input id="playoffDouble" type="checkbox"></div>
+      <div><label for="playoffThird">Third-place match (single elimination, 4+ teams)</label><input id="playoffThird" type="checkbox"></div>
     </div>
     <label for="results">Results so far, one per line, to rank the teams (blank = seeded in the order you listed them): <code>Hawks 3 - 2 Owls</code>, or <code>Hawks w/o Owls</code> when Owls forfeit (Hawks get a 3-0 win), or <code>Owls -3 pts</code> for a points deduction (<code>+1</code> adds one)</label>
     <textarea id="results" rows="3" placeholder="Hawks 3 - 2 Owls"></textarea>
@@ -268,6 +269,7 @@
       $("#times").value = f.times;
       $("#playoff").value = f.playoff;
       $("#playoffDouble").checked = !!f.playoffDouble;
+      $("#playoffThird").checked = !!f.playoffThird;
       $("#results").value = f.results;
       $("#rainouts").value = f.rainouts || "";
       $("#withdrawals").value = f.withdrawals || "";
@@ -282,7 +284,7 @@
         teams: $("#teams").value, double: $("#double").checked, start: $("#start").value, weekdays,
         skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courts: $("#courts").value, times: $("#times").value,
         seed: $("#seed").value, minutes: $("#minutes").value,
-        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, officials: $("#officials").value, grounds: $("#grounds").value,
+        results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, officials: $("#officials").value, grounds: $("#grounds").value,
       };
     }
 
@@ -409,7 +411,7 @@
         if (want > s.teams.length) warnings.push(`The play-off needs ${want} teams but there are only ${s.teams.length}.`);
         else {
           const buildBracket = $("#playoffDouble").checked && want >= 3 ? doubleEliminationBracket : playoffBracket;
-          bracket = buildBracket(seeds.slice(0, want), { afterDay: s.stats.lastDay, weekdays: s.config.weekdays, skipDays: s.config.skipDays });
+          bracket = buildBracket(seeds.slice(0, want), { afterDay: s.stats.lastDay, weekdays: s.config.weekdays, skipDays: s.config.skipDays, thirdPlace: $("#playoffThird").checked });
           bracketTxt = bracketText(bracket);
         }
       }
@@ -435,7 +437,7 @@
     });
     $("#clear-all").addEventListener("click", () => {
       for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courts", "times", "results", "rainouts", "withdrawals", "officials", "grounds"]) $("#" + id).value = "";
-      $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#double").checked = false;
+      $("#playoff").value = "0"; $("#playoffDouble").checked = false; $("#playoffThird").checked = false; $("#double").checked = false;
       $("#report").hidden = true; last = null; status.textContent = "Cleared.";
     });
     $("#team").addEventListener("change", showTeam);

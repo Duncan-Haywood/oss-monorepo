@@ -369,7 +369,7 @@ test("share links round-trip every field, including non-ASCII names, and reject 
   const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", timeLimits: "A: 18:00", officials: "Pat (A): Tue max 4", grounds: "A, B" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
-  assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60 });
+  assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false });
   assert.deepEqual(decodeFields("#s=" + code), decodeFields(code));
   const again = decodeFields(code);
   assert.deepEqual(readSpec(again).spec.teams, readSpec(f).spec.teams);
@@ -1120,4 +1120,25 @@ test("team messages give each team only its own fixtures, with byes", () => {
   assert.match(msgs[0].text, /bye \(no game\)/);
   assert.equal((msgs[0].text.match(/ vs /g) || []).length, 4);
   assert.ok(!msgs[0].text.includes("Team 1 vs"));
+});
+
+test("third-place match: loser of each semi-final, same day as the final, one extra game", () => {
+  const names = (k) => Array.from({ length: k }, (_, i) => `T${i + 1}`);
+  for (let k = 4; k <= 24; k++) {
+    const b = playoffBracket(names(k), { thirdPlace: true });
+    assert.equal(b.games, k, `k=${k}`);
+    const last = b.rounds[b.rounds.length - 1].matches;
+    const semis = b.rounds[b.rounds.length - 2].matches.map((m) => m.id);
+    assert.deepEqual(last.map((m) => m.id), [last[0].id, "3P"]);
+    assert.deepEqual([last[1].a.loserOf, last[1].b.loserOf], semis);
+  }
+  assert.equal(playoffBracket(names(3), { thirdPlace: true }).games, 2);
+  assert.match(bracketText(playoffBracket(names(4), { thirdPlace: true })), /3P: loser of R1M1 vs loser of R1M2/);
+});
+
+test("share link keeps the double-elimination and third-place ticks", () => {
+  const f = { ...sampleFields(), playoffDouble: true, playoffThird: true };
+  const back = decodeFields(encodeFields(f));
+  assert.equal(back.playoffDouble, true);
+  assert.equal(back.playoffThird, true);
 });

@@ -82,6 +82,21 @@ file, or load the built-in example (which hides an instruction using both
 techniques) and see every finding immediately — nothing is uploaded, and the
 page makes no network requests.
 
+## Scan a whole repository from the command line
+
+```sh
+node ventures/hidden-unicode-check/cli.mjs path/to/repo              # text report
+node ventures/hidden-unicode-check/cli.mjs path/to/repo --format json
+node ventures/hidden-unicode-check/cli.mjs path/to/repo --fail-on-risk   # exit 2 on any finding
+```
+
+It walks docs, config and source files (including `CLAUDE.md`, `AGENTS.md` and
+`.cursorrules`), prints `file:line:column` for each finding with the invisible
+character shown as `[U+XXXX]`, and decodes Tag-character messages. A run of
+adjacent characters is one finding. Zero-width joiners and variation selectors
+inside emoji are ignored. The same check runs inside
+[devsec-toolkit](../devsec-toolkit/) as `hidden-unicode`.
+
 ```sh
 cd ventures/hidden-unicode-check
 node --test

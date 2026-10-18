@@ -62,14 +62,15 @@ directory, so each needs file discovery in its adapter:
 - [ ] `terraform-plan-secret-exposure-check`, `terraform-plan-blast-radius-check`:
       take a `--terraform-plan plan.json` input, because a plan is not in the repo.
 - [ ] `required-checks-drift-check`: take `--required-checks FILE`.
-- [ ] `hidden-unicode-check`, `mcp-config-risk-check`,
+- [x] `hidden-unicode-check` (shipped 2026-10-17: `cli.mjs`, catalogue id
+      `hidden-unicode`, emoji joiners ignored, Tag runs decoded).
+- [ ] `mcp-config-risk-check`,
       `claude-code-hooks-security-check`, `claude-code-settings-check`,
       `claude-code-subagent-check`, `skill-manifest-check`,
       `lockfile-license-check`, `npm-lockfile-duplicates-check`,
       `requirements-pin-check`, `sri-check`: these are browser-only today.
       Give each a zero-dependency `cli.mjs` over its existing engine (the
-      `docker-cache-order-check` shape), then wrap it. `hidden-unicode-check`
-      (Trojan Source / invisible prompt injection) is the most valuable of these.
+      `docker-cache-order-check` shape), then wrap it.
 - [ ] Known false-positive pattern, found by scanning this monorepo:
       `actions-checkout-credentials-check` escalates to high whenever the job
       also uploads an artifact, even when the upload path is a single file

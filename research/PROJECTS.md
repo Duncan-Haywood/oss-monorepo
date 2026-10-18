@@ -866,7 +866,7 @@ Census Survey of Construction for where a house's price goes.
 8. `house-schedule` (first version done 2026-10-17; the seasonal calendar is `house-season`, calibration is a next step): the build as a process. A discrete-event model of the trades, inspections,
    weather and material lead times. How much do sequencing, prefabrication and fewer handoffs
    cut the build time and the interest paid while it runs?
-9. `house-open-design`: an open-source plan set. A small house (for example an accessory
+9. `house-open-design` (first version done 2026-10-18: a 480 sq ft ADU plan set composed from milestones 2 to 8; line-by-line pricing, a truss option and a licensed review are next steps): an open-source plan set. A small house (for example an accessory
    dwelling unit) generated from milestones 2 to 8, with drawings, a takeoff, a cost estimate,
    energy and structural reports, all reproducible from code. A licensed review and a permit
    are owner steps.

@@ -1310,6 +1310,16 @@
      "slug": "free-rdseeds",
      "title": "Why does the R<sub>d</sub> low-discrepancy lattice lose its advantage at d = 5 when evaluating a twin policy?",
      "summary": "Follow-up to <code>free-qmcdr</code>. The shifted <em>R<sub>d</sub></em> lattice&rsquo;s error exponent at <em>d</em> = 5 is &minus;0.45 &plusmn; 0.01 over six seed strings, no better than iid, so it is not a seed fluke; across <em>d</em> = 2&hellip;8 it dips at 5 between &minus;0.72 and &minus;0.61 neighbours, so it is not a smooth dimension effect; a generator built from &radic;<em>p</em><sub>j</sub> reaches &minus;0.66 at <em>d</em> = 5. A resonance score against small integer relations scores both generators alike, so the mechanism is not identified. Stylised analytic returns, not a simulator."
+    },
+    {
+     "slug": "free-citeaudit",
+     "title": "How many research READMEs admit their citations are unchecked, and which works need checking first?",
+     "summary": "A stdlib scan of all 550 project READMEs for lines that flag a citation or figure as written from memory or not re-checked: 94 (17.1%) have at least one, 137 flagged lines in all, naming 41 distinct author-year works. Four recur most: Dawid &amp; Skene (1979) in 10 projects, Zhang et al. (2019) in 9, Horowitz (2014) and Horvitz (1999) in 6 each, so checking those once from a networked session clears many flags. A flag is the README's own admission, not a verdict; nothing was verified in this run (Crossref was unreachable)."
+    },
+    {
+     "slug": "free-secretarynoise",
+     "title": "How much does noisy scoring cost the secretary problem, and should the 1/e cutoff move?",
+     "summary": "Simulation of the classical cutoff rule for hiring the best of <em>n</em> = 50 candidates when only a noisy score is seen (noise sd 0 to 4 times the quality sd, 40,000 trials per cell, checked against the exact noiseless formula). The best cutoff barely moves, 19 with no noise and 16&ndash;17 at every noise level; the chance of picking the true best falls from 0.373 to 0.145 at noise 1 and 0.043 at noise 4 (lottery: 0.02). Keeping the classical cutoff costs at most 0.006. A high mean true rank wants a much earlier cutoff (7&ndash;9). Cutoff rules only, Gaussian, one setting; the optimal noisy policy is not computed."
     }
    ]
   },
@@ -1494,6 +1504,11 @@
      "slug": "robofab-cell-monitor",
      "title": "Is a print-failure camera worth it in a robot-arm 3D-printer cell?",
      "summary": "Adds mid-print failures (0.3 per printing hour) to the arm, printers and inspection cell and compares blind printing with a camera that aborts a failing print after a delay, including false stops, against an analytic bound and a 40-seed discrete-event simulation. With a 10 min delay the camera adds 6&ndash;10% good parts per hour at 2&ndash;10 printers, 4.5% at 12 and 0.8% at 16 where the arm limits the cell; the gain falls with detection delay (11% for an instant camera, about 0.5% at 80 min), vanishes between 0.1 and 0.2 false aborts per printing hour, and grows with the failure rate (28% at 1.0 per hour). Stylised: memoryless failures, a fixed detection delay, no real detector or measured farm."
+    },
+    {
+     "slug": "robofab-cell-fesc",
+     "title": "Can a flow-equivalent-server decomposition predict a robot-printer cell's throughput without enumerating its states?",
+     "summary": "A follow-up to the exact Markov-chain project: Norton&rsquo;s theorem applied to the same stylised cell (one arm, 2&ndash;6 printers held through load and unload, one inspector; Erlang print time; illustrative times). The arm-and-printers subsystem is solved exactly at each population and replaced by one load-dependent server. Over the same 42 settings the mean absolute error against the exact chain is 0.32% (maximum 1.57%), against 6.8% (up to 20.3%) for plain mean value analysis and 4.3% for the held-printer variant; in five cells of 8&ndash;12 printers it is 0.09&ndash;0.31%. It underestimates in 38 of 42 settings because the cell is not product form. The subsystem chain is about a tenth the size of the full chain, but both solve in under a second here, so no speed claim. Stylised: one job class, exponential load, unload and inspect times."
     },
     {
      "slug": "robofab-cell-ctmc",
@@ -2749,7 +2764,7 @@
     {
      "slug": "swe-orgs",
      "title": "Which practices of engineering organisations that ship could help an agent loop, and what is there to fix?",
-     "summary": "A cited, growing catalogue of 49 practices from 48 sources (Reason on layered defences, Vaughan on normalization of deviance, Rigby and Bird, Humble and Farley, Beck, Allspaw and Hammond on Flickr, Parnas, Nygard, Conway, Nagappan et al., Skelton and Pais, Brooks, Fowler, Reinertsen, Toyota, the Rogers Commission, 37signals, Instagram, Google, Microsoft, Facebook, Netflix, Amazon, Etsy, Basecamp, Spotify, Stripe (twice, including its online-migrations post), Shopify, Linear, and postmortems from GitLab and Cloudflare, the SEC&rsquo;s order on Knight Capital and others), each tagged with company stage, evidence type (four measured, the rest case studies, postmortems, accounts or opinion), the loop element it maps to, how far it transfers to a fleet of agent sessions, and the assumption that does not carry over. The failure reports agree: a safety mechanism or a cost nobody measured before it shipped. Scored against the 758-row run ledger, the failure classes runs report are small (1.1&ndash;2.5% of runs, self-reported keyword matches), so <em>no practice clears the 5% ceiling as a new proposal</em>: a negative result. Sources were checked by web search only. Thirteenth batch of standing milestone 7 of track 10; the research log below records each batch."
+     "summary": "A cited, growing catalogue of 51 practices from 50 sources (Perrow on normal accidents, the DevOps Handbook, Reason on layered defences, Vaughan on normalization of deviance, Rigby and Bird, Humble and Farley, Beck, Allspaw and Hammond on Flickr, Parnas, Nygard, Conway, Nagappan et al., Skelton and Pais, Brooks, Fowler, Reinertsen, Toyota, the Rogers Commission, 37signals, Instagram, Google, Microsoft, Facebook, Netflix, Amazon, Etsy, Basecamp, Spotify, Stripe (twice, including its online-migrations post), Shopify, Linear, and postmortems from GitLab and Cloudflare, the SEC&rsquo;s order on Knight Capital and others), each tagged with company stage, evidence type (four measured, the rest case studies, postmortems, accounts or opinion), the loop element it maps to, how far it transfers to a fleet of agent sessions, and the assumption that does not carry over. The failure reports agree: a safety mechanism or a cost nobody measured before it shipped. Scored against the 758-row run ledger, the failure classes runs report are small (1.1&ndash;2.5% of runs, self-reported keyword matches), so <em>no practice clears the 5% ceiling as a new proposal</em>: a negative result. Sources were checked by web search only. Thirteenth batch of standing milestone 7 of track 10; the research log below records each batch."
     }
    ]
   },
@@ -2874,6 +2889,11 @@
      "slug": "house-structure",
      "title": "Does a small wood-frame house have enough shear wall for wind and earthquakes once the windows and doors are cut out?",
      "summary": "Wind and seismic base shear on the <code>house-framing</code> house (28 &times; 40 ft, one storey) against the segmented shear-wall length its openings leave. At 115 mph and SDS 0.50 the worst case uses 19% of a gable-wall line's capacity at the loosest (6 in) nailing; wind must reach 264 mph before that nailing runs out. Lateral load does not govern this plan, but glazing does: four windows per gable wall cut the usable wall from 24 ft to 11 ft, six leave none. A 16 ft garage door in the gable wall raises the load share to 41% at 6 in nailing, and a centred 22 ft door needs tighter nailing. Advanced and conventional framing carry the same shear. <em>Stylised</em>: the nailing table and load coefficients are from memory and unchecked, and diaphragms, uplift and overturning are not modelled."
+    },
+    {
+     "slug": "house-open-design",
+     "title": "What does an open, reproducible plan set for a 480 sq ft backyard cottage look like when it is generated from code?",
+     "summary": "Composes the track's six earlier models on one concrete design, a 24 &times; 20 ft one-bedroom accessory dwelling unit, and writes a floor plan and south elevation (SVG), a framing bill of materials (CSV), an IFC4 model and a report. The plan passes every layout rule and member check and needs 2,614 board feet of framing (5.45 per sq ft). Under <code>house-structure</code>'s assumed coefficients the short walls carry 1,164 lb of wind per line at 6 in nailing; a tighter envelope cuts modelled heating and cooling cost 36&ndash;37% in every climate tested ($72&ndash;158 a year at assumed prices). The composition exposed rough edges (the lateral and energy models were built around a different house), the cost index is extrapolated far below its data, and nothing here is a buildable design: it needs a licensed review and a permit."
     },
     {
      "slug": "house-offsite",
