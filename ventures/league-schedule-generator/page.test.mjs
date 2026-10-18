@@ -419,3 +419,9 @@ test("the bracket-by-teams page's rows match playoffBracket and doubleEliminatio
   }
   for (const m of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)) JSON.parse(m[1]);
 });
+
+test("links to the meeting-action-items sibling", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const html = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/meeting-action-items\/"/);
+});

@@ -43,3 +43,8 @@ test("the guide's worked example is what the engine produces", () => {
   assert.equal(r.decisions[0].text, "Keep the free tier through December");
   assert.equal(r.questions[0].text, "Who owns the refund policy wording?");
 });
+
+test("links to its siblings", () => {
+  assert.match(index, /href="\.\.\/shift-roster-builder\/"/);
+  assert.match(index, /href="\.\.\/league-schedule-generator\/"/);
+});
