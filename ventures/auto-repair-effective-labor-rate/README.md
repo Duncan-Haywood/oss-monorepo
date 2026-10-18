@@ -13,6 +13,8 @@ cd ventures/auto-repair-effective-labor-rate && node --test
 
 Open `index.html` in a browser to use it — there is no build step.
 
+**Start from your repair orders.** Paste the month's labor lines (CSV, or cells copied from a spreadsheet) with columns for pay type, hours billed and labor sales; `ro-import.mjs` totals them into the customer-pay, warranty and internal boxes, and shows each technician's rate over sold hours. Lines it cannot classify are listed and left out, never guessed. Nothing is uploaded.
+
 ## Why it exists
 
 Every shop has a posted door rate and almost none of them collects it. The rate
