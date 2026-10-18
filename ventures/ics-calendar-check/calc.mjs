@@ -141,6 +141,37 @@ export function parseRrule(value) {
   return o;
 }
 
+// Range checks on the BY* parts of an RRULE; returns [{title, detail}].
+function rruleByProblems(r) {
+  const out = [];
+  const nums = (v) => v.split(",").map((x) => x.trim());
+  const range = (key, lo, hi, noZero) => {
+    if (r[key] === undefined) return;
+    for (const x of nums(r[key])) {
+      const n = Number(x);
+      if (!/^[+-]?\d+$/.test(x) || (noZero && n === 0) || Math.abs(n) > hi || n < lo) out.push({ title: `bad ${key} value ${x || "(empty)"}`, detail: `${key} accepts ${noZero ? "non-zero " : ""}whole numbers from ${lo} to ${hi}.` });
+    }
+  };
+  range("BYMONTH", 1, 12);
+  range("BYMONTHDAY", -31, 31, true);
+  range("BYYEARDAY", -366, 366, true);
+  range("BYWEEKNO", -53, 53, true);
+  range("BYHOUR", 0, 23);
+  range("BYMINUTE", 0, 59);
+  range("BYSETPOS", -366, 366, true);
+  if (r.BYDAY !== undefined) {
+    for (const x of nums(r.BYDAY)) {
+      const m = /^([+-]?\d{1,2})?(SU|MO|TU|WE|TH|FR|SA)$/.exec(x.toUpperCase());
+      if (!m) out.push({ title: `bad BYDAY value ${x || "(empty)"}`, detail: "BYDAY takes two-letter days (MO, TU, WE, TH, FR, SA, SU), optionally with a number such as 2TU or -1FR. Full names like MONDAY are not valid." });
+      else if (m[1] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: "The number before the day must be 1 to 53 or -1 to -53." });
+      else if (m[1] !== undefined && !["MONTHLY", "YEARLY"].includes(r.FREQ)) out.push({ title: `BYDAY ${x} needs FREQ=MONTHLY or YEARLY`, detail: "A number before the weekday is only allowed in monthly and yearly rules. Importers ignore or reject it otherwise." });
+    }
+  }
+  if (r.WKST !== undefined && !/^(SU|MO|TU|WE|TH|FR|SA)$/i.test(r.WKST)) out.push({ title: `bad WKST value ${r.WKST}`, detail: "WKST must be a two-letter day such as MO or SU." });
+  if (r.BYMONTHDAY !== undefined && ["WEEKLY"].includes(r.FREQ)) out.push({ title: "BYMONTHDAY with FREQ=WEEKLY", detail: "The standard forbids BYMONTHDAY in a weekly rule. Use FREQ=MONTHLY, or BYDAY for weekly." });
+  return out;
+}
+
 const F = (severity, line, title, detail, extra = {}) => ({ severity, line, title, detail, ...extra });
 
 export function validate(text) {
@@ -240,6 +271,17 @@ export function validate(text) {
               }
             }
             if (r.INTERVAL && !/^[1-9]\d*$/.test(r.INTERVAL)) findings.push(F("error", rr.line, `${at}bad INTERVAL`, "INTERVAL must be a positive whole number."));
+            if (r.COUNT && !/^[1-9]\d*$/.test(r.COUNT)) findings.push(F("error", rr.line, `${at}bad COUNT`, "COUNT must be a positive whole number."));
+            for (const msg of rruleByProblems(r)) findings.push(F("error", rr.line, `${at}${msg.title}`, msg.detail));
+          }
+          for (const name of ["EXDATE", "RDATE"]) {
+            for (const p of all(ev, name)) {
+              const vals = p.value.split(",").map((v) => v.trim()).filter(Boolean);
+              const kinds = new Set(vals.map((v) => parseTime(v)).filter((t) => !t.error && !p.params.VALUE?.startsWith("PERIOD")).map((t) => t.kind));
+              const bad = vals.find((v) => parseTime(v).error && !p.params.VALUE?.startsWith("PERIOD"));
+              if (bad) findings.push(F("error", p.line, `${at}bad ${name} value`, `"${bad.slice(0, 30)}" is not a date or date-time (YYYYMMDD or YYYYMMDDTHHMMSS[Z]).`));
+              else if ([...kinds].some((k) => k !== s.kind)) findings.push(F("warning", p.line, `${at}${name} type does not match DTSTART`, `DTSTART is a ${s.kind}. An ${name} of the other type (date vs date-time) is ignored by Google Calendar and Outlook, so ${name === "EXDATE" ? "the occurrence you meant to skip still shows" : "the extra occurrence never appears"}.`));
+            }
           }
         }
       }

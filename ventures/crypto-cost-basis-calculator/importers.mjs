@@ -41,6 +41,7 @@ export function detectFormat(text) {
   if (findHeader(grid, ["timestamp utc", "transaction kind", "native amount in usd"]) >= 0) return "cryptocom";
   if (findHeader(grid, ["date", "time utc", "type", "symbol", "usd amount usd"]) >= 0) return "gemini";
   if (findHeader(grid, ["timestamp", "transaction type", "asset"]) >= 0) return "coinbase";
+  if (findHeader(grid, ["trade id", "product", "side", "created at", "size", "price", "fee"]) >= 0) return "coinbasepro";
   if (findHeader(grid, ["txid", "refid", "time", "type", "asset", "amount", "fee"]) >= 0) return "kraken";
   if (findHeader(grid, ["time", "operation", "primary asset"]) >= 0) return "binanceus";
   if (findHeader(grid, ["type", "datetime", "account", "amount", "value", "rate", "fee", "sub type"]) >= 0) return "bitstamp";
@@ -355,16 +356,50 @@ function importBitstamp(grid) {
   return { format: "bitstamp", rows: out, notes };
 }
 
+// ---- Coinbase Pro / Advanced Trade fills ----------------------------------
+
+// The fills report is one row per fill: `product` is BASE-QUOTE (BTC-USD), `size`
+// is in base coins, `price` is per coin in the quote currency and `fee` is in the
+// quote currency. Only USD-quoted products are read; a coin-for-coin or
+// stablecoin-quoted fill is skipped with a note rather than priced at a rate
+// nobody typed.
+
+function importCoinbasePro(grid) {
+  const h = findHeader(grid, ["trade id", "product", "side", "created at", "size", "price", "fee"]);
+  const names = grid[h].map(norm);
+  const c = Object.fromEntries(["product", "side", "created at", "size", "price", "fee"].map((k) => [k, names.indexOf(k)]));
+  const out = [], notes = [];
+  for (let i = h + 1; i < grid.length; i++) {
+    const r = grid[i];
+    const product = String(r[c.product] ?? "").trim().toUpperCase();
+    if (!product) continue;
+    const side = norm(r[c.side] ?? "");
+    const date = String(r[c["created at"]] ?? "").slice(0, 10);
+    const qty = num(r[c.size]), price = num(r[c.price]), fee = num(r[c.fee]);
+    const [base, quote] = product.split("-");
+    if ((side !== "buy" && side !== "sell") || !/^\d{4}-\d{2}-\d{2}$/.test(date) || qty === null || price === null || !base) {
+      notes.push(`Line ${i + 1}: a Coinbase fill could not be read and was skipped.`);
+      continue;
+    }
+    if (quote !== "USD") {
+      notes.push(`Line ${i + 1}: ${product} ${side} is quoted in ${quote || "an unknown currency"}, not USD, and was skipped. Enter it by hand as a sale and a buy at that day's USD value.`);
+      continue;
+    }
+    out.push([date, side, base, fmt(Math.abs(qty)), fmt(Math.abs(qty * price)), fmt(fee === null ? 0 : Math.abs(fee)), "Coinbase"]);
+  }
+  return { format: "coinbasepro", rows: out, notes };
+}
+
 // ---- entry points ---------------------------------------------------------
 
-export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", cryptocom: "Crypto.com App transaction history", gemini: "Gemini transaction history", bitstamp: "Bitstamp transaction export", generic: "plain CSV" };
+export const FORMAT_LABELS = { coinbase: "Coinbase transaction history", coinbasepro: "Coinbase Pro / Advanced Trade fills", kraken: "Kraken ledger", binanceus: "Binance.US transaction history", cryptocom: "Crypto.com App transaction history", gemini: "Gemini transaction history", bitstamp: "Bitstamp transaction export", generic: "plain CSV" };
 
 // Returns { format, csv, notes }. A generic file comes back unchanged.
 export function convertExchangeCsv(text) {
   const format = detectFormat(text);
   if (format === "generic") return { format, csv: String(text ?? ""), notes: [] };
   const grid = parseCsv(text);
-  const r = format === "coinbase" ? importCoinbase(grid) : format === "binanceus" ? importBinanceUs(grid) : format === "cryptocom" ? importCryptoCom(grid) : format === "gemini" ? importGemini(grid) : format === "bitstamp" ? importBitstamp(grid) : importKraken(grid);
+  const r = format === "coinbase" ? importCoinbase(grid) : format === "coinbasepro" ? importCoinbasePro(grid) : format === "binanceus" ? importBinanceUs(grid) : format === "cryptocom" ? importCryptoCom(grid) : format === "gemini" ? importGemini(grid) : format === "bitstamp" ? importBitstamp(grid) : importKraken(grid);
   return { format, csv: toCsv(r.rows), notes: r.notes, count: r.rows.length };
 }
 

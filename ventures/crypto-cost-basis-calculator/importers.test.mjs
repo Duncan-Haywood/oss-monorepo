@@ -244,3 +244,27 @@ test("Bitstamp export feeds the lot matcher end to end", () => {
   assert.equal(a.summary.shortProceeds, 14962.5);
   assert.equal(a.summary.totalGain, 4937.5);
 });
+
+const CBPRO = `portfolio,trade id,product,side,created at,size,size unit,price,fee,total,price/fee/total unit
+default,1001,BTC-USD,BUY,2023-01-10T10:00:00.000Z,0.5,BTC,20000,25,-10025,USD
+default,1002,BTC-USD,SELL,2024-09-20T10:00:00.000Z,0.5,BTC,60000,75,29925,USD
+default,1003,ETH-BTC,BUY,2024-01-05T10:00:00.000Z,1,ETH,0.05,0.0001,-0.0501,BTC
+`;
+
+test("Coinbase Pro fills: detected, USD fills mapped, non-USD quote flagged", () => {
+  assert.equal(detectFormat(CBPRO), "coinbasepro");
+  const r = convertExchangeCsv(CBPRO);
+  const lines = r.csv.trim().split("\n");
+  assert.equal(lines[0], OUT_HEADER);
+  assert.ok(lines.includes("2023-01-10,buy,BTC,0.5,10000,25,Coinbase"));
+  assert.ok(lines.includes("2024-09-20,sell,BTC,0.5,30000,75,Coinbase"));
+  assert.equal(r.count, 2);
+  assert.ok(r.notes.some((n) => /ETH-BTC/.test(n) && /not USD/.test(n)));
+});
+
+test("Coinbase Pro fills feed the lot matcher end to end", () => {
+  const a = analyze(convertExchangeCsv(CBPRO).csv, { method: "FIFO", year: 2024 });
+  assert.equal(a.errors.length, 0);
+  assert.equal(a.rows.length, 1);
+  assert.equal(a.rows[0].term, "Long");
+});

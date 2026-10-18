@@ -3,7 +3,7 @@
 Free browser tool that checks an iCalendar (.ics) file for what makes Google Calendar, Outlook and
 Apple Calendar reject or mis-import it: missing UID, DTSTAMP, VERSION and PRODID, events that end
 before they start, zero-length all-day events, recurrence rules with COUNT and UNTIL together or a
-mismatched UNTIL, time zones named without a VTIMEZONE, duplicate UIDs, unfolded long lines and LF
+mismatched UNTIL, out-of-range or misspelled BYDAY/BYMONTHDAY/BYMONTH parts, EXDATE/RDATE of the wrong type, time zones named without a VTIMEZONE, duplicate UIDs, unfolded long lines and LF
 line endings, each with its line number. It writes the file back with every provable fix applied and
 leaves the rest untouched. The file is read locally and never uploaded.
 

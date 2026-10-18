@@ -10,12 +10,16 @@
     "python3 -c 'redteam.list_targets()' by top directory, 2026-10-17: ventures 3502, platform 109, portfolio 52, prompts 4 (3667 total)."
   ],
   "change": "Add --under DIR to `redteam.py targets` and `campaign`, and mention it in the redteam prompt.",
-  "touches": ["prompts/redteam.py", "prompts/redteam/prompt-0.md", "prompts/test_redteam.py"],
+  "touches": [
+    "prompts/redteam.py",
+    "prompts/redteam/prompt-0.md",
+    "prompts/test_redteam.py"
+  ],
   "metric": "share of recorded campaigns whose target is outside ventures/",
   "baseline": "not measured; expected about 5% from the draw",
   "opened": "2026-10-17",
   "source": "process run 2026-10-17, Critique mode",
   "pr": "7808",
-  "result": null,
+  "result": "helped: red-team targets outside ventures/ were 11 of 84 (13%) in records dated 2026-10-15..17 and 12 of 14 (86%) in 2026-10-18 records (python over prompts/runs/*.json, redteam.campaigns[].target). Small n after the fix.",
   "history": []
 }
