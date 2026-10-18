@@ -1,0 +1,13 @@
+[project]
+name = "house-torsion"
+version = "0.1.0"
+description = "Accidental torsion in the house-nailedwall rigid load split"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../house-nailedwall/src", "../house-diaphragm/src", "../house-structure/src", "../house-framing/src"]
